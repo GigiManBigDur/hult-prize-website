@@ -33,14 +33,57 @@
     <section class="hero" id="top" aria-labelledby="hero-heading">
       <div class="container hero-grid">
         <figure class="hero-media">
-          <img
-            src="assets/placeholder-hero.svg"
-            alt="Placeholder photo — students pitching at a Hult Prize @ UC Davis event. Replace with real event photography before launch."
-            width="960" height="720" loading="eager">
-          <figcaption>Placeholder photo — replace with real event photography</figcaption>
+          <!--
+            Custom line-art placeholder (abstract global network/connection motif) standing in
+            for real event photography. Inlined (rather than an <img>) so the lines can draw
+            themselves in on load — see initHeroLineDraw() in js/script.js.
+          -->
+          <svg class="hero-illustration" viewBox="0 0 960 720" role="img"
+            aria-label="Placeholder illustration of a connected global network, standing in for a future photo of a Hult Prize @ UC Davis pitch event.">
+            <rect width="960" height="720" fill="var(--navy-deep)"></rect>
+
+            <!-- globe: outline + two meridian arcs -->
+            <circle class="draw-path" cx="480" cy="340" r="150" fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.9"></circle>
+            <path class="draw-path" d="M330,340 A150,55 0 0,0 630,340" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity="0.45"></path>
+            <path class="draw-path" d="M480,190 A55,150 0 0,0 480,490" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity="0.45"></path>
+
+            <!-- connections radiating out to peripheral nodes -->
+            <line class="draw-path" x1="480" y1="190" x2="480" y2="90" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
+            <line class="draw-path" x1="586" y1="234" x2="760" y2="140" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
+            <line class="draw-path" x1="586" y1="446" x2="780" y2="560" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
+            <line class="draw-path" x1="374" y1="234" x2="200" y2="140" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
+            <line class="draw-path" x1="374" y1="446" x2="180" y2="560" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
+
+            <!-- junction nodes on the globe -->
+            <circle class="hero-node" cx="586" cy="234" r="4" fill="var(--white)" opacity="0.85"></circle>
+            <circle class="hero-node" cx="586" cy="446" r="4" fill="var(--white)" opacity="0.85"></circle>
+            <circle class="hero-node" cx="374" cy="234" r="4" fill="var(--white)" opacity="0.85"></circle>
+            <circle class="hero-node" cx="374" cy="446" r="4" fill="var(--white)" opacity="0.85"></circle>
+
+            <!-- peripheral + hub nodes -->
+            <circle class="hero-node" cx="480" cy="90" r="6" fill="var(--gold)"></circle>
+            <circle class="hero-node" cx="760" cy="140" r="6" fill="var(--gold)"></circle>
+            <circle class="hero-node" cx="780" cy="560" r="6" fill="var(--gold)"></circle>
+            <circle class="hero-node" cx="200" cy="140" r="6" fill="var(--gold)"></circle>
+            <circle class="hero-node" cx="180" cy="560" r="6" fill="var(--gold)"></circle>
+            <circle class="hero-node" cx="480" cy="340" r="7" fill="var(--gold)"></circle>
+          </svg>
+          <figcaption class="hero-illustration-badge">Placeholder — replace with real event photography</figcaption>
         </figure>
         <div class="hero-copy">
-          <h1 id="hero-heading">UC Davis's first Hult Prize chapter, built from the ground up.</h1>
+          <h1 id="hero-heading" class="reveal-heading">
+            <span class="reveal-word" style="--i:0"><span class="reveal-word-inner">UC</span></span>
+            <span class="reveal-word" style="--i:1"><span class="reveal-word-inner">Davis's</span></span>
+            <span class="reveal-word" style="--i:2"><span class="reveal-word-inner">first</span></span>
+            <span class="reveal-word" style="--i:3"><span class="reveal-word-inner">Hult</span></span>
+            <span class="reveal-word" style="--i:4"><span class="reveal-word-inner">Prize</span></span>
+            <span class="reveal-word" style="--i:5"><span class="reveal-word-inner">chapter,</span></span>
+            <span class="reveal-word" style="--i:6"><span class="reveal-word-inner">built</span></span>
+            <span class="reveal-word" style="--i:7"><span class="reveal-word-inner">from</span></span>
+            <span class="reveal-word" style="--i:8"><span class="reveal-word-inner">the</span></span>
+            <span class="reveal-word" style="--i:9"><span class="reveal-word-inner">ground</span></span>
+            <span class="reveal-word" style="--i:10"><span class="reveal-word-inner">up.</span></span>
+          </h1>
           <p class="hero-lede">
             We recruit and train student teams to build for-profit ventures that take on real
             social and environmental challenges — then send our strongest teams to compete on
@@ -55,6 +98,7 @@
           </div>
         </div>
       </div>
+      <div class="hero-divider" aria-hidden="true"></div>
     </section>
 
     <!-- 2. What is the Hult Prize -->
@@ -102,11 +146,17 @@
       <div class="container impact-grid">
         <h2 id="impact-heading" class="visually-hidden">Our impact</h2>
         <div class="impact-figure impact-figure-primary">
-          <p class="impact-number">20+</p>
+          <p class="impact-number">
+            <span class="counter" data-target="20" data-suffix="+" aria-hidden="true">0</span>
+            <span class="visually-hidden">20+</span>
+          </p>
           <p class="impact-label">student teams have competed through our chapter and its ENG 108 partnership</p>
         </div>
         <div class="impact-figure impact-figure-secondary">
-          <p class="impact-number">2</p>
+          <p class="impact-number">
+            <span class="counter" data-target="2" data-suffix="" aria-hidden="true">0</span>
+            <span class="visually-hidden">2</span>
+          </p>
           <p class="impact-label">teams advanced from UC Davis to the Hult Prize National Competition</p>
         </div>
       </div>
@@ -114,6 +164,7 @@
 
     <!-- 5. Get Involved CTA band -->
     <section class="cta-band" id="get-involved" aria-labelledby="cta-heading">
+      <div class="cta-shimmer" aria-hidden="true"></div>
       <div class="container cta-inner">
         <h2 id="cta-heading">Ready to build something that matters?</h2>
         <p>

@@ -117,27 +117,47 @@
           entrepreneurs, academics, and industry professionals.
         </p>
       </div>
+      <!-- Overlapping curved edge into the navy section below — a different
+           transition treatment from the hero's angled cut, not a repeat of it. -->
+      <div class="curve-divider" aria-hidden="true">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" width="100%" height="100%">
+          <path d="M0,40 C 260,110 520,0 800,55 C 960,88 1090,25 1200,48 L1200,120 L0,120 Z" fill="var(--navy)"></path>
+        </svg>
+      </div>
     </section>
 
-    <!-- 3. Our Story teaser -->
+    <!-- 3. Our Story teaser — a milestone timeline rather than a repeat of the
+         hero's image/text split, built from the same founding facts used before. -->
     <section class="story-teaser" id="story" aria-labelledby="story-heading">
-      <div class="container story-grid">
-        <div class="story-mark" aria-hidden="true">
-          <span class="story-mark-frame"></span>
-          <span class="story-mark-line"></span>
-        </div>
-        <div class="story-copy">
+      <div class="container story-content">
+        <div class="story-intro">
           <h2 id="story-heading">Our story, in brief</h2>
-          <p>
-            Hult Prize @ UC Davis started as one student's idea and became UC Davis's first
-            official Hult Prize chapter — built by recruiting an executive board, earning
-            faculty support, and securing official university recognition. Through a lasting
-            partnership with ENG 108, the chapter kept growing even after its founder
-            transferred away, proving it was built to last, not to depend on one person.
-          </p>
-          <!-- Placeholder link — point to the About page once it's built -->
-          <a class="text-link" href="#">Learn more about our story <span aria-hidden="true">→</span></a>
+          <p>Hult Prize @ UC Davis started as one student's idea. Here's how it became a lasting chapter.</p>
         </div>
+        <ol class="story-timeline">
+          <li class="story-timeline-item">
+            <span class="story-timeline-dot" aria-hidden="true"></span>
+            <h3>Founded</h3>
+            <p>Built from the ground up by a student founder, Hult Prize @ UC Davis became UC Davis's first official Hult Prize chapter.</p>
+          </li>
+          <li class="story-timeline-item">
+            <span class="story-timeline-dot" aria-hidden="true"></span>
+            <h3>Organized</h3>
+            <p>Recruited an executive board, earned faculty support, and secured official university organizational recognition.</p>
+          </li>
+          <li class="story-timeline-item">
+            <span class="story-timeline-dot" aria-hidden="true"></span>
+            <h3>Partnered</h3>
+            <p>Established a long-term collaboration with ENG 108, exposing far more students to entrepreneurship and expanding participation.</p>
+          </li>
+          <li class="story-timeline-item">
+            <span class="story-timeline-dot" aria-hidden="true"></span>
+            <h3>Built to last</h3>
+            <p>The chapter kept growing even after its founder transferred away — proof it was built to be sustainable, not dependent on one person.</p>
+          </li>
+        </ol>
+        <!-- Placeholder link — point to the About page once it's built -->
+        <a class="text-link" href="#">Learn more about our story <span aria-hidden="true">→</span></a>
       </div>
     </section>
 

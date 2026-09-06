@@ -501,6 +501,11 @@ function initPinSequence() {
   // lands mid-gallery, once the stats are fully visible and cycling.
   const sceneProgress = { hero: 0.02, explainer: 0.24, impact: 0.55 };
 
+  // Guards the counter retrigger below (see its comment) so it only ever
+  // fires once, no matter how many times the visitor scrolls back and
+  // forth across GALLERY_START afterward.
+  let impactCountersTriggered = false;
+
   // Impact's photo gallery gets the bulk of the sequence (0.42–0.94) — text
   // stays fixed there while 8 images cross-fade with a Ken Burns pan/zoom.
   const GALLERY_START = 0.42;
@@ -526,8 +531,24 @@ function initPinSequence() {
     // finishes counting invisibly before opacity ever reaches 1. Re-trigger
     // it explicitly at the moment the Impact scene actually finishes fading
     // in, so what the viewer sees still counts up.
+    //
+    // GSAP fires a `.call()` every time the scrubbed playhead crosses its
+    // position, in either direction — so without a guard, scrolling past
+    // this point, back up over it, then back down again re-runs
+    // animateCounter on every crossing. Each call starts its own
+    // requestAnimationFrame loop with no way to cancel the previous one, so
+    // repeated crossings pile up overlapping loops racing to write the same
+    // element's textContent; whichever happens to finish last wins, and in
+    // practice the counters just end up looking pre-completed again instead
+    // of visibly counting up. animateCounter is meant to run once per
+    // element (that's why the plain IntersectionObserver path unobserves
+    // after its first fire) — mirror that here with a one-shot guard so
+    // this retrigger only ever fires the first time, regardless of how much
+    // the visitor scrolls back and forth over the boundary afterward.
     .call(
       () => {
+        if (impactCountersTriggered) return;
+        impactCountersTriggered = true;
         document.querySelectorAll(".scene-impact .counter").forEach(animateCounter);
       },
       [],

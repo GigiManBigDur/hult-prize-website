@@ -177,14 +177,66 @@
     </section>
 
     <!-- Top Teams showcase — placed immediately after Impact, per the brief.
-         Normal document scroll (not part of the pinned sequence above). -->
+
+         Three tiers, matching the pattern already established for the Hero
+         sequence:
+         1. prefers-reduced-motion, or no GSAP/ScrollTrigger: this plain CSS
+            is the whole experience — title and all three cards visible
+            together in their final podium arrangement, normal document
+            scroll, nothing animated, no confetti.
+         2. Motion OK, but touch/coarse-pointer or a narrow (<900px)
+            viewport: initTopTeamsSimpleReveal (js/script.js) adds a
+            non-pinned, scroll-scrubbed stagger to the cards already in
+            this normal-flow layout — no pinning, safe on touch scrolling.
+         3. Motion OK, fine pointer, wide viewport: initTopTeamsPinSequence
+            pins this section (same ScrollTrigger pin:true mechanism as the
+            Hero/Explainer/Impact sequence) and drives four phases — title
+            alone, then 3rd/2nd/1st place arriving in turn with a confetti
+            burst on 1st — before releasing into normal scroll. -->
     <section class="top-teams" id="top-teams" aria-labelledby="top-teams-heading">
-      <div class="container top-teams-content">
-        <div class="top-teams-intro">
-          <h2 id="top-teams-heading">Top teams</h2>
+      <div class="top-teams-pin-stage">
+        <!-- Full-bleed animated backdrop for tier 3's Phase 0 only (tiers 1
+             and 2 keep the simpler .top-teams::before texture already used
+             elsewhere on the page). A livelier color mix than the Hero's
+             motif — still only the established accent palette, not a wash. -->
+        <div class="top-teams-pin-bg" aria-hidden="true">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+            <g class="tt-pinbg-lines" fill="none" stroke="var(--magenta)" stroke-width="1.5" opacity="0.55">
+              <circle cx="800" cy="430" r="220"></circle>
+              <path d="M580,430 A220,80 0 0,0 1020,430"></path>
+              <path d="M800,210 A80,220 0 0,0 800,650"></path>
+              <line x1="800" y1="210" x2="800" y2="90"></line>
+              <line x1="956" y1="274" x2="1200" y2="140"></line>
+              <line x1="956" y1="586" x2="1230" y2="740"></line>
+              <line x1="644" y1="274" x2="360" y2="150"></line>
+              <line x1="644" y1="586" x2="330" y2="720"></line>
+              <line x1="1200" y1="140" x2="1420" y2="230"></line>
+              <line x1="360" y1="150" x2="140" y2="260"></line>
+            </g>
+            <g class="tt-pinbg-nodes-minor" fill="var(--white)" opacity="0.5">
+              <circle cx="956" cy="274" r="4"></circle>
+              <circle cx="956" cy="586" r="4"></circle>
+              <circle cx="644" cy="274" r="4"></circle>
+              <circle cx="644" cy="586" r="4"></circle>
+            </g>
+            <g class="tt-pinbg-nodes">
+              <circle class="tt-pinbg-node" cx="800" cy="90" r="7" fill="var(--gold)"></circle>
+              <circle class="tt-pinbg-node" cx="1200" cy="140" r="7" fill="var(--teal)"></circle>
+              <circle class="tt-pinbg-node" cx="1230" cy="740" r="7" fill="var(--sky)"></circle>
+              <circle class="tt-pinbg-node" cx="360" cy="150" r="7" fill="var(--orange)"></circle>
+              <circle class="tt-pinbg-node" cx="330" cy="720" r="7" fill="var(--magenta)"></circle>
+              <circle class="tt-pinbg-node" cx="1420" cy="230" r="6" fill="var(--magenta)"></circle>
+              <circle class="tt-pinbg-node" cx="140" cy="260" r="6" fill="var(--teal)"></circle>
+              <circle class="tt-pinbg-node" cx="800" cy="430" r="8" fill="var(--gold)"></circle>
+            </g>
+          </svg>
+        </div>
+        <div class="top-teams-title-scrim" aria-hidden="true"></div>
+        <div class="container top-teams-title">
+          <h2 id="top-teams-heading">Top Teams — 2025 Cohort</h2>
           <p>The top three teams from this year's Hult Prize OnCampus competition.</p>
         </div>
-        <div class="podium">
+        <div class="container podium">
           <!-- DOM order is placement order (1st, 2nd, 3rd) for a sensible
                reading/tab order; CSS `order` rearranges 2nd-1st-3rd visually
                into a podium on wide screens (see css/styles.css). -->

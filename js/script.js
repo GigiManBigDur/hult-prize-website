@@ -80,18 +80,22 @@ function initScrollReveal() {
 }
 
 // ---------------------------------------------------------------------------
-// Top Teams podium: reveal progress is tied directly to scroll position
-// (3rd place arrives first, then 2nd, then 1st, as the user scrolls down;
-// scrolling back up reverses it, same as any scrub animation) plus a one-
-// shot confetti burst the moment 1st place finishes arriving. Unlike the
-// pinned Hero/Explainer/Impact sequence, this doesn't pin the section or
-// gate on viewport width/pointer type — it's a plain scrubbed timeline tied
-// to normal scroll, which stays smooth on touch scrolling too. It IS gated
-// on reduced motion: with that preference set, the cards are just visible
-// immediately (nothing to reverse, since we only add hidden inline styles
-// here after confirming motion is OK) and no confetti ever fires — the
-// 1st-place glow is plain CSS in every case, so "the winner" still reads at
-// a glance.
+// Top Teams podium — three tiers, same shape as the Hero/Explainer/Impact
+// sequence's own gating:
+//   1. Reduced motion, or no GSAP/ScrollTrigger: do nothing here at all.
+//      Plain CSS already shows the title and all three cards together in
+//      their final podium arrangement, normal document scroll, no confetti.
+//   2. Motion OK, but touch/coarse-pointer or a narrow (<900px) viewport:
+//      initTopTeamsSimpleReveal — a non-pinned scrub tied to normal scroll
+//      (no pin:true), safe on touch scrolling.
+//   3. Motion OK, fine pointer, wide viewport: initTopTeamsPinSequence —
+//      pins the section and drives four phases (title alone -> 3rd -> 2nd
+//      -> 1st + confetti -> release), using the exact pin mechanism as the
+//      Hero sequence.
+// In every tier, confetti is a plain one-shot flag check, never scrubbed —
+// a fire-and-forget burst can't sensibly reverse or replay without looking
+// broken, so it always fires exactly once and never again regardless of
+// scrolling back and forth past that point afterward.
 // ---------------------------------------------------------------------------
 function triggerConfetti(targetEl) {
   if (typeof confetti === "undefined") return; // CDN failure: skip quietly
@@ -112,16 +116,30 @@ function triggerConfetti(targetEl) {
   });
 }
 
-function initTopTeamsReveal() {
+function initTopTeamsAnimation() {
   const section = document.getElementById("top-teams");
   if (!section) return;
 
-  // Reduced motion (or no GSAP/ScrollTrigger): leave the cards exactly as
-  // plain CSS already renders them — fully visible, no confetti.
+  // Reduced motion, or a CDN failure: leave everything exactly as plain CSS
+  // already renders it — fully visible, no confetti, no exceptions.
   if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
     return;
   }
 
+  const MIN_WIDTH = 900;
+  const canPin = supportsFinePointer && window.innerWidth >= MIN_WIDTH;
+
+  if (canPin) {
+    initTopTeamsPinSequence(section);
+  } else {
+    initTopTeamsSimpleReveal(section);
+  }
+}
+
+// Tier 2: non-pinned scrub, tied to normal scroll through the section as it
+// sits in plain document flow (see css/styles.css — no `.tt-pin-active`
+// rules apply here, so this is just the section's ordinary layout).
+function initTopTeamsSimpleReveal(section) {
   const thirdCard = section.querySelector(".team-card-third");
   const secondCard = section.querySelector(".team-card-second");
   const firstCard = section.querySelector(".team-card-first");
@@ -148,18 +166,89 @@ function initTopTeamsReveal() {
     animation: tl,
     invalidateOnRefresh: true,
     onUpdate: (self) => {
-      // A plain flag, not `once` on a separate trigger: confetti is a
-      // fire-and-forget effect, not a reversible tween, so scrubbing it or
-      // replaying it on scroll-back would look broken. This fires exactly
-      // once per page load, the first time scroll progress reaches the
-      // point where 1st place has fully arrived — scrolling back past that
-      // point (or down past it again) never re-fires it.
       if (!confettiFired && self.progress >= FIRST_PLACE_DONE) {
         confettiFired = true;
         triggerConfetti(firstCard);
       }
     },
   });
+}
+
+// Tier 3: pins the section (same ScrollTrigger pin:true mechanism as
+// initPinSequence for the Hero) and scrubs through four phases:
+//   Phase 0  0.00–0.14  title alone, holding
+//   (fade)   0.14–0.22  title fades out
+//   Phase 1  0.18–0.34  3rd place arrives
+//   Phase 2  0.42–0.58  2nd place arrives (3rd stays)
+//   Phase 3  0.66–0.82  1st place arrives; confetti fires right at 0.82
+//   Phase 4  0.82–1.00  hold on the full podium before the pin releases
+function initTopTeamsPinSequence(section) {
+  const stage = section.querySelector(".top-teams-pin-stage");
+  const titleEl = section.querySelector(".top-teams-title");
+  const thirdCard = section.querySelector(".team-card-third");
+  const secondCard = section.querySelector(".team-card-second");
+  const firstCard = section.querySelector(".team-card-first");
+  if (!stage || !titleEl || !thirdCard || !secondCard || !firstCard) return;
+
+  gsap.set(titleEl, { opacity: 1, y: 0 });
+  gsap.set([thirdCard, secondCard, firstCard], { opacity: 0, y: 40 });
+
+  const tl = gsap.timeline({ defaults: { ease: "none" } });
+  tl.to(titleEl, { opacity: 0, y: -20, duration: 0.08 }, 0.14)
+    .to(thirdCard, { opacity: 1, y: 0, duration: 0.16 }, 0.18)
+    .to(secondCard, { opacity: 1, y: 0, duration: 0.16 }, 0.42)
+    .to(firstCard, { opacity: 1, y: 0, duration: 0.16 }, 0.66)
+    // Background motif drifts continuously across the whole sequence —
+    // present from Phase 0 and still moving through the final hold, per
+    // the brief, tied to the actual brand motif rather than a decorative
+    // loop running independently of scroll.
+    .to(".tt-pinbg-lines", { rotate: 8, transformOrigin: "50% 50%", duration: 1 }, 0)
+    .to(".tt-pinbg-nodes", { scale: 1.1, transformOrigin: "50% 50%", duration: 1 }, 0);
+
+  const FIRST_PLACE_DONE = 0.82;
+  let confettiFired = false;
+
+  // Add the class BEFORE creating the ScrollTrigger, not after: unlike the
+  // Hero sequence (whose fallback .scene already carries an unconditional
+  // min-height: 100vh, so its pin dimensions happen to be correct either
+  // way), this section's fallback layout is a compact normal-flow block.
+  // Measuring before switching to the pin-ready 100vh layout would freeze
+  // the pin/spacer at that much shorter height.
+  section.classList.add("tt-pin-active");
+
+  const st = ScrollTrigger.create({
+    trigger: section,
+    start: "top top",
+    end: () => "+=" + window.innerHeight * 3,
+    pin: true,
+    scrub: 0.4,
+    animation: tl,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => {
+      if (!confettiFired && self.progress >= FIRST_PLACE_DONE) {
+        confettiFired = true;
+        triggerConfetti(firstCard);
+      }
+    },
+  });
+
+  window.addEventListener("load", () => ScrollTrigger.refresh());
+
+  function teardown() {
+    st.kill();
+    tl.kill();
+    section.classList.remove("tt-pin-active");
+    gsap.set([titleEl, thirdCard, secondCard, firstCard], { clearProps: "all" });
+  }
+
+  // Same live safeguard as the Hero sequence: stop pinning immediately if
+  // the user turns on reduced motion mid-session, rather than waiting for
+  // a reload.
+  window
+    .matchMedia("(prefers-reduced-motion: reduce)")
+    .addEventListener("change", (e) => {
+      if (e.matches) teardown();
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -418,7 +507,7 @@ function initPinSequence() {
 
 initImpactCounters();
 initScrollReveal();
-initTopTeamsReveal();
+initTopTeamsAnimation();
 initMagneticButtons();
 initCustomCursor();
 initPinSequence();

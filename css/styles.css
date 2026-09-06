@@ -485,6 +485,68 @@ button:focus-visible {
     border-radius: var(--radius);
     border: 1px solid var(--line);
   }
+
+  /* Top Teams — tier 3 only: pinned, phased sequence (title -> 3rd -> 2nd ->
+     1st + confetti -> release). initTopTeamsPinSequence in js/script.js adds
+     `.tt-pin-active` only when motion is fine, the pointer is fine, and the
+     viewport is wide (mirroring the gating above). Appended into this same
+     media block, rather than a second block with an identical condition,
+     because a second `@media (prefers-reduced-motion: no-preference) and
+     (min-width: 900px)` block elsewhere in this file was silently dropped
+     by the browser at parse time (confirmed: the exact same rule text
+     parses fine injected standalone, and fetch() confirms the served bytes
+     are correct — the CSSOM built from the <link>-loaded stylesheet was
+     just missing that second occurrence, verified by walking
+     document.styleSheets). Keeping one media block per unique condition
+     sidesteps whatever that is. */
+  .tt-pin-active .top-teams-pin-stage {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .tt-pin-active .top-teams-pin-bg {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .tt-pin-active .top-teams-title-scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(13, 11, 16, 0.55) 0%, rgba(13, 11, 16, 0.8) 100%);
+  }
+
+  .tt-pin-active .top-teams-title {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    max-width: none;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tt-pin-active .top-teams-title h2 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+  }
+
+  .tt-pin-active .top-teams-title p {
+    max-width: 40ch;
+  }
+
+  .tt-pin-active .podium {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    height: 100%;
+    align-content: center;
+  }
 }
 
 /* Hero scene copy */
@@ -737,24 +799,50 @@ button:focus-visible {
   opacity: 0.5;
 }
 
-.top-teams-content {
+.top-teams-pin-stage {
   position: relative;
   z-index: 1;
 }
 
-.top-teams-intro {
+/* Base (tiers 1 & 2 — reduced motion, or the pinned tier disabled for any
+   reason): title sits above the podium in plain normal flow, nothing
+   pinned or absolutely positioned. This is the complete, correct rendering
+   for those tiers on its own. */
+.top-teams-title {
   max-width: 40rem;
-  margin: 0 0 3rem;
+  margin: 0 auto 3rem;
+  text-align: center;
 }
 
-.top-teams-intro h2 {
+.top-teams-title h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
 }
 
-.top-teams-intro p {
+.top-teams-title p {
   color: var(--text-secondary);
   font-size: 1.05rem;
   margin: 0;
+}
+
+/* Full-bleed animated backdrop + scrim, used only by tier 3 (pin-active,
+   below) for Phase 0. Inert and invisible otherwise. */
+.top-teams-pin-bg {
+  display: none;
+}
+
+.top-teams-pin-bg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.tt-pinbg-node {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.top-teams-title-scrim {
+  display: none;
 }
 
 /* Podium grid. DOM order is placement order (1st, 2nd, 3rd) for a sensible

@@ -22,6 +22,12 @@
   --orange: #f2994a;
   --gold: #ffbf00;
 
+  /* Metallic placement tones for the Top Teams podium — a specific,
+     semantically-tied application of the accent system (1st/2nd/3rd),
+     not a new arbitrary palette. Gold reuses the existing --gold token. */
+  --silver: #c4c9d2;
+  --bronze: #cd7f32;
+
   --navy: #022851;
   --navy-line: rgba(255, 255, 255, 0.16);
 
@@ -702,6 +708,180 @@ button:focus-visible {
     margin-left: 3rem;
     padding-left: 3rem;
     border-left: 1px solid var(--line);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Top Teams podium
+   -------------------------------------------------------------------------- */
+
+.top-teams {
+  background: var(--charcoal);
+  color: var(--white);
+  padding-block: 4.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.top-teams::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(650px circle at 15% 90%, rgba(236, 32, 136, 0.14), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.top-teams-content {
+  position: relative;
+  z-index: 1;
+}
+
+.top-teams-intro {
+  max-width: 40rem;
+  margin: 0 0 3rem;
+}
+
+.top-teams-intro h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.top-teams-intro p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* Podium grid. DOM order is placement order (1st, 2nd, 3rd) for a sensible
+   reading/tab order; `order` rearranges the visual sequence to the classic
+   2nd–1st–3rd podium on wide screens. The 1st-place column is wider, and
+   2nd/3rd sit lower via margin-top, so the "results reveal" reads even
+   before anyone gets to the badge text. */
+.podium {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 22rem;
+  margin: 0 auto;
+}
+
+.team-card {
+  position: relative;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.team-card-photo {
+  margin: 0 0 1rem;
+}
+
+.team-card-photo img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  filter: grayscale(0.1) saturate(0.9);
+}
+
+.team-card-badge {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: var(--charcoal-deep);
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  margin: 0 0 0.6rem;
+}
+
+.team-card-badge-gold {
+  background: var(--gold);
+}
+
+.team-card-badge-silver {
+  background: var(--silver);
+}
+
+.team-card-badge-bronze {
+  background: var(--bronze);
+}
+
+.team-card-name {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  color: var(--white);
+  margin: 0 0 0.25rem;
+}
+
+.team-card-year {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* The winner card: a little larger, a warmer border, and an always-on
+   static glow behind it (see the comment on .team-card-glow) so it reads
+   as "the winner" at a glance, with or without motion/JS. */
+.team-card-first {
+  position: relative;
+  z-index: 1;
+  padding: 1.85rem 1.5rem;
+  border-color: rgba(255, 191, 0, 0.4);
+}
+
+.team-card-first .team-card-name {
+  font-size: 1.4rem;
+}
+
+.team-card-glow {
+  position: absolute;
+  z-index: -1;
+  top: -18%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140%;
+  height: 65%;
+  background: radial-gradient(circle, rgba(255, 191, 0, 0.35), transparent 70%);
+  pointer-events: none;
+}
+
+.top-teams-photo-note {
+  margin: 2.5rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 760px) {
+  .podium {
+    grid-template-columns: 1fr 1.2fr 1fr;
+    align-items: end;
+    gap: 1.5rem;
+    max-width: 960px;
+  }
+
+  .team-card-first {
+    order: 2;
+  }
+
+  .team-card-second {
+    order: 1;
+    margin-top: 3rem;
+  }
+
+  .team-card-third {
+    order: 3;
+    margin-top: 3rem;
   }
 }
 

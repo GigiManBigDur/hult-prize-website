@@ -80,6 +80,67 @@ function initScrollReveal() {
 }
 
 // ---------------------------------------------------------------------------
+// Top Teams podium: staggered reveal (3rd, then 2nd, then 1st) plus a one-
+// shot confetti burst on 1st place. Unlike the pinned Hero/Explainer/Impact
+// sequence, this isn't gated on a wide viewport or a fine pointer — it's a
+// simple triggered-once animation (not pinned or scroll-scrubbed), so it's
+// safe and lightweight on mobile too. It IS gated on reduced motion: with
+// that preference set, the cards are just visible immediately (nothing to
+// reverse, since we only add hidden inline styles here after confirming
+// motion is OK) and no confetti ever fires — the 1st-place glow is plain
+// CSS in every case, so "the winner" still reads at a glance.
+// ---------------------------------------------------------------------------
+function triggerConfetti(targetEl) {
+  if (typeof confetti === "undefined") return; // CDN failure: skip quietly
+
+  const rect = targetEl.getBoundingClientRect();
+  const originX = (rect.left + rect.width / 2) / window.innerWidth;
+  const originY = Math.max(rect.top / window.innerHeight, 0.1);
+  const isSmallScreen = window.innerWidth < 700;
+
+  confetti({
+    particleCount: isSmallScreen ? 35 : 70,
+    spread: 65,
+    startVelocity: 32,
+    ticks: 160,
+    scalar: 0.9,
+    origin: { x: originX, y: originY },
+    colors: ["#FFBF00", "#EC2088", "#3AA9E0", "#2BBBA0"],
+  });
+}
+
+function initTopTeamsReveal() {
+  const section = document.getElementById("top-teams");
+  if (!section) return;
+
+  // Reduced motion (or no GSAP/ScrollTrigger): leave the cards exactly as
+  // plain CSS already renders them — fully visible, no confetti.
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  const thirdCard = section.querySelector(".team-card-third");
+  const secondCard = section.querySelector(".team-card-second");
+  const firstCard = section.querySelector(".team-card-first");
+  if (!thirdCard || !secondCard || !firstCard) return;
+
+  gsap.set([thirdCard, secondCard, firstCard], { opacity: 0, y: 40 });
+
+  ScrollTrigger.create({
+    trigger: section,
+    start: "top 75%",
+    once: true,
+    onEnter: () => {
+      const tl = gsap.timeline({ defaults: { ease: "power2.out", duration: 0.6 } });
+      tl.to(thirdCard, { opacity: 1, y: 0 })
+        .to(secondCard, { opacity: 1, y: 0 }, "-=0.35")
+        .to(firstCard, { opacity: 1, y: 0 }, "-=0.35")
+        .call(() => triggerConfetti(firstCard));
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Magnetic hover on primary CTA buttons (desktop, fine-pointer only)
 // ---------------------------------------------------------------------------
 function initMagneticButtons() {
@@ -335,6 +396,7 @@ function initPinSequence() {
 
 initImpactCounters();
 initScrollReveal();
+initTopTeamsReveal();
 initMagneticButtons();
 initCustomCursor();
 initPinSequence();

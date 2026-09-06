@@ -176,6 +176,49 @@
       </div>
     </section>
 
+    <!-- Top Teams showcase — placed immediately after Impact, per the brief.
+         Normal document scroll (not part of the pinned sequence above). -->
+    <section class="top-teams" id="top-teams" aria-labelledby="top-teams-heading">
+      <div class="container top-teams-content">
+        <div class="top-teams-intro">
+          <h2 id="top-teams-heading">Top teams</h2>
+          <p>The top three teams from this year's Hult Prize OnCampus competition.</p>
+        </div>
+        <div class="podium">
+          <!-- DOM order is placement order (1st, 2nd, 3rd) for a sensible
+               reading/tab order; CSS `order` rearranges 2nd-1st-3rd visually
+               into a podium on wide screens (see css/styles.css). -->
+          <article class="team-card team-card-first">
+            <div class="team-card-glow" aria-hidden="true"></div>
+            <figure class="team-card-photo">
+              <img src="assets/top-teams/1st-place-dozey.jpg" alt="" loading="lazy">
+            </figure>
+            <p class="team-card-badge team-card-badge-gold">1st place</p>
+            <h3 class="team-card-name">DOZEY</h3>
+            <p class="team-card-year">2025</p>
+          </article>
+          <article class="team-card team-card-second">
+            <figure class="team-card-photo">
+              <img src="assets/top-teams/2nd-place-sumeru-quantum.jpg" alt="" loading="lazy">
+            </figure>
+            <p class="team-card-badge team-card-badge-silver">2nd place</p>
+            <h3 class="team-card-name">Sumeru Quantum Inc.</h3>
+            <p class="team-card-year">2025</p>
+          </article>
+          <article class="team-card team-card-third">
+            <figure class="team-card-photo">
+              <img src="assets/top-teams/3rd-place-squellet.jpg" alt="" loading="lazy">
+            </figure>
+            <p class="team-card-badge team-card-badge-bronze">3rd place</p>
+            <h3 class="team-card-name">SQUELLET</h3>
+            <p class="team-card-year">2025</p>
+          </article>
+        </div>
+        <!-- Placeholder note — the site owner will supply real team photos -->
+        <p class="top-teams-photo-note">Team photos are placeholders — replace with real photos before launch.</p>
+      </div>
+    </section>
+
     <!-- Our Story — normal document scroll from here on, per the brief. Same
          milestone timeline and facts as before, restyled into the new
          dark/magenta system. -->
@@ -252,6 +295,10 @@
        failure degrades to the static fallback rather than breaking the page. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Powers only the brief one-shot confetti burst on the Top Teams section;
+       script.js checks typeof confetti before calling it, so a CDN failure
+       just means no confetti, never a broken page. -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

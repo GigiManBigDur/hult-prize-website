@@ -64,15 +64,17 @@ same aspect ratios** listed below, and no code changes are needed:
   "[Name Placeholder]" text and "Bio coming soon." copy in team.html at the
   same time as swapping in each photo.
 - `pitch-videos/dozey-thumbnail.jpg`, `sumeru-quantum-thumbnail.jpg`,
-  `squellet-thumbnail.jpg` — 960×540 (16:9), the 3 real-placement cards on
-  the Pitch Videos page. Swapping in a real thumbnail alone doesn't make the
-  video playable — that also needs replacing the `<button>`'s placeholder
-  behavior in pitch-videos.html/js/script.js (initPitchVideoPlaceholders)
-  with an actual embed, at which point remember the consent requirement
-  noted above.
+  `squellet-thumbnail.jpg` — 960×540 (16:9), the 3 real-placement slides on
+  the Pitch Videos carousel. Swapping in a real thumbnail alone doesn't
+  swap the video itself — every slide currently points at the same mock
+  YouTube id (M7lc1UVf-VE) via each `.pitch-slide-thumb`'s data-video-id
+  attribute in pitch-videos.html; replace that attribute with each team's
+  real video id once it exists, and remember the consent requirement noted
+  above before doing so.
 - `pitch-videos/placeholder-4-thumbnail.jpg` … `placeholder-6-thumbnail.jpg`
-  — 960×540 (16:9), the 3 generic slots on the same page. Replace the
-  "[Team Placeholder]" copy in pitch-videos.html at the same time.
+  — 960×540 (16:9), the 3 generic slides on the same carousel. Replace the
+  "[Team Placeholder]" copy and data-video-id in pitch-videos.html at the
+  same time.
 
 Good real replacements: pitch presentations, teams collaborating, the
 OnCampus competition, judges/audience, campus recruiting events.

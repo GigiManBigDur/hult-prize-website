@@ -1341,11 +1341,34 @@ button:focus-visible {
   opacity: 0.7;
 }
 
+/* .pitch-swiper .swiper-slide's base rule (Stage 4b) is pulled forward to
+   sit here, immediately before the shared min-width: 700px block below
+   that carries its override — @media adds conditionality, not specificity,
+   so this same-specificity base rule must come earlier in the file for the
+   override to actually win once its condition matches. See the fuller
+   version of this comment further down (search "swiper-slide" there) for
+   the concrete bug this avoids. */
+.pitch-swiper .swiper-slide {
+  width: min(340px, 78vw);
+  height: auto;
+}
+
 @media (min-width: 700px) {
   .footer-inner {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  /* Pitch Videos carousel (Stage 4b) — appended here rather than its own
+     min-width: 700px block; a second block with an identical @media
+     condition elsewhere in this file gets silently dropped by the
+     browser's CSSOM parser for <link>-loaded stylesheets (confirmed
+     during an earlier stage; see the comment on the Top Teams tier-3
+     rules for the full story). Two min-width: 700px blocks already exist
+     in this file, so a third was avoided by appending here instead. */
+  .pitch-swiper .swiper-slide {
+    width: 360px;
   }
 }
 
@@ -1492,49 +1515,6 @@ button:focus-visible {
   gap: 1.25rem;
 }
 
-/* .video-grid/.video-card/.video-play-icon's own base rules (Stage 4a,
-   defined in full further down, by the rest of the Pitch Videos CSS) are
-   pulled forward to sit here, immediately before the shared min-width/hover
-   blocks that carry their overrides. @media doesn't add specificity, only
-   conditionality — so for a same-specificity override (grid-template-
-   columns, border-color, etc.) to actually win when its condition matches,
-   its base counterpart must come EARLIER in the file, not later. Leaving
-   them in their more natural spot further down (grouped with the rest of
-   that page's CSS) silently broke exactly this: the unconditional base rule
-   sat after the merged override and always won, override or not. Learned
-   this the hard way — see the git history for the concrete symptom
-   (grid-template-columns computing to "0px 0px 522px 522px"). */
-.video-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-}
-
-.video-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: var(--charcoal-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.video-play-icon {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 3.25rem;
-  height: 3.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(13, 11, 16, 0.55);
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  color: var(--white);
-}
-
 @media (min-width: 640px) {
   .leadership-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1570,18 +1550,6 @@ button:focus-visible {
   .leadership-card-wide .leadership-card-body {
     justify-content: center;
   }
-
-  /* Pitch Videos grid (Stage 4a) — appended here rather than its own
-     min-width: 640px block; see the comment by .video-grid in that page's
-     CSS section for why. */
-  .video-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-
-  .video-card-featured {
-    grid-column: 1 / -1;
-  }
 }
 
 @media (min-width: 1000px) {
@@ -1607,25 +1575,6 @@ button:focus-visible {
   .leadership-card-featured .leadership-card-photo img {
     aspect-ratio: 1 / 1;
   }
-
-  /* Pitch Videos grid (Stage 4a) — appended here rather than its own
-     min-width: 1000px block; see the comment by .video-grid in that
-     page's CSS section for why. */
-  .video-grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-areas:
-      "a a b b"
-      "a a c d"
-      "e e f f";
-    gap: 1.75rem;
-  }
-
-  .video-card:nth-child(1) { grid-area: a; }
-  .video-card:nth-child(2) { grid-area: b; }
-  .video-card:nth-child(3) { grid-area: c; }
-  .video-card:nth-child(4) { grid-area: d; }
-  .video-card:nth-child(5) { grid-area: e; }
-  .video-card:nth-child(6) { grid-area: f; }
 }
 
 /* --------------------------------------------------------------------------
@@ -1740,33 +1689,6 @@ button:focus-visible {
   .leadership-card:hover .leadership-card-photo img {
     filter: grayscale(0) saturate(1) brightness(1);
   }
-
-  /* Pitch Videos cards (Stage 4a) — appended here rather than a separate
-     (hover: hover) and (pointer: fine) block; see the comment by
-     .video-card in that page's CSS section for why. */
-  .video-card:hover {
-    border-color: var(--card-accent, var(--magenta));
-    box-shadow: 0 18px 36px -20px var(--card-accent, var(--magenta));
-  }
-
-  .video-card:nth-child(odd):hover {
-    transform: translateY(-6px) rotate(-0.4deg);
-  }
-
-  .video-card:nth-child(even):hover {
-    transform: translateY(-6px) rotate(0.4deg);
-  }
-
-  .video-card:hover .video-card-thumbnail img {
-    transform: scale(1.08);
-    filter: saturate(1) brightness(0.92);
-  }
-
-  .video-card:hover .video-play-icon {
-    transform: scale(1.12);
-    box-shadow: 0 0 20px var(--card-accent, var(--magenta));
-    border-color: var(--card-accent, var(--magenta));
-  }
 }
 
 /* No hover gesture exists on touch/coarse-pointer devices — show the same
@@ -1779,18 +1701,6 @@ button:focus-visible {
 
   .leadership-card-photo img {
     filter: grayscale(0) saturate(1) brightness(1);
-  }
-
-  /* Pitch Videos cards (Stage 4a) — appended here rather than a separate
-     (hover: none) block; see the comment by .video-card in that page's CSS
-     section for why. */
-  .video-card {
-    border-color: var(--card-accent, var(--magenta));
-  }
-
-  .video-play-icon {
-    box-shadow: 0 0 16px var(--card-accent, var(--magenta));
-    border-color: var(--card-accent, var(--magenta));
   }
 }
 
@@ -1866,153 +1776,217 @@ button:focus-visible {
   margin: 0 0 2.5rem;
 }
 
-/* --------------------------------------------------------------------------
-   Grid — the same bento layout technique as the Leadership page (one
-   featured tile, two wide tiles, two small tiles, two more wide tiles)
-   rather than a uniform grid — see that page's CSS comment for the full
-   rationale. DOM order stays reading order (1 = DOZEY ... 6 = last
-   placeholder); grid-area (via nth-child) moves cards around visually only.
-   -------------------------------------------------------------------------- */
-
-/* .video-grid's own base rule (grid-template-columns: 1fr, etc.) lives up
-   near .leadership-grid's base rule instead of here — see the comment
-   there for why (source-order cascade requirement vs. the merged min-width
-   overrides), same reasoning as the duplicate-@media note it also
-   documents. Its min-width: 640px / 1000px overrides live in the shared
-   blocks up there too (search "video-grid"). */
 
 /* --------------------------------------------------------------------------
-   Card. Thumbnails are 16:9 (unlike Leadership's 1:1 headshots), which
-   already stays proportionate at any width the bento grid puts it at — no
-   per-breakpoint aspect-ratio override needed the way Leadership's square
-   featured photo required one. (.video-card's own base rule lives up near
-   .leadership-grid's for the same source-order reason as .video-grid
-   above.)
+   Coverflow carousel (Stage 4b — replaced the original bento grid of
+   .video-card tiles entirely; see git history for that version). Swiper
+   (loaded via CDN, see pitch-videos.html) handles the 3D transforms,
+   dragging, keyboard nav, and pagination; js/script.js
+   (initPitchVideoCarousel) just configures it. Everything here is either
+   Swiper's own customization surface (the --swiper-* custom properties) or
+   styling for the slide content Swiper wraps, which stays plain, fully-
+   visible, normal-flow markup independent of whether Swiper's JS loads —
+   see the comment on the <script> tag in pitch-videos.html for what a CDN
+   failure degrades to.
    -------------------------------------------------------------------------- */
+
+.pitch-swiper {
+  --swiper-navigation-size: 20px;
+  --swiper-navigation-color: var(--white);
+  --swiper-pagination-color: var(--magenta);
+  --swiper-pagination-bullet-inactive-color: var(--line);
+  --swiper-pagination-bullet-inactive-opacity: 1;
+  padding-block: 1rem 3.5rem;
+  /* Swiper's coverflow effect needs real horizontal room for the angled
+     side slides not to clip against the container edge. */
+  overflow: visible;
+}
+
+/* .pitch-swiper .swiper-slide's own base rule (width: min(340px, 78vw))
+   lives up near .footer-inner's min-width: 700px block instead of here —
+   see the comment there for why (source-order cascade requirement: a
+   same-specificity base rule must sit BEFORE the media-gated override that
+   targets it, not just anywhere, or the override loses the cascade even
+   when its condition matches — the exact bug documented in detail by the
+   Leadership grid's own comment further up this file). */
+
+.pitch-swiper .swiper-button-prev,
+.pitch-swiper .swiper-button-next {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: rgba(13, 11, 16, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  top: 40%;
+}
 
 @media (prefers-reduced-motion: no-preference) {
-  .video-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  }
-
-  .video-card-thumbnail img {
-    transition: transform 0.4s ease, filter 0.4s ease;
-  }
-
-  .video-play-icon {
-    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.25s ease;
-  }
-
-  .video-coming-soon-msg {
-    transition: opacity 0.25s ease;
+  .pitch-swiper .swiper-button-prev,
+  .pitch-swiper .swiper-button-next {
+    transition: border-color 0.2s ease, color 0.2s ease;
   }
 }
 
-.video-card-thumbnail {
+.pitch-swiper .swiper-button-prev:hover,
+.pitch-swiper .swiper-button-next:hover {
+  border-color: var(--magenta);
+  color: var(--magenta);
+}
+
+.pitch-swiper .swiper-button-prev.swiper-button-disabled,
+.pitch-swiper .swiper-button-next.swiper-button-disabled {
+  opacity: 0.35;
+}
+
+.pitch-swiper .swiper-pagination {
+  bottom: 0;
+}
+
+.pitch-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Slide content. Thumbnails are 16:9, same as the bento version this
+   replaced; the card itself no longer needs its own hover lift/tilt (that
+   was a grid-appropriate micro-interaction) since Swiper's own coverflow
+   transform already provides the depth cue — the centered slide getting an
+   accent glow (below) is this design's equivalent "which one is active"
+   signal instead.
+   -------------------------------------------------------------------------- */
+
+.pitch-slide-card {
   position: relative;
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   overflow: hidden;
-  font: inherit;
-  color: inherit;
-  text-align: left;
 }
 
-.video-card-thumbnail img {
-  display: block;
-  width: 100%;
+@media (prefers-reduced-motion: no-preference) {
+  .pitch-slide-card {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .pitch-slide-thumb img {
+    transition: filter 0.3s ease;
+  }
+
+  .pitch-play-button {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+}
+
+/* The centered slide — Swiper keeps this class on whichever slide is
+   currently active — gets a soft glow ring in its own accent color, per
+   the brief's "unambiguous which one is in focus." */
+.swiper-slide-active .pitch-slide-card {
+  border-color: var(--card-accent, var(--magenta));
+  box-shadow: 0 0 0 2px var(--card-accent, var(--magenta)), 0 30px 55px -25px var(--card-accent, var(--magenta));
+}
+
+.swiper-slide-active .pitch-slide-thumb img {
+  filter: saturate(1) brightness(0.95);
+}
+
+.swiper-slide-active .pitch-play-button {
+  box-shadow: 0 0 20px var(--card-accent, var(--magenta));
+  border-color: var(--card-accent, var(--magenta));
+}
+
+.pitch-slide-thumb {
+  position: relative;
+  /* The aspect-ratio lives on this container, not the <img> inside it:
+     initPitchVideoPlayback (js/script.js) replaces that <img> with an
+     absolutely-positioned <iframe> on click, and absolutely-positioned
+     content never contributes to a parent's height. Without its own
+     aspect-ratio, this box would collapse to 0 height the moment that
+     swap happens, taking the embedded video down with it — confirmed via
+     getBoundingClientRect during this stage's own testing. */
   aspect-ratio: 16 / 9;
-  object-fit: cover;
-  /* Slightly muted by default, same spirit as Leadership's desaturated
-     photos — hover (or the touch equivalent below) brings it to full
-     strength as its own micro-interaction. */
-  filter: saturate(0.85) brightness(0.8);
+  overflow: hidden;
+  /* Classic Cover Flow detail: a soft reflection beneath the art. WebKit/
+     Blink only (Chrome, Safari, Edge) — Firefox has no equivalent property
+     and just ignores this line, so the thumbnail still looks correct
+     there, only without the reflection. Applied to the thumbnail alone
+     (not the whole card) to match the original Cover Flow look, where only
+     the album art reflects. The 10px margin-bottom below gives the
+     reflection actual room to render in — without it, .pitch-slide-body's
+     opaque background starts immediately where the thumbnail ends and
+     covers the reflection entirely, making this rule a no-op in practice
+     (confirmed by zooming into a rendered card during this stage's own
+     testing: no reflection was visible until this gap was added). */
+  -webkit-box-reflect: below 6px linear-gradient(to bottom, transparent, transparent 55%, rgba(255, 255, 255, 0.12));
+  margin-bottom: 10px;
 }
 
-/* .video-play-icon's own base rule lives up near .leadership-grid's for
-   the same source-order reason as .video-grid/.video-card above. */
-
-.video-play-icon svg {
-  width: 1.3rem;
-  height: 1.3rem;
-  margin-left: 0.15rem; /* optical centering: a triangle's visual weight sits left of its bounding box */
-}
-
-/* Hidden by default; revealed by initPitchVideoPlaceholders (js/script.js)
-   toggling .is-coming-soon-shown on click — see the HTML comment on the
-   video grid for why no real video plays here yet. */
-.video-coming-soon-msg {
+.pitch-slide-thumb img,
+.pitch-slide-thumb iframe {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.pitch-slide-thumb img {
+  display: block;
+  object-fit: cover;
+  /* Muted on side slides by default; the active-slide rule above brings it
+     to full strength as the "in focus" signal. */
+  filter: saturate(0.8) brightness(0.75);
+}
+
+.pitch-play-button {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 3.5rem;
+  height: 3.5rem;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 1rem;
-  background: rgba(13, 11, 16, 0.88);
+  border-radius: 50%;
+  background: rgba(13, 11, 16, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.85);
   color: var(--white);
-  font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 0.95rem;
-  opacity: 0;
-  pointer-events: none;
+  cursor: pointer;
 }
 
-.video-card-thumbnail.is-coming-soon-shown .video-coming-soon-msg {
-  opacity: 1;
+.pitch-play-button svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-left: 0.15rem; /* optical centering: a triangle's visual weight sits left of its bounding box */
 }
 
-.video-card-thumbnail.is-coming-soon-shown .video-play-icon {
-  opacity: 0;
-}
-
-.video-card-body {
+.pitch-slide-body {
   padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  text-align: center;
 }
 
-.video-card-name {
+.pitch-slide-name {
   font-family: var(--font-head);
   font-size: 1.1rem;
   margin: 0;
-}
-
-.video-card-featured .video-card-name {
-  font-size: 1.4rem;
 }
 
 /* The 3 real placement cards keep the exact Top Teams medal colors (not the
    generic accent rotation below) per the brief's "consistency with Top
    Teams" — .team-card-badge-gold/silver/bronze are reused as-is in the
    HTML from that section, and --card-accent here just extends the same
-   medal color to this card's own border/glow. */
-.video-card-gold { --card-accent: var(--gold); }
-.video-card-silver { --card-accent: var(--silver); }
-.video-card-bronze { --card-accent: var(--bronze); }
+   medal color to this slide's own glow ring. */
+.pitch-slide-gold { --card-accent: var(--gold); }
+.pitch-slide-silver { --card-accent: var(--silver); }
+.pitch-slide-bronze { --card-accent: var(--bronze); }
 
 /* The 3 generic placeholder slots cycle the same secondary accent palette
-   used on Leadership — one each, since there are exactly three here. */
-.video-card-teal { --card-accent: var(--teal); }
-.video-card-sky { --card-accent: var(--sky); }
-.video-card-orange { --card-accent: var(--orange); }
-
-/* --------------------------------------------------------------------------
-   Hover micro-interactions (fine pointer only) and their touch equivalent.
-   Tapping the play button already does the "real" thing on touch (reveals
-   Video coming soon via the click handler, identical to a click) — this
-   block only covers the passive decorative glow/zoom, which has no tap
-   equivalent, so touch gets it always-on instead (same reasoning as
-   Leadership's photo desaturation).
-   -------------------------------------------------------------------------- */
-
-/* The (hover: hover) and (pointer: fine) / (hover: none) rules for these
-   cards live in the shared blocks above (search "video-card" there), for
-   the same duplicate-@media-condition reason noted by the video grid's
-   breakpoints above. */
+   used on Leadership and the original video grid — one each, since there
+   are exactly three here. */
+.pitch-slide-teal { --card-accent: var(--teal); }
+.pitch-slide-sky { --card-accent: var(--sky); }
+.pitch-slide-orange { --card-accent: var(--orange); }

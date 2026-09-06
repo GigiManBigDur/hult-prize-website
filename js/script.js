@@ -151,55 +151,75 @@ function initLeadershipReveal() {
 }
 
 // ---------------------------------------------------------------------------
-// Pitch Videos page: cards animate in progressively as the grid scrolls
-// into view (Stage 4a). No-op on any page without a .video-card (i.e.
-// every page but pitch-videos.html). Deliberately the same shape as
-// initLeadershipReveal above rather than a shared helper — mirrors how the
-// Hero and Top Teams pin sequences stay separate functions too, even
-// though they rhyme structurally.
+// Pitch Videos page: coverflow carousel (Stage 4b — replaced the original
+// scroll-stagger grid entirely, see git history for that version). No-op on
+// any page without a .pitch-swiper (i.e. every page but pitch-videos.html),
+// and if the Swiper CDN fails: Swiper's own CSS (loaded via a separate
+// <link>, so it can succeed independently of the JS) still lays the slides
+// out in a plain flex row, just without the coverflow transform/JS-driven
+// navigation — degraded, not broken.
+//
+// Reduced motion here doesn't disable the carousel (per the brief: it must
+// stay fully navigable), only its transition animation — speed: 0 makes
+// slide changes instant while keeping the coverflow arrangement, dragging,
+// keyboard nav, and pagination all working exactly the same.
 // ---------------------------------------------------------------------------
-function initPitchVideoReveal() {
-  const cards = document.querySelectorAll(".video-card");
-  if (!cards.length) return;
+function initPitchVideoCarousel() {
+  const el = document.querySelector(".pitch-swiper");
+  if (!el || typeof Swiper === "undefined") return;
 
-  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
-    return;
-  }
-
-  gsap.registerPlugin(ScrollTrigger);
-  gsap.set(cards, { opacity: 0, y: 36 });
-
-  ScrollTrigger.batch(cards, {
-    start: "top 88%",
-    once: true,
-    onEnter: (batch) =>
-      gsap.to(batch, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        stagger: 0.12,
-        ease: "power2.out",
-      }),
+  new Swiper(el, {
+    effect: "coverflow",
+    grabCursor: true,
+    centeredSlides: true,
+    slidesPerView: "auto",
+    loop: false,
+    coverflowEffect: {
+      rotate: 30,
+      stretch: 0,
+      depth: 150,
+      modifier: 1,
+      slideShadows: true,
+    },
+    keyboard: { enabled: true },
+    // Explicit autoplay:false isn't a real Swiper option (it's just absent
+    // by default) — the comment is here so nobody adds one later: these are
+    // videos a visitor may be mid-watch on, so navigation must stay
+    // user-driven only, never automatic.
+    pagination: { el: ".pitch-swiper .swiper-pagination", clickable: true },
+    navigation: {
+      nextEl: ".pitch-swiper .swiper-button-next",
+      prevEl: ".pitch-swiper .swiper-button-prev",
+    },
+    speed: prefersReducedMotion ? 0 : 600,
   });
 }
 
 // ---------------------------------------------------------------------------
-// Pitch Videos page: clicking a placeholder thumbnail's play button reveals
-// "Video coming soon" instead of attempting to play anything — no real
-// video file exists yet (see the consent comment in pitch-videos.html).
-// Plain click/keyboard interaction, not gated by reduced-motion or GSAP:
-// this is a state toggle, not a motion effect, and must work even if the
-// GSAP CDN fails to load.
+// Pitch Videos page: clicking a slide's play button lazily builds and
+// inserts the YouTube embed for that slide only — nothing loads or plays
+// until clicked, so all 6 slides never load 6 iframes at once. Plain click
+// interaction, not gated by reduced-motion or Swiper/GSAP: this isn't a
+// motion effect and must work even if a CDN fails.
 // ---------------------------------------------------------------------------
-function initPitchVideoPlaceholders() {
-  const buttons = document.querySelectorAll(".video-card-thumbnail");
-  if (!buttons.length) return;
+function initPitchVideoPlayback() {
+  const thumbs = document.querySelectorAll(".pitch-slide-thumb");
+  if (!thumbs.length) return;
 
-  buttons.forEach((btn) => {
-    btn.setAttribute("aria-pressed", "false");
-    btn.addEventListener("click", () => {
-      const showing = btn.classList.toggle("is-coming-soon-shown");
-      btn.setAttribute("aria-pressed", String(showing));
+  thumbs.forEach((thumb) => {
+    const button = thumb.querySelector(".pitch-play-button");
+    const videoId = thumb.dataset.videoId;
+    if (!button || !videoId) return;
+
+    button.addEventListener("click", () => {
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+      iframe.title = thumb.dataset.videoTitle || "Pitch video";
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = true;
+      iframe.loading = "lazy";
+      thumb.replaceChildren(iframe);
     });
   });
 }
@@ -700,8 +720,8 @@ function initPinSequence() {
 initImpactCounters();
 initScrollReveal();
 initLeadershipReveal();
-initPitchVideoReveal();
-initPitchVideoPlaceholders();
+initPitchVideoCarousel();
+initPitchVideoPlayback();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

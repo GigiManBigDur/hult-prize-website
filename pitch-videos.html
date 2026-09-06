@@ -23,6 +23,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/styles.css">
+  <!-- Swiper powers the coverflow video carousel below (Stage 4b) — loaded
+       only on this page. js/script.js checks typeof Swiper before using it,
+       so a CDN failure degrades to plain stacked slides (Swiper's own base
+       CSS still applies since that's a separate <link>) rather than a
+       broken page. -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/14.2.0/swiper-bundle.min.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -62,10 +68,15 @@
         <h2 id="pitch-videos-grid-heading" class="visually-hidden">Pitch videos</h2>
 
         <!-- Every entry below is mock content for this page's build (Stage
-             4a) — see assets/PLACEHOLDER-IMAGES-README.md. Bracketed team
-             names and a clearly-labeled placeholder thumbnail (baked into
-             the image itself) for the generic slots, so this can't be
-             mistaken for real videos.
+             4a, redesigned as a Swiper coverflow carousel in Stage 4b) —
+             see assets/PLACEHOLDER-IMAGES-README.md. Bracketed team names
+             and a clearly-labeled placeholder thumbnail (baked into the
+             image itself) for the generic slots, so this can't be mistaken
+             for real videos. The embedded video (Google for Developers'
+             own "Embedded Web Player Customization" clip, id M7lc1UVf-VE,
+             confirmed embeddable via YouTube's oEmbed endpoint) is a stand-
+             in for all 6 slides — not each team's actual pitch, which
+             doesn't exist yet.
 
              IMPORTANT — do not act on this now, content is mock: once real
              pitch videos exist, each one must only be published with that
@@ -82,88 +93,106 @@
           team has given separate, explicit consent to publish theirs.
         </p>
 
-        <ul class="video-grid">
-          <li class="video-card video-card-featured video-card-gold">
-            <button type="button" class="video-card-thumbnail" aria-label="Play DOZEY's pitch video — video coming soon">
-              <img src="assets/pitch-videos/dozey-thumbnail.jpg" alt="" loading="lazy">
-              <span class="video-play-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-              </span>
-              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
-            </button>
-            <div class="video-card-body">
-              <p class="team-card-badge team-card-badge-gold">1st place</p>
-              <h3 class="video-card-name">DOZEY</h3>
+        <!-- Swiper coverflow carousel (Stage 4b) — see js/script.js
+             (initPitchVideoCarousel) for the config, and
+             initPitchVideoPlayback for the click-to-embed behavior. Each
+             .pitch-slide-thumb's data-video-id is read on click to build
+             the YouTube embed src lazily — nothing loads or plays until
+             the visitor clicks that slide's play button. -->
+        <div class="swiper pitch-swiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <article class="pitch-slide-card pitch-slide-gold">
+                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="DOZEY pitch video (placeholder)">
+                  <img src="assets/pitch-videos/dozey-thumbnail.jpg" alt="" loading="lazy">
+                  <button type="button" class="pitch-play-button" aria-label="Play DOZEY's pitch video">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+                <div class="pitch-slide-body">
+                  <p class="team-card-badge team-card-badge-gold">1st place</p>
+                  <h3 class="pitch-slide-name">DOZEY</h3>
+                </div>
+              </article>
             </div>
-          </li>
 
-          <li class="video-card video-card-wide video-card-silver">
-            <button type="button" class="video-card-thumbnail" aria-label="Play Sumeru Quantum Inc.'s pitch video — video coming soon">
-              <img src="assets/pitch-videos/sumeru-quantum-thumbnail.jpg" alt="" loading="lazy">
-              <span class="video-play-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-              </span>
-              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
-            </button>
-            <div class="video-card-body">
-              <p class="team-card-badge team-card-badge-silver">2nd place</p>
-              <h3 class="video-card-name">Sumeru Quantum Inc.</h3>
+            <div class="swiper-slide">
+              <article class="pitch-slide-card pitch-slide-silver">
+                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Sumeru Quantum Inc. pitch video (placeholder)">
+                  <img src="assets/pitch-videos/sumeru-quantum-thumbnail.jpg" alt="" loading="lazy">
+                  <button type="button" class="pitch-play-button" aria-label="Play Sumeru Quantum Inc.'s pitch video">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+                <div class="pitch-slide-body">
+                  <p class="team-card-badge team-card-badge-silver">2nd place</p>
+                  <h3 class="pitch-slide-name">Sumeru Quantum Inc.</h3>
+                </div>
+              </article>
             </div>
-          </li>
 
-          <li class="video-card video-card-bronze">
-            <button type="button" class="video-card-thumbnail" aria-label="Play SQUELLET's pitch video — video coming soon">
-              <img src="assets/pitch-videos/squellet-thumbnail.jpg" alt="" loading="lazy">
-              <span class="video-play-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-              </span>
-              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
-            </button>
-            <div class="video-card-body">
-              <p class="team-card-badge team-card-badge-bronze">3rd place</p>
-              <h3 class="video-card-name">SQUELLET</h3>
+            <div class="swiper-slide">
+              <article class="pitch-slide-card pitch-slide-bronze">
+                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="SQUELLET pitch video (placeholder)">
+                  <img src="assets/pitch-videos/squellet-thumbnail.jpg" alt="" loading="lazy">
+                  <button type="button" class="pitch-play-button" aria-label="Play SQUELLET's pitch video">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+                <div class="pitch-slide-body">
+                  <p class="team-card-badge team-card-badge-bronze">3rd place</p>
+                  <h3 class="pitch-slide-name">SQUELLET</h3>
+                </div>
+              </article>
             </div>
-          </li>
 
-          <li class="video-card video-card-teal">
-            <button type="button" class="video-card-thumbnail" aria-label="Play placeholder pitch video — video coming soon">
-              <img src="assets/pitch-videos/placeholder-4-thumbnail.jpg" alt="" loading="lazy">
-              <span class="video-play-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-              </span>
-              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
-            </button>
-            <div class="video-card-body">
-              <h3 class="video-card-name">[Team Placeholder]</h3>
+            <div class="swiper-slide">
+              <article class="pitch-slide-card pitch-slide-teal">
+                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Placeholder pitch video">
+                  <img src="assets/pitch-videos/placeholder-4-thumbnail.jpg" alt="" loading="lazy">
+                  <button type="button" class="pitch-play-button" aria-label="Play placeholder pitch video">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+                <div class="pitch-slide-body">
+                  <h3 class="pitch-slide-name">[Team Placeholder]</h3>
+                </div>
+              </article>
             </div>
-          </li>
 
-          <li class="video-card video-card-wide video-card-sky">
-            <button type="button" class="video-card-thumbnail" aria-label="Play placeholder pitch video — video coming soon">
-              <img src="assets/pitch-videos/placeholder-5-thumbnail.jpg" alt="" loading="lazy">
-              <span class="video-play-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-              </span>
-              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
-            </button>
-            <div class="video-card-body">
-              <h3 class="video-card-name">[Team Placeholder]</h3>
+            <div class="swiper-slide">
+              <article class="pitch-slide-card pitch-slide-sky">
+                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Placeholder pitch video">
+                  <img src="assets/pitch-videos/placeholder-5-thumbnail.jpg" alt="" loading="lazy">
+                  <button type="button" class="pitch-play-button" aria-label="Play placeholder pitch video">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+                <div class="pitch-slide-body">
+                  <h3 class="pitch-slide-name">[Team Placeholder]</h3>
+                </div>
+              </article>
             </div>
-          </li>
 
-          <li class="video-card video-card-wide video-card-orange">
-            <button type="button" class="video-card-thumbnail" aria-label="Play placeholder pitch video — video coming soon">
-              <img src="assets/pitch-videos/placeholder-6-thumbnail.jpg" alt="" loading="lazy">
-              <span class="video-play-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-              </span>
-              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
-            </button>
-            <div class="video-card-body">
-              <h3 class="video-card-name">[Team Placeholder]</h3>
+            <div class="swiper-slide">
+              <article class="pitch-slide-card pitch-slide-orange">
+                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Placeholder pitch video">
+                  <img src="assets/pitch-videos/placeholder-6-thumbnail.jpg" alt="" loading="lazy">
+                  <button type="button" class="pitch-play-button" aria-label="Play placeholder pitch video">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+                <div class="pitch-slide-body">
+                  <h3 class="pitch-slide-name">[Team Placeholder]</h3>
+                </div>
+              </article>
             </div>
-          </li>
-        </ul>
+          </div>
+
+          <div class="swiper-pagination"></div>
+          <button type="button" class="swiper-button-prev" aria-label="Previous video"></button>
+          <button type="button" class="swiper-button-next" aria-label="Next video"></button>
+        </div>
       </div>
     </section>
   </main>
@@ -181,12 +210,14 @@
     </div>
   </footer>
 
-  <!-- Same GSAP setup as Home/Team: script.js checks typeof gsap/
-       ScrollTrigger before using them, so a CDN failure degrades to the
-       static fallback (cards fully visible, no stagger) rather than
-       breaking the page. No confetti library needed on this page. -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Swiper drives the coverflow carousel above (Stage 4b) — no GSAP on
+       this page anymore (the redesign replaced the old scroll-stagger grid
+       entirely, so there's nothing left for GSAP to animate here).
+       js/script.js checks typeof Swiper before using it, so a CDN failure
+       degrades to Swiper's own plain-flex base layout (still usable, just
+       without the coverflow effect/JS-driven navigation) rather than a
+       broken page. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/14.2.0/swiper-bundle.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

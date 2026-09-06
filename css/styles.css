@@ -1745,11 +1745,60 @@ button:focus-visible {
 
 .pitch-videos-hero {
   padding-block: 5rem 2.5rem;
+  overflow: hidden;
+}
+
+/* Sits between .pitch-videos-page::before (the page's own static texture,
+   z-index: 0 in that ancestor's stacking context) and this section's own
+   content — needs its own z-index/position so paint order can't come down
+   to ambiguous default stacking rules. initPitchVideoEntrance (js/
+   script.js) is the only thing that ever animates this; base CSS leaves it
+   at opacity: 0, so nothing shows if that never runs (reduced motion, or a
+   GSAP CDN failure). */
+.pitch-videos-flourish {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg at 50% 30%,
+    var(--magenta),
+    var(--sky),
+    var(--teal),
+    var(--gold),
+    var(--orange),
+    var(--magenta)
+  );
+  filter: blur(70px);
+  mix-blend-mode: screen;
+}
+
+.pitch-videos-hero .container {
+  position: relative;
+  z-index: 1;
 }
 
 .pitch-videos-hero h1 {
   font-size: clamp(1.7rem, 4.2vw, 2.6rem);
   max-width: 32ch;
+}
+
+/* Same per-word overflow-hidden mask as Home's .reveal-word/-inner —
+   independently named so it doesn't also inherit Home's CSS-keyframe
+   animation; this page's stagger runs through GSAP instead
+   (initPitchVideoEntrance in js/script.js), started from whatever position
+   GSAP sets at load time. Base state here is plain and fully visible, same
+   reasoning as .pitch-videos-flourish above: nothing is hidden until the
+   entrance script actually decides to hide it. */
+.pv-reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.pv-reveal-word-inner {
+  display: inline-block;
 }
 
 .pitch-videos-hero-lede {

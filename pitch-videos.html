@@ -53,8 +53,28 @@
 
   <main id="main" class="pitch-videos-page">
     <section class="pitch-videos-hero">
+      <!-- One-time entry flourish (Stage 4c) — a brief animated color sweep
+           behind the title, gone before the rest of the page settles. Pure
+           decoration; initPitchVideoEntrance (js/script.js) is the only
+           thing that ever shows it (base CSS renders this at opacity 0 with
+           nothing animating it, so a GSAP CDN failure just means it never
+           appears — never a stuck visible smear). -->
+      <div class="pitch-videos-flourish" aria-hidden="true"></div>
       <div class="container">
-        <h1>Hult Prize UC Davis On-Campus Competition 2025</h1>
+        <h1>
+          <!-- Same per-word overflow-hidden-mask technique as the Home hero
+               (.reveal-word/.reveal-word-inner), independently named
+               (.pv-reveal-word/-inner) so it doesn't also pick up Home's own
+               CSS-keyframe animation — this page's stagger is driven by
+               GSAP instead (initPitchVideoEntrance), per the brief. -->
+          <span class="pv-reveal-word"><span class="pv-reveal-word-inner">Hult</span></span>
+          <span class="pv-reveal-word"><span class="pv-reveal-word-inner">Prize</span></span>
+          <span class="pv-reveal-word"><span class="pv-reveal-word-inner">UC</span></span>
+          <span class="pv-reveal-word"><span class="pv-reveal-word-inner">Davis</span></span>
+          <span class="pv-reveal-word"><span class="pv-reveal-word-inner">On-Campus</span></span>
+          <span class="pv-reveal-word"><span class="pv-reveal-word-inner">Competition</span></span>
+          <span class="pv-reveal-word"><span class="pv-reveal-word-inner">2025</span></span>
+        </h1>
         <p class="pitch-videos-hero-lede">
           Watch pitches from our chapter's official Hult Prize OnCampus competition — judged by
           academics and industry professionals, with the top teams advancing toward the Hult
@@ -210,13 +230,15 @@
     </div>
   </footer>
 
-  <!-- Swiper drives the coverflow carousel above (Stage 4b) — no GSAP on
-       this page anymore (the redesign replaced the old scroll-stagger grid
-       entirely, so there's nothing left for GSAP to animate here).
-       js/script.js checks typeof Swiper before using it, so a CDN failure
-       degrades to Swiper's own plain-flex base layout (still usable, just
-       without the coverflow effect/JS-driven navigation) rather than a
-       broken page. -->
+  <!-- GSAP is back on this page as of Stage 4c, driving the one-time
+       entrance sequence (initPitchVideoEntrance) — Stage 4b's comment here
+       said GSAP was no longer needed, which was true until this stage
+       added it back. Swiper still drives the coverflow carousel itself;
+       js/script.js checks typeof gsap/Swiper before using either, so a CDN
+       failure just skips that specific piece (no entrance animation, or
+       Swiper's own plain-flex fallback layout) rather than breaking the
+       page. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/14.2.0/swiper-bundle.min.js"></script>
   <script src="js/script.js"></script>
 </body>

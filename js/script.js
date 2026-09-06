@@ -225,6 +225,76 @@ function initPitchVideoPlayback() {
 }
 
 // ---------------------------------------------------------------------------
+// Pitch Videos page: one-time entrance sequence on page load (Stage 4c) —
+// background flourish, then the title staggers in word by word (same
+// overflow-hidden-mask technique as Home's hero, driven by GSAP here
+// instead of Home's CSS keyframes so the whole sequence can be timed
+// against one master timeline), then the subtitle/consent note, then the
+// carousel's cards settle into place starting from the center one. Must
+// run AFTER initPitchVideoCarousel so Swiper has already positioned the
+// slides before anything here starts adjusting their inner .pitch-slide-
+// card's opacity/scale — this never touches .swiper-slide itself, so it
+// can't fight Swiper's own coverflow transform.
+//
+// Reduced motion skips the whole thing per the brief: no gsap.set() ever
+// runs, so nothing gets hidden in the first place — base CSS already
+// renders the flourish at opacity: 0 (permanently, for that visitor) and
+// every word/paragraph/card at full opacity in its normal position. A
+// GSAP CDN failure degrades the exact same way.
+// ---------------------------------------------------------------------------
+function initPitchVideoEntrance() {
+  const hero = document.querySelector(".pitch-videos-hero");
+  if (!hero) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+
+  const flourish = document.querySelector(".pitch-videos-flourish");
+  const words = document.querySelectorAll(".pitch-videos-hero .pv-reveal-word-inner");
+  const lede = document.querySelector(".pitch-videos-hero-lede");
+  const consentNote = document.querySelector(".pitch-videos-placeholder-note");
+  const cards = document.querySelectorAll(".pitch-slide-card");
+  const fadeUpTargets = [lede, consentNote].filter(Boolean);
+
+  if (flourish) gsap.set(flourish, { opacity: 0, scale: 0.85, rotate: -8 });
+  if (words.length) gsap.set(words, { yPercent: 115 });
+  if (fadeUpTargets.length) gsap.set(fadeUpTargets, { opacity: 0, y: 18 });
+  if (cards.length) gsap.set(cards, { opacity: 0, y: 20, scale: 0.85 });
+
+  const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+  if (flourish) {
+    tl.to(flourish, { opacity: 0.4, scale: 1, rotate: 0, duration: 0.35 }, 0).to(
+      flourish,
+      { opacity: 0, duration: 0.35 },
+      0.35
+    );
+  }
+
+  if (words.length) {
+    tl.to(
+      words,
+      { yPercent: 0, duration: 0.45, stagger: 0.045, ease: "power3.out" },
+      0.15
+    );
+  }
+
+  if (fadeUpTargets.length) {
+    tl.to(fadeUpTargets, { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 }, 0.55);
+  }
+
+  if (cards.length) {
+    // from: "center" starts with the active/centered slide, then works
+    // outward to the ones angled off to each side — matching the brief's
+    // "center slide scales/fades up first, side slides shortly after."
+    tl.to(
+      cards,
+      { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: { each: 0.08, from: "center" } },
+      0.75
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
 // bridge). Story sits in plain normal document flow regardless of which
 // Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
@@ -722,6 +792,10 @@ initScrollReveal();
 initLeadershipReveal();
 initPitchVideoCarousel();
 initPitchVideoPlayback();
+// Must run after initPitchVideoCarousel: it animates each slide's own
+// .pitch-slide-card, which needs Swiper to have already applied its
+// coverflow positioning to the parent .swiper-slide first.
+initPitchVideoEntrance();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

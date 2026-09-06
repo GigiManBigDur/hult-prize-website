@@ -505,6 +505,20 @@ button:focus-visible {
      just missing that second occurrence, verified by walking
      document.styleSheets). Keeping one media block per unique condition
      sidesteps whatever that is. */
+  /* The base .top-teams rule carries padding-block for tiers 1/2's normal-
+     flow layout (title sits above the podium with breathing room). In tier
+     3, .top-teams-pin-stage is its own full 100vh box — but that box lives
+     INSIDE the section's padding, so without zeroing the padding here the
+     section's true height becomes 100vh + padding, leaving a band top and
+     bottom where the section's own ::before texture shows through
+     uncovered by .tt-pin-entry-fade/.tt-pin-exit-fade (which only cover the
+     pin-stage's own box, not the section around it). Zeroing it makes the
+     pin-stage flush with the section's real edges so the fade overlays
+     actually cover the whole thing. */
+  .top-teams.tt-pin-active {
+    padding-block: 0;
+  }
+
   .tt-pin-active .top-teams-pin-stage {
     height: 100vh;
     overflow: hidden;

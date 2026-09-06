@@ -2174,28 +2174,54 @@ button:focus-visible {
    percentage of .timeline-track's height computed from where today's real
    date falls between the first and last event. Always applied regardless
    of motion preference: this is the page's actual content (which point in
-   the timeline is "now"), not decoration. */
+   the timeline is "now"), not decoration.
+
+   This element itself is a zero-size anchor POINT sitting exactly on the
+   track (left here matches .timeline-track-line's own left, same as
+   .timeline-node below) — not a box to center as a whole. .timeline-you-
+   are-here-dot and -label (Stage 5b fix) are each positioned independently
+   relative to that point instead: previously this was display: flex with
+   the dot and label as row siblings, and centering the CONTAINER (i.e. the
+   midpoint of dot+gap+label combined) put the dot itself visibly off the
+   track by about half the label's width. Centering the dot on its own,
+   with the label floating to one side of it, is what actually keeps the
+   dot itself on the line. */
 .timeline-you-are-here {
   position: absolute;
   left: 20px;
-  transform: translate(-50%, -50%);
   z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  width: 0;
+  height: 0;
   pointer-events: none;
 }
 
 .timeline-you-are-here-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
   width: 18px;
   height: 18px;
-  flex-shrink: 0;
   border-radius: 50%;
   background: var(--magenta);
   border: 3px solid var(--charcoal-deep);
 }
 
+/* Mobile default: above the dot rather than to a side — the track sits
+   only 20px from the screen edge here, with every card (mobile's single-
+   column layout, see .timeline-event below) filling the space to its
+   right, so there's no side with real room for a label. min-width: 680px
+   overrides this to sit beside the dot instead, on whichever side
+   initEventTimelinePositions (js/script.js) determines is opposite the
+   nearest event's card. Left-aligned to the dot (not centered on it) and
+   left slightly clear of it: the dot sits only 20px from the screen edge,
+   so centering the label here (as an earlier version of this rule did)
+   pushed roughly half its width past the left edge of the viewport. */
 .timeline-you-are-here-label {
+  position: absolute;
+  left: 4px;
+  bottom: 100%;
+  margin-bottom: 0.6rem;
   font-family: var(--font-head);
   font-weight: 700;
   font-size: 0.75rem;
@@ -2360,6 +2386,24 @@ button:focus-visible {
 
   .timeline-you-are-here {
     left: 50%;
+  }
+
+  /* Beside the dot rather than above it now that there's room on either
+     side. Default is the right; .label-left (added by
+     initEventTimelinePositions, js/script.js, based on which side the
+     nearest event's card is actually on) flips it to the left instead —
+     see the comment on that function for the "opposite side" logic. */
+  .timeline-you-are-here-label {
+    top: 0;
+    bottom: auto;
+    left: 1.2rem;
+    margin-bottom: 0;
+    transform: translateY(-50%);
+  }
+
+  .timeline-you-are-here.label-left .timeline-you-are-here-label {
+    left: auto;
+    right: 1.2rem;
   }
 
   .timeline-event {

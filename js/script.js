@@ -380,6 +380,30 @@ function initEventTimelinePositions() {
         year: "numeric",
       });
     }
+
+    // Stage 5b fix: the label must sit on the side OPPOSITE whichever
+    // event card is nearest to "today" on the track, so it never overlaps
+    // that card. The desktop layout (styles.css, min-width: 680px) puts
+    // :nth-child(odd) event cards on the right and :nth-child(even) on the
+    // left; find the nearest event by minimum |day difference| (past or
+    // future) and flip the label to the opposite side of THAT event's
+    // card. This is computed fresh every load from the real "today" vs.
+    // the mock event dates, not hardcoded to one side, since which event
+    // ends up nearest changes as the placeholder dates (or the real ones
+    // that replace them) are approached and passed.
+    let nearestIndex = 0;
+    let nearestAbsDiff = Infinity;
+    events.forEach(({ date }, i) => {
+      const absDiff = Math.abs(dayDiff(date, today));
+      if (absDiff < nearestAbsDiff) {
+        nearestAbsDiff = absDiff;
+        nearestIndex = i;
+      }
+    });
+    // nearestIndex is 0-based; the matching :nth-child() is 1-based, so an
+    // even index (0, 2, 4…) is an odd nth-child — i.e. a right-side card.
+    const nearestCardIsRight = nearestIndex % 2 === 0;
+    marker.classList.toggle("label-left", nearestCardIsRight);
   }
 
   let nextUpAssigned = false;

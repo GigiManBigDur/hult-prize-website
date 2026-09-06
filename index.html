@@ -2,6 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Browsers remember and auto-restore the last scroll position for a
+       given page in session history (history.scrollRestoration = "auto"
+       by default) — on a reload, or on revisiting via a pasted/bookmarked
+       link, that lands you wherever you last scrolled to instead of the
+       top. That's especially jarring here since the Hero/Explainer/Impact
+       sequence is a pinned scroll-jack: a leftover raw pixel offset can
+       drop you mid-sequence with nothing rendered the way you'd expect.
+       Opt out and force the top on a normal load (no #hash — an explicit
+       deep link is still honored) before the browser gets a chance to
+       restore anything. Must run this early (inline, before body/CSS) to
+       take effect before that restoration happens. -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hult Prize @ UC Davis</title>
   <meta name="description" content="Hult Prize @ UC Davis is UC Davis's first Hult Prize chapter, helping student teams build for-profit ventures that tackle major social and environmental challenges.">

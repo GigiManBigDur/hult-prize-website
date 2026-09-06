@@ -2,6 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- See the matching comment in index.html: opt out of the browser's
+       default scroll-position restoration so a reload or a pasted link
+       starts at the top rather than wherever this page was last scrolled
+       to (an explicit #hash deep link is still honored). Kept consistent
+       across both pages even though only Home has a pinned sequence. -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leadership | Hult Prize @ UC Davis</title>
   <meta name="description" content="Meet the executive board leading Hult Prize @ UC Davis.">

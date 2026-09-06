@@ -989,7 +989,15 @@ button:focus-visible {
   transform: translateX(-50%);
   width: 140%;
   height: 65%;
-  background: radial-gradient(circle, rgba(255, 191, 0, 0.35), transparent 70%);
+  /* Ellipse, not circle: this box is short and wide (140% x 65%), and a
+     true circle sizes itself to reach the farthest CORNER — dominated by
+     the wide dimension — so along the vertical axis the box's own
+     top/bottom edge (where the background gets hard-clipped, as all CSS
+     backgrounds are) falls well before the gradient has faded out,
+     producing a visible flat cutoff instead of a soft glow. An ellipse
+     scales independently per axis to the box's own aspect ratio, so it
+     fades to transparent right at the edges in both directions. */
+  background: radial-gradient(ellipse, rgba(255, 191, 0, 0.35), transparent 70%);
   pointer-events: none;
 }
 

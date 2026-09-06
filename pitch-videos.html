@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- See the matching comment in index.html/team.html: opt out of the
+       browser's default scroll-position restoration so a reload or a
+       pasted link starts at the top rather than wherever this page was
+       last scrolled to (an explicit #hash deep link is still honored). -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pitch Videos | Hult Prize @ UC Davis</title>
+  <meta name="description" content="Watch pitches from Hult Prize @ UC Davis's OnCampus competition.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Same header markup/treatment as Home and Team for site-wide
+       consistency. Our Story/Impact/Get Involved point back at Home's own
+       anchors since those sections live only there. -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
+      <nav aria-label="Primary">
+        <ul>
+          <li class="nav-link-item"><a href="index.html#story">Our Story</a></li>
+          <li class="nav-link-item"><a href="index.html#impact">Impact</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="pitch-videos.html" aria-current="page">Pitch Videos</a></li>
+          <li><a class="nav-cta" href="index.html#get-involved">Get Involved</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="pitch-videos-page">
+    <section class="pitch-videos-hero">
+      <div class="container">
+        <h1>Hult Prize UC Davis On-Campus Competition 2025</h1>
+        <p class="pitch-videos-hero-lede">
+          Watch pitches from our chapter's official Hult Prize OnCampus competition — judged by
+          academics and industry professionals, with the top teams advancing toward the Hult
+          Prize National Competition.
+        </p>
+      </div>
+    </section>
+
+    <section class="pitch-videos-grid-section" aria-labelledby="pitch-videos-grid-heading">
+      <div class="container">
+        <h2 id="pitch-videos-grid-heading" class="visually-hidden">Pitch videos</h2>
+
+        <!-- Every entry below is mock content for this page's build (Stage
+             4a) — see assets/PLACEHOLDER-IMAGES-README.md. Bracketed team
+             names and a clearly-labeled placeholder thumbnail (baked into
+             the image itself) for the generic slots, so this can't be
+             mistaken for real videos.
+
+             IMPORTANT — do not act on this now, content is mock: once real
+             pitch videos exist, each one must only be published with that
+             team's EXPLICIT consent, obtained separately from (and held to
+             a HIGHER bar than) the name-only consent already covering the
+             Top Teams section. A video reveals substantially more about a
+             team's actual venture — the pitch content, the founders' faces
+             and voices, unreleased business details — than a name and a
+             placement ever does. Do not assume the consent that allowed
+             listing a name/placement on Top Teams also covers publishing
+             that team's video; ask again, specifically for video. -->
+        <p class="pitch-videos-placeholder-note">
+          Roster below is placeholder content — real pitch videos will be added here once each
+          team has given separate, explicit consent to publish theirs.
+        </p>
+
+        <ul class="video-grid">
+          <li class="video-card video-card-featured video-card-gold">
+            <button type="button" class="video-card-thumbnail" aria-label="Play DOZEY's pitch video — video coming soon">
+              <img src="assets/pitch-videos/dozey-thumbnail.jpg" alt="" loading="lazy">
+              <span class="video-play-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+              </span>
+              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
+            </button>
+            <div class="video-card-body">
+              <p class="team-card-badge team-card-badge-gold">1st place</p>
+              <h3 class="video-card-name">DOZEY</h3>
+            </div>
+          </li>
+
+          <li class="video-card video-card-wide video-card-silver">
+            <button type="button" class="video-card-thumbnail" aria-label="Play Sumeru Quantum Inc.'s pitch video — video coming soon">
+              <img src="assets/pitch-videos/sumeru-quantum-thumbnail.jpg" alt="" loading="lazy">
+              <span class="video-play-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+              </span>
+              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
+            </button>
+            <div class="video-card-body">
+              <p class="team-card-badge team-card-badge-silver">2nd place</p>
+              <h3 class="video-card-name">Sumeru Quantum Inc.</h3>
+            </div>
+          </li>
+
+          <li class="video-card video-card-bronze">
+            <button type="button" class="video-card-thumbnail" aria-label="Play SQUELLET's pitch video — video coming soon">
+              <img src="assets/pitch-videos/squellet-thumbnail.jpg" alt="" loading="lazy">
+              <span class="video-play-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+              </span>
+              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
+            </button>
+            <div class="video-card-body">
+              <p class="team-card-badge team-card-badge-bronze">3rd place</p>
+              <h3 class="video-card-name">SQUELLET</h3>
+            </div>
+          </li>
+
+          <li class="video-card video-card-teal">
+            <button type="button" class="video-card-thumbnail" aria-label="Play placeholder pitch video — video coming soon">
+              <img src="assets/pitch-videos/placeholder-4-thumbnail.jpg" alt="" loading="lazy">
+              <span class="video-play-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+              </span>
+              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
+            </button>
+            <div class="video-card-body">
+              <h3 class="video-card-name">[Team Placeholder]</h3>
+            </div>
+          </li>
+
+          <li class="video-card video-card-wide video-card-sky">
+            <button type="button" class="video-card-thumbnail" aria-label="Play placeholder pitch video — video coming soon">
+              <img src="assets/pitch-videos/placeholder-5-thumbnail.jpg" alt="" loading="lazy">
+              <span class="video-play-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+              </span>
+              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
+            </button>
+            <div class="video-card-body">
+              <h3 class="video-card-name">[Team Placeholder]</h3>
+            </div>
+          </li>
+
+          <li class="video-card video-card-wide video-card-orange">
+            <button type="button" class="video-card-thumbnail" aria-label="Play placeholder pitch video — video coming soon">
+              <img src="assets/pitch-videos/placeholder-6-thumbnail.jpg" alt="" loading="lazy">
+              <span class="video-play-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+              </span>
+              <span class="video-coming-soon-msg" aria-hidden="true">Video coming soon</span>
+            </button>
+            <div class="video-card-body">
+              <h3 class="video-card-name">[Team Placeholder]</h3>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Same footer markup/treatment as the rest of the site. -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-name">Hult Prize <span>@ UC Davis</span></p>
+      <ul class="footer-links">
+        <!-- Placeholder contact details — replace with the chapter's real email and Instagram before launch -->
+        <li><a href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a></li>
+        <li><a href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">@hultprizeucdavis</a></li>
+      </ul>
+      <p class="footer-copyright">&copy; <span id="year"></span> Hult Prize @ UC Davis.</p>
+    </div>
+  </footer>
+
+  <!-- Same GSAP setup as Home/Team: script.js checks typeof gsap/
+       ScrollTrigger before using them, so a CDN failure degrades to the
+       static fallback (cards fully visible, no stagger) rather than
+       breaking the page. No confetti library needed on this page. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

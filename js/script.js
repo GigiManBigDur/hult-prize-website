@@ -151,6 +151,60 @@ function initLeadershipReveal() {
 }
 
 // ---------------------------------------------------------------------------
+// Pitch Videos page: cards animate in progressively as the grid scrolls
+// into view (Stage 4a). No-op on any page without a .video-card (i.e.
+// every page but pitch-videos.html). Deliberately the same shape as
+// initLeadershipReveal above rather than a shared helper — mirrors how the
+// Hero and Top Teams pin sequences stay separate functions too, even
+// though they rhyme structurally.
+// ---------------------------------------------------------------------------
+function initPitchVideoReveal() {
+  const cards = document.querySelectorAll(".video-card");
+  if (!cards.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(cards, { opacity: 0, y: 36 });
+
+  ScrollTrigger.batch(cards, {
+    start: "top 88%",
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.12,
+        ease: "power2.out",
+      }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Pitch Videos page: clicking a placeholder thumbnail's play button reveals
+// "Video coming soon" instead of attempting to play anything — no real
+// video file exists yet (see the consent comment in pitch-videos.html).
+// Plain click/keyboard interaction, not gated by reduced-motion or GSAP:
+// this is a state toggle, not a motion effect, and must work even if the
+// GSAP CDN fails to load.
+// ---------------------------------------------------------------------------
+function initPitchVideoPlaceholders() {
+  const buttons = document.querySelectorAll(".video-card-thumbnail");
+  if (!buttons.length) return;
+
+  buttons.forEach((btn) => {
+    btn.setAttribute("aria-pressed", "false");
+    btn.addEventListener("click", () => {
+      const showing = btn.classList.toggle("is-coming-soon-shown");
+      btn.setAttribute("aria-pressed", String(showing));
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
 // bridge). Story sits in plain normal document flow regardless of which
 // Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
@@ -646,6 +700,8 @@ function initPinSequence() {
 initImpactCounters();
 initScrollReveal();
 initLeadershipReveal();
+initPitchVideoReveal();
+initPitchVideoPlaceholders();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

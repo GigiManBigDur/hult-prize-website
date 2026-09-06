@@ -31,14 +31,26 @@ are the Foundation's copyrighted photography.
   had briefly been here before this one.)
 
 **Also not Picsum photography:** `leadership/member-1.jpg` through
-`member-6.jpg` (used on the Team/Leadership page, Stage 3a) are generated
-graphics, not stock photos — a solid color card matching each entry's accent
-plus a generic silhouette icon and a "PHOTO PLACEHOLDER / Real photo coming
-soon" label baked directly into the image. A stock photo of an actual
-stranger was deliberately avoided here: unlike the general-tone photography
-above, these stand in for specific named/titled roster entries, so an
-unlabeled real face would risk being mistaken for a real person rather than
-just reading as generic placeholder texture.
+`member-6.jpg` (used on the Team/Leadership page, Stage 3a) and
+`pitch-videos/*-thumbnail.jpg` (used on the Pitch Videos page, Stage 4a) are
+generated graphics, not stock photos — a solid color card matching each
+entry's accent plus a "PLACEHOLDER" label baked directly into the image (a
+silhouette icon for the leadership headshots, a play-triangle watermark for
+the video thumbnails). A stock photo of an actual stranger was deliberately
+avoided here: unlike the general-tone photography above, these stand in for
+specific named/titled entries, so an unlabeled real face (or, for the
+thumbnails, what could look like a real video preview frame) would risk
+being mistaken for the real thing rather than reading as generic placeholder
+texture.
+
+**Pitch video thumbnails carry a stronger consent requirement than a name
+alone.** Once real pitch videos exist, each one needs its own team's
+explicit consent to publish — separate from, and a higher bar than, the
+name-only consent that already covers listing a team on Top Teams. A video
+reveals far more about a team's actual venture (pitch content, founders'
+faces and voices, business details) than a name and a placement do. See the
+comment in pitch-videos.html for the full note; not something to act on now
+since the content there is still mock.
 
 ## Replacing before launch
 
@@ -51,6 +63,16 @@ same aspect ratios** listed below, and no code changes are needed:
   Campus Director … 6 = Treasurer per team.html). Replace the bracketed
   "[Name Placeholder]" text and "Bio coming soon." copy in team.html at the
   same time as swapping in each photo.
+- `pitch-videos/dozey-thumbnail.jpg`, `sumeru-quantum-thumbnail.jpg`,
+  `squellet-thumbnail.jpg` — 960×540 (16:9), the 3 real-placement cards on
+  the Pitch Videos page. Swapping in a real thumbnail alone doesn't make the
+  video playable — that also needs replacing the `<button>`'s placeholder
+  behavior in pitch-videos.html/js/script.js (initPitchVideoPlaceholders)
+  with an actual embed, at which point remember the consent requirement
+  noted above.
+- `pitch-videos/placeholder-4-thumbnail.jpg` … `placeholder-6-thumbnail.jpg`
+  — 960×540 (16:9), the 3 generic slots on the same page. Replace the
+  "[Team Placeholder]" copy in pitch-videos.html at the same time.
 
 Good real replacements: pitch presentations, teams collaborating, the
 OnCampus competition, judges/audience, campus recruiting events.

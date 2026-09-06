@@ -289,6 +289,17 @@ button:focus-visible {
   width: 100%;
 }
 
+/* Marks the nav link for whichever page is currently open (e.g. Team, on
+   team.html) — reuses the same gold-text/underline language as :hover so it
+   reads as "you are here" rather than a new visual idiom. */
+.header-inner nav a[aria-current="page"] {
+  color: var(--gold);
+}
+
+.header-inner nav a[aria-current="page"]:not(.nav-cta)::after {
+  width: 100%;
+}
+
 .nav-cta {
   font-family: var(--font-head);
   font-weight: 600;
@@ -1391,4 +1402,281 @@ button:focus-visible {
   height: 50px;
   margin: -25px 0 0 -25px;
   opacity: 1;
+}
+
+/* ==========================================================================
+   Leadership / Team page (Stage 3a)
+
+   A second full page, not a Home section — reuses the same header/footer
+   and color system. Cards are plain, fully-visible, normal-flow content by
+   default; js/script.js (initLeadershipReveal) progressively enhances the
+   entrance into a GSAP ScrollTrigger stagger, and only when motion isn't
+   reduced. Hover micro-interactions below are themselves gated to
+   (hover: hover) and (pointer: fine) so touch devices get an always-on
+   equivalent instead (see that block) rather than a hover that can never
+   fire.
+   ========================================================================== */
+
+.leadership-page {
+  position: relative;
+  background: var(--charcoal);
+  overflow: hidden;
+}
+
+/* Full-bleed textured backdrop behind the whole page — the same network
+   motif + soft magenta glow used elsewhere (.top-teams::before,
+   .story-teaser::before), not a new visual idiom. */
+.leadership-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(750px circle at 85% 0%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.leadership-hero,
+.leadership-grid-section {
+  position: relative;
+  z-index: 1;
+}
+
+.leadership-hero {
+  padding-block: 5rem 2.5rem;
+}
+
+.leadership-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  max-width: 20ch;
+}
+
+.leadership-hero-lede {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 62ch;
+  margin: 0;
+}
+
+.leadership-grid-section {
+  padding-block: 1.5rem 5rem;
+}
+
+.leadership-placeholder-note {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  margin: 0 0 2.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Grid — a 6-tile bento layout at desktop width rather than a uniform
+   directory list. DOM order stays reading order (1 = Campus Director ... 6
+   = Treasurer); grid-area assigns each card's position so tab/reading order
+   never has to chase the visual layout.
+   -------------------------------------------------------------------------- */
+
+.leadership-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .leadership-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .leadership-card-featured {
+    grid-column: 1 / -1;
+  }
+
+  /* At this tablet width the featured card spans the full row, but its
+     photo is still square — full-width-and-square makes the card
+     excessively tall here. Widen the crop until the desktop bento grid
+     (below) narrows the card back down and squares the photo off again. */
+  .leadership-card-featured .leadership-card-photo img {
+    aspect-ratio: 2.4 / 1;
+  }
+
+  .leadership-card-wide {
+    flex-direction: row;
+  }
+
+  .leadership-card-wide .leadership-card-photo {
+    width: 40%;
+    max-width: 200px;
+    flex-shrink: 0;
+  }
+
+  .leadership-card-wide .leadership-card-photo img {
+    height: 100%;
+  }
+
+  .leadership-card-wide .leadership-card-body {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1000px) {
+  .leadership-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-areas:
+      "a a b b"
+      "a a c d"
+      "e e f f";
+    gap: 1.75rem;
+  }
+
+  .leadership-card:nth-child(1) { grid-area: a; }
+  .leadership-card:nth-child(2) { grid-area: b; }
+  .leadership-card:nth-child(3) { grid-area: c; }
+  .leadership-card:nth-child(4) { grid-area: d; }
+  .leadership-card:nth-child(5) { grid-area: e; }
+  .leadership-card:nth-child(6) { grid-area: f; }
+
+  /* Back to square: at this width the featured card is only half the grid
+     (2 of 4 columns), so the tablet-only wide crop above would leave it too
+     short next to the tall photo/text tile it actually is here. */
+  .leadership-card-featured .leadership-card-photo img {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Card
+   -------------------------------------------------------------------------- */
+
+.leadership-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .leadership-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .leadership-card-photo img {
+    transition: filter 0.4s ease;
+  }
+}
+
+.leadership-card-photo {
+  margin: 0;
+  overflow: hidden;
+}
+
+.leadership-card-photo img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  /* Desaturated by default; hover (or the touch equivalent below) brings
+     each photo to full color as its own micro-interaction. */
+  filter: grayscale(0.85) saturate(0.55) brightness(0.85);
+}
+
+.leadership-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.leadership-card-role {
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--card-accent, var(--magenta));
+  margin: 0;
+}
+
+.leadership-card-name {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.leadership-card-bio {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.leadership-card-featured .leadership-card-role {
+  font-size: 0.85rem;
+}
+
+.leadership-card-featured .leadership-card-name {
+  font-size: 1.4rem;
+}
+
+.leadership-card-featured .leadership-card-bio {
+  font-size: 1rem;
+}
+
+/* Accent color rotation — the same secondary palette used for the Top Teams
+   placement badges (teal/sky/orange/gold), cycled across the 6 cards rather
+   than introducing a new palette. Drives the role label color and the
+   hover/touch glow below via --card-accent. */
+.leadership-card-teal { --card-accent: var(--teal); }
+.leadership-card-sky { --card-accent: var(--sky); }
+.leadership-card-orange { --card-accent: var(--orange); }
+.leadership-card-gold { --card-accent: var(--gold); }
+
+/* --------------------------------------------------------------------------
+   Hover micro-interactions (fine pointer only) and their touch equivalent.
+   -------------------------------------------------------------------------- */
+
+@media (hover: hover) and (pointer: fine) {
+  .leadership-card:hover {
+    border-color: var(--card-accent, var(--magenta));
+    box-shadow: 0 18px 36px -20px var(--card-accent, var(--magenta));
+  }
+
+  /* Alternating tilt direction reads as more "designed" than a uniform lift
+     across every card. */
+  .leadership-card:nth-child(odd):hover {
+    transform: translateY(-6px) rotate(-0.5deg);
+  }
+
+  .leadership-card:nth-child(even):hover {
+    transform: translateY(-6px) rotate(0.5deg);
+  }
+
+  .leadership-card:hover .leadership-card-photo img {
+    filter: grayscale(0) saturate(1) brightness(1);
+  }
+}
+
+/* No hover gesture exists on touch/coarse-pointer devices — show the same
+   full-color, accented state always, rather than gating a decorative-only
+   effect behind a tap that has no other purpose. */
+@media (hover: none) {
+  .leadership-card {
+    border-color: var(--card-accent, var(--magenta));
+  }
+
+  .leadership-card-photo img {
+    filter: grayscale(0) saturate(1) brightness(1);
+  }
 }

@@ -13,6 +13,16 @@ are the Foundation's copyrighted photography.
 **Exception:** `top-teams/*.jpg` are real event photos supplied by the site
 owner (the 1st/2nd/3rd place reveal moments) — not placeholders.
 
+**Also not Picsum photography:** `leadership/member-1.jpg` through
+`member-6.jpg` (used on the Team/Leadership page, Stage 3a) are generated
+graphics, not stock photos — a solid color card matching each entry's accent
+plus a generic silhouette icon and a "PHOTO PLACEHOLDER / Real photo coming
+soon" label baked directly into the image. A stock photo of an actual
+stranger was deliberately avoided here: unlike the general-tone photography
+above, these stand in for specific named/titled roster entries, so an
+unlabeled real face would risk being mistaken for a real person rather than
+just reading as generic placeholder texture.
+
 ## Replacing before launch
 
 Swap in real event photography using the **same filenames and roughly the
@@ -23,6 +33,11 @@ same aspect ratios** listed below, and no code changes are needed:
 - `story-photo.jpg` — 1200×1500 (portrait), used in the Our Story section.
 - `cta-photo.jpg` — 1400×1000 (landscape), used as the Get Involved band's
   background.
+- `leadership/member-1.jpg` … `member-6.jpg` — 600×600 (square), used on the
+  Team/Leadership page for each exec board entry, in roster order (1 =
+  Campus Director … 6 = Treasurer per team.html). Replace the bracketed
+  "[Name Placeholder]" text and "Bio coming soon." copy in team.html at the
+  same time as swapping in each photo.
 
 Good real replacements: pitch presentations, teams collaborating, the
 OnCampus competition, judges/audience, campus recruiting events.

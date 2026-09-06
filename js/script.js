@@ -114,6 +114,43 @@ function initScrollReveal() {
 }
 
 // ---------------------------------------------------------------------------
+// Leadership page: cards animate in progressively as the grid scrolls into
+// view (Stage 3a). No-op on any page without a .leadership-card (i.e. every
+// page but team.html). Unlike the Home page's pinned sequences, this isn't
+// gated to a wide/fine-pointer tier — it's a plain non-pinned scroll-in,
+// cheap enough to run on every device, same as initScrollReveal above.
+// ---------------------------------------------------------------------------
+function initLeadershipReveal() {
+  const cards = document.querySelectorAll(".leadership-card");
+  if (!cards.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    // Base CSS already renders the cards fully visible in their final
+    // position with no query — nothing to do.
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(cards, { opacity: 0, y: 36 });
+
+  // .batch groups cards that scroll into view together (e.g. a whole row at
+  // once on desktop) and staggers just that group, rather than staggering
+  // the full 6-card sequence from the moment the first one appears.
+  ScrollTrigger.batch(cards, {
+    start: "top 88%",
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.12,
+        ease: "power2.out",
+      }),
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
 // bridge). Story sits in plain normal document flow regardless of which
 // Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
@@ -608,6 +645,7 @@ function initPinSequence() {
 
 initImpactCounters();
 initScrollReveal();
+initLeadershipReveal();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

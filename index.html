@@ -130,8 +130,30 @@
           </div>
         </div>
 
-        <!-- Scene 3: Impact numbers -->
+        <!-- Scene 3: Impact numbers + photo gallery.
+             Default (fallback) rendering: a plain grid of thumbnails above the
+             stats — or, on touch/coarse-pointer devices, a swipeable
+             scroll-snap carousel instead (see the (hover:none),(pointer:coarse)
+             rules in css/styles.css). Neither is animated or scroll-linked.
+             Enhanced (pin-active, see initImpactGallery in js/script.js): the
+             same 8 images become a full-bleed backdrop that cross-fades with a
+             Ken Burns pan/zoom as the user scrolls, while this text stays put —
+             the images cycle, the stats do not. -->
         <div class="scene scene-impact" id="impact" aria-labelledby="impact-heading">
+          <div class="scene-impact-media" aria-hidden="true">
+            <div class="impact-gallery">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-1.jpg" alt="" loading="lazy">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-2.jpg" alt="" loading="lazy">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-3.jpg" alt="" loading="lazy">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-4.jpg" alt="" loading="lazy">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-5.jpg" alt="" loading="lazy">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-6.jpg" alt="" loading="lazy">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-7.jpg" alt="" loading="lazy">
+              <img class="impact-gallery-img" src="assets/impact-photos/photo-8.jpg" alt="" loading="lazy">
+            </div>
+            <div class="impact-gallery-tint"></div>
+            <p class="impact-gallery-badge">Placeholder photography — replace with real event photos before launch</p>
+          </div>
           <div class="scene-scrim"></div>
           <div class="container scene-inner impact-grid">
             <h2 id="impact-heading" class="visually-hidden">Our impact</h2>
@@ -159,9 +181,15 @@
          dark/magenta system. -->
     <section class="story-teaser" id="story" aria-labelledby="story-heading">
       <div class="container story-content">
-        <div class="story-intro">
-          <h2 id="story-heading">Our story, in brief</h2>
-          <p>Hult Prize @ UC Davis started as one student's idea. Here's how it became a lasting chapter.</p>
+        <div class="story-intro-row">
+          <div class="story-intro">
+            <h2 id="story-heading">Our story, in brief</h2>
+            <p>Hult Prize @ UC Davis started as one student's idea. Here's how it became a lasting chapter.</p>
+          </div>
+          <figure class="story-photo reveal-on-scroll">
+            <img src="assets/story-photo.jpg" alt="" loading="lazy">
+            <figcaption>Placeholder — replace with real event photography</figcaption>
+          </figure>
         </div>
         <ol class="story-timeline">
           <li class="story-timeline-item">
@@ -192,6 +220,7 @@
 
     <!-- Get Involved CTA band -->
     <section class="cta-band" id="get-involved" aria-labelledby="cta-heading">
+      <img class="cta-photo reveal-on-scroll" src="assets/cta-photo.jpg" alt="" loading="lazy" aria-hidden="true">
       <div class="cta-shimmer" aria-hidden="true"></div>
       <div class="container cta-inner">
         <h2 id="cta-heading">Ready to build something that matters?</h2>

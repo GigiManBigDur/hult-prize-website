@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- See the matching comment in index.html/team.html/pitch-videos.html:
+       opt out of the browser's default scroll-position restoration so a
+       reload or a pasted link starts at the top rather than wherever this
+       page was last scrolled to (an explicit #hash deep link is still
+       honored). -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline | Hult Prize @ UC Davis</title>
+  <meta name="description" content="Key dates for Hult Prize @ UC Davis's competition cycle.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Same header markup/treatment as the rest of the site. -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
+      <nav aria-label="Primary">
+        <ul>
+          <li class="nav-link-item"><a href="index.html#story">Our Story</a></li>
+          <li class="nav-link-item"><a href="index.html#impact">Impact</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="pitch-videos.html">Pitch Videos</a></li>
+          <li><a href="timeline.html" aria-current="page">Timeline</a></li>
+          <li><a class="nav-cta" href="index.html#get-involved">Get Involved</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="timeline-page">
+    <section class="timeline-hero">
+      <div class="container">
+        <h1>Chapter Timeline</h1>
+        <p class="timeline-hero-lede">
+          The key dates in this cycle's Hult Prize @ UC Davis competition — from kickoff through
+          the National Competition.
+        </p>
+        <!-- All dates below are illustrative PLACEHOLDERS for building this
+             page's design (Stage 5a) — see the matching comment by
+             initEventTimelinePositions in js/script.js. None are confirmed;
+             the site owner must replace every data-event-date (and the
+             matching visible date text) with real confirmed dates before
+             launch. -->
+        <p class="timeline-placeholder-note">
+          Dates shown are placeholders for this page's design — real confirmed dates will
+          replace them before launch.
+        </p>
+      </div>
+    </section>
+
+    <section class="timeline-track-section" aria-labelledby="timeline-heading">
+      <div class="container">
+        <h2 id="timeline-heading" class="visually-hidden">Event timeline</h2>
+
+        <div class="timeline-track">
+          <div class="timeline-track-line" aria-hidden="true"></div>
+
+          <!-- Positioned via initEventTimelinePositions (js/script.js) as a
+               top: X% of .timeline-track's own height, computed from where
+               today's real date falls between the first and last event
+               dates below. Not aria-hidden: this is real, load-bearing
+               information (which point in the timeline is "now"), not
+               decoration — screen reader users get the same date via the
+               visually-hidden span. -->
+          <div class="timeline-you-are-here">
+            <span class="timeline-you-are-here-dot" aria-hidden="true"></span>
+            <span class="timeline-you-are-here-label">
+              You Are Here
+              <span class="visually-hidden">— <span class="timeline-you-are-here-date"></span></span>
+            </span>
+          </div>
+
+          <ol class="timeline-events">
+            <li class="timeline-event timeline-event-teal" data-event-date="2026-09-01">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">September 1, 2026</p>
+                <h3 class="timeline-card-name">Kickoff / Info Session</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+
+            <li class="timeline-event timeline-event-sky" data-event-date="2026-09-20">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">September 20, 2026</p>
+                <h3 class="timeline-card-name">Team Formation Deadline</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+
+            <li class="timeline-event timeline-event-orange" data-event-date="2026-10-10">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">October 10, 2026</p>
+                <h3 class="timeline-card-name">Ideation Workshop (ENG 108 partnership)</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+
+            <li class="timeline-event timeline-event-gold" data-event-date="2026-11-05">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">November 5, 2026</p>
+                <h3 class="timeline-card-name">Venture Development Workshops</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+
+            <li class="timeline-event timeline-event-teal" data-event-date="2027-01-15">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">January 15, 2027</p>
+                <h3 class="timeline-card-name">Pitch Submission Deadline</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+
+            <li class="timeline-event timeline-event-sky" data-event-date="2027-02-20">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">February 20, 2027</p>
+                <h3 class="timeline-card-name">OnCampus Competition Day</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+
+            <li class="timeline-event timeline-event-orange" data-event-date="2027-03-01">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">March 1, 2027</p>
+                <h3 class="timeline-card-name">Results Announcement</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+
+            <li class="timeline-event timeline-event-gold" data-event-date="2027-04-15">
+              <div class="timeline-node" aria-hidden="true"></div>
+              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+                <span class="timeline-card-completed-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="timeline-next-up-badge">Next Up</span>
+                <p class="timeline-card-date">April 15, 2027</p>
+                <h3 class="timeline-card-name">National Competition (for advancing teams)</h3>
+                <p class="timeline-card-status"></p>
+              </article>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Same footer markup/treatment as the rest of the site. -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-name">Hult Prize <span>@ UC Davis</span></p>
+      <ul class="footer-links">
+        <!-- Placeholder contact details — replace with the chapter's real email and Instagram before launch -->
+        <li><a href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a></li>
+        <li><a href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">@hultprizeucdavis</a></li>
+      </ul>
+      <p class="footer-copyright">&copy; <span id="year"></span> Hult Prize @ UC Davis.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP drives the scroll-triggered stagger reveal only
+       (initEventTimelineReveal) — the "You Are Here" position and every
+       day-count label (initEventTimelinePositions) are plain JS, computed
+       and applied regardless of whether this loads, so a CDN failure only
+       costs the reveal animation (events show immediately instead), never
+       the actual date math. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

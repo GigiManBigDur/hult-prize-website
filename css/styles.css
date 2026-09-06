@@ -1689,6 +1689,24 @@ button:focus-visible {
   .leadership-card:hover .leadership-card-photo img {
     filter: grayscale(0) saturate(1) brightness(1);
   }
+
+  /* Event Timeline (Stage 5a) — appended here rather than a separate
+     (hover: hover) and (pointer: fine) block, for the same duplicate-
+     @media-condition reason documented at the top of that page's CSS
+     section. Deliberately only ever sets box-shadow/transform here, never
+     border-color or anything else .timeline-node/.timeline-card's own base
+     rules already set — that's what keeps this merge safe regardless of
+     source order (a same-specificity override only needs to come after its
+     base rule when they fight over the SAME property; these never do). */
+  .timeline-event:hover .timeline-node {
+    transform: translate(-50%, 0) scale(1.3);
+    box-shadow: 0 0 16px var(--card-accent, var(--magenta));
+  }
+
+  .timeline-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -25px var(--card-accent, var(--magenta));
+  }
 }
 
 /* No hover gesture exists on touch/coarse-pointer devices — show the same
@@ -1701,6 +1719,13 @@ button:focus-visible {
 
   .leadership-card-photo img {
     filter: grayscale(0) saturate(1) brightness(1);
+  }
+
+  /* Event Timeline (Stage 5a) — appended here rather than a separate
+     (hover: none) block; same box-shadow-only reasoning as the (hover:
+     hover) merge above. */
+  .timeline-node {
+    box-shadow: 0 0 12px var(--card-accent, var(--magenta));
   }
 }
 
@@ -2039,3 +2064,388 @@ button:focus-visible {
 .pitch-slide-teal { --card-accent: var(--teal); }
 .pitch-slide-sky { --card-accent: var(--sky); }
 .pitch-slide-orange { --card-accent: var(--orange); }
+
+/* ==========================================================================
+   Event Timeline page (Stage 5a)
+
+   A fourth full page, alongside Home/Leadership/Pitch Videos — same header/
+   footer/color system. Mobile-first: base rules below are the single-
+   column mobile layout (track + nodes flush left, cards full-width);
+   @media (min-width: 680px) switches to the alternating centered layout.
+   That breakpoint is a fresh, unused condition and this whole section is
+   self-contained (base rules and their override live together, in this one
+   contiguous block) specifically to avoid the two real bugs hit building
+   the Leadership/Pitch Videos pages: a second block sharing an exact
+   @media condition elsewhere in this file gets silently dropped by the
+   browser's CSSOM parser, and even when merging into a shared block is
+   safe/necessary, a same-specificity base rule must sit BEFORE the
+   override that targets it or the override loses the cascade regardless of
+   whether its condition matches. Owning a unique breakpoint sidesteps both
+   requirements entirely for the properties that need mobile/desktop
+   overrides. Hover states below are still merged into the existing shared
+   (hover: hover)/(hover: none) blocks — see the comment placed with those
+   merged rules for why that stays safe here specifically.
+   ========================================================================== */
+
+.timeline-page {
+  position: relative;
+  background: var(--charcoal);
+  overflow: hidden;
+}
+
+.timeline-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(750px circle at 88% 0%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.timeline-hero,
+.timeline-track-section {
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-hero {
+  padding-block: 5rem 2.5rem;
+}
+
+.timeline-hero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 2.8rem);
+  max-width: 24ch;
+}
+
+.timeline-hero-lede {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 62ch;
+  margin: 0 0 1.5rem;
+}
+
+.timeline-placeholder-note {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  margin: 0;
+}
+
+.timeline-track-section {
+  padding-block: 1.5rem 6rem;
+}
+
+/* --------------------------------------------------------------------------
+   Track: the vertical line + the live "You Are Here" marker. Both are
+   positioned as a percentage of .timeline-track's own height — which,
+   since .timeline-events is its only in-flow child, naturally spans from
+   the top of the first event to the bottom of the last one. 0%/100% land
+   at the very top/bottom of that box rather than each node's exact center,
+   a small, deliberate simplification — see initEventTimelinePositions in
+   js/script.js for the actual percentage math.
+   -------------------------------------------------------------------------- */
+
+.timeline-track {
+  position: relative;
+}
+
+.timeline-track-line {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--line);
+  z-index: 0;
+}
+
+/* top is set inline by initEventTimelinePositions (js/script.js) — a
+   percentage of .timeline-track's height computed from where today's real
+   date falls between the first and last event. Always applied regardless
+   of motion preference: this is the page's actual content (which point in
+   the timeline is "now"), not decoration. */
+.timeline-you-are-here {
+  position: absolute;
+  left: 20px;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+
+.timeline-you-are-here-dot {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--magenta);
+  border: 3px solid var(--charcoal-deep);
+}
+
+.timeline-you-are-here-label {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--magenta);
+  background: var(--charcoal-deep);
+  border: 1px solid var(--magenta);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Events
+   -------------------------------------------------------------------------- */
+
+.timeline-events {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline-event {
+  position: relative;
+  padding-left: 3.5rem;
+  padding-block: 1.5rem;
+}
+
+.timeline-node {
+  position: absolute;
+  left: 20px;
+  top: 2.75rem;
+  transform: translate(-50%, 0);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--card-accent, var(--magenta));
+  border: 3px solid var(--charcoal-deep);
+  z-index: 2;
+}
+
+.timeline-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.35rem 1.5rem;
+  cursor: pointer;
+}
+
+.timeline-card-date {
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--card-accent, var(--magenta));
+  margin: 0 0 0.4rem;
+}
+
+.timeline-card-name {
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  margin: 0 0 0.4rem;
+}
+
+.timeline-card-status {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Hidden until initEventTimelinePositions (js/script.js) adds .is-completed
+   — real content computed from the actual current date, so there's no
+   meaningful static default to show instead. */
+.timeline-card-completed-icon {
+  display: none;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--teal);
+}
+
+.timeline-card-completed-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.timeline-event.is-completed .timeline-card-completed-icon {
+  display: block;
+}
+
+.timeline-event.is-completed .timeline-card {
+  opacity: 0.6;
+  filter: saturate(0.6);
+}
+
+/* Same reasoning as .timeline-card-completed-icon above — hidden until JS
+   determines which single event is actually next. */
+.timeline-next-up-badge {
+  display: none;
+  position: absolute;
+  top: -0.7rem;
+  left: 1.5rem;
+  font-family: var(--font-head);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--charcoal-deep);
+  background: var(--card-accent, var(--magenta));
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.timeline-event.is-next-up .timeline-next-up-badge {
+  display: inline-block;
+}
+
+.timeline-event.is-next-up .timeline-card {
+  border-color: var(--card-accent, var(--magenta));
+  box-shadow: 0 0 30px -10px var(--card-accent, var(--magenta));
+}
+
+/* Click/tap-to-focus (initTimelineCardFocus, js/script.js) — the brief's
+   "simply highlight/focus that event" option, chosen over an expand-for-
+   detail treatment since there's no additional detail to show yet (mock
+   content is just name + date). */
+.timeline-card.is-focused {
+  border-color: var(--card-accent, var(--magenta));
+  box-shadow: 0 0 0 2px var(--card-accent, var(--magenta));
+}
+
+/* Accent color rotation — the same secondary palette used on Leadership/
+   Pitch Videos, cycled across the 8 events (2 full passes of the 4
+   colors). */
+.timeline-event-teal { --card-accent: var(--teal); }
+.timeline-event-sky { --card-accent: var(--sky); }
+.timeline-event-orange { --card-accent: var(--orange); }
+.timeline-event-gold { --card-accent: var(--gold); }
+
+/* --------------------------------------------------------------------------
+   Desktop layout: centered track, alternating left/right cards. A fresh,
+   unused breakpoint — see this section's opening comment for why.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 680px) {
+  .timeline-track-line {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .timeline-you-are-here {
+    left: 50%;
+  }
+
+  .timeline-event {
+    padding-left: 0;
+    display: flex;
+  }
+
+  .timeline-event:nth-child(odd) {
+    justify-content: flex-end;
+  }
+
+  .timeline-event:nth-child(even) {
+    justify-content: flex-start;
+  }
+
+  .timeline-node {
+    left: 50%;
+  }
+
+  .timeline-card {
+    width: 44%;
+  }
+
+  .timeline-event:nth-child(odd) .timeline-card {
+    margin-right: 3rem;
+  }
+
+  .timeline-event:nth-child(even) .timeline-card {
+    margin-left: 3rem;
+  }
+
+  .timeline-next-up-badge {
+    left: auto;
+  }
+
+  .timeline-event:nth-child(odd) .timeline-next-up-badge {
+    right: 1.5rem;
+  }
+
+  .timeline-event:nth-child(even) .timeline-next-up-badge {
+    left: 1.5rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Motion: track flow, You Are Here pulse, and hover/focus transitions. All
+   of it gated here — reduced motion gets a static line, a static (but
+   still colored/visible) marker dot, and instant hover/focus states,
+   exactly matching the brief's "You Are Here must still appear in the
+   correct position... but without the pulsing animation."
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .timeline-track-line {
+    background: linear-gradient(180deg, var(--magenta), var(--sky), var(--teal), var(--gold), var(--magenta));
+    background-size: 100% 300%;
+    animation: timeline-flow 7s linear infinite;
+  }
+
+  .timeline-you-are-here-dot {
+    animation: timeline-pulse 2s ease-out infinite;
+  }
+
+  .timeline-node,
+  .timeline-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  @keyframes timeline-flow {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 0% 100%;
+    }
+  }
+
+  @keyframes timeline-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(236, 32, 136, 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 18px rgba(236, 32, 136, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(236, 32, 136, 0);
+    }
+  }
+}

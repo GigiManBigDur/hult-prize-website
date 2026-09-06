@@ -312,6 +312,164 @@ function initPitchVideoEntrance() {
 }
 
 // ---------------------------------------------------------------------------
+// Timeline page: the "You Are Here" marker position and every event's day-
+// count/completed/next-up state (Stage 5a). Deliberately NOT gated by
+// prefersReducedMotion or GSAP availability — per the brief, this is the
+// page's actual content (which point in the timeline is "now," how many
+// days until each event), not a motion effect, and must stay correct
+// regardless of motion preference or a GSAP CDN failure. Only
+// initEventTimelineReveal below (the scroll-triggered entrance) and the
+// track/marker pulse (CSS, gated in styles.css) are motion-gated.
+// ---------------------------------------------------------------------------
+function initEventTimelinePositions() {
+  const track = document.querySelector(".timeline-track");
+  const items = document.querySelectorAll(".timeline-event");
+  if (!track || !items.length) return;
+
+  // Every date below comes from each .timeline-event's data-event-date
+  // ("YYYY-MM-DD") in timeline.html — ALL of them are illustrative
+  // PLACEHOLDERS for this page's build (Stage 5a), not confirmed real
+  // dates; the site owner must replace both the attribute and the visible
+  // .timeline-card-date text for each event before launch.
+  //
+  // Parsed via new Date(year, monthIndex, day) — explicit numeric args,
+  // never new Date("YYYY-MM-DD") — because the string form parses as UTC
+  // midnight, which shifts to the previous day once displayed/compared in
+  // any timezone west of UTC (i.e. most of North America). Using the
+  // numeric constructor for both this and "today" below keeps both sides
+  // of every subtraction in the same (local) time reference, which is what
+  // actually avoids the off-by-one bug rather than any particular rounding
+  // choice.
+  function parseLocalDate(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  const events = Array.from(items).map((el) => ({
+    el,
+    date: parseLocalDate(el.dataset.eventDate),
+  }));
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  // Rounds rather than truncates: two local midnights are normally an
+  // exact multiple of 24h apart, but a DST transition between them can
+  // make that a 23h or 25h "day" in elapsed-ms terms — rounding guarantees
+  // the correct whole-day count survives that either way.
+  function dayDiff(a, b) {
+    return Math.round((a.getTime() - b.getTime()) / MS_PER_DAY);
+  }
+
+  const firstDate = events[0].date;
+  const lastDate = events[events.length - 1].date;
+  const totalSpanDays = dayDiff(lastDate, firstDate);
+  const todayOffsetDays = dayDiff(today, firstDate);
+  const pct =
+    totalSpanDays > 0 ? Math.max(0, Math.min(100, (todayOffsetDays / totalSpanDays) * 100)) : 0;
+
+  const marker = document.querySelector(".timeline-you-are-here");
+  if (marker) {
+    marker.style.top = pct + "%";
+    const dateLabel = marker.querySelector(".timeline-you-are-here-date");
+    if (dateLabel) {
+      dateLabel.textContent = today.toLocaleDateString(undefined, {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+  }
+
+  let nextUpAssigned = false;
+  events.forEach(({ el, date }) => {
+    const diff = dayDiff(date, today);
+    const statusEl = el.querySelector(".timeline-card-status");
+
+    el.classList.remove("is-completed", "is-next-up");
+
+    if (diff < 0) {
+      el.classList.add("is-completed");
+      const days = Math.abs(diff);
+      if (statusEl) statusEl.textContent = `${days} day${days === 1 ? "" : "s"} ago`;
+    } else {
+      if (statusEl) {
+        statusEl.textContent = diff === 0 ? "Today" : `${diff} day${diff === 1 ? "" : "s"} until`;
+      }
+      if (!nextUpAssigned) {
+        el.classList.add("is-next-up");
+        nextUpAssigned = true;
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Timeline page: each event animates in as the visitor scrolls down to it
+// (Stage 5a) — an individual ScrollTrigger per event rather than
+// ScrollTrigger.batch (used on Leadership/Pitch Videos), since these enter
+// one at a time down a vertical page rather than in simultaneous rows/
+// batches. Alternates the slide-in direction to match the CSS's alternating
+// left/right layout, purely cosmetic so it's skipped along with everything
+// else under reduced motion or a GSAP/ScrollTrigger CDN failure — the
+// events are already fully visible in their final position from
+// initEventTimelinePositions above regardless.
+// ---------------------------------------------------------------------------
+function initEventTimelineReveal() {
+  const items = document.querySelectorAll(".timeline-event");
+  if (!items.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  items.forEach((el, i) => {
+    const fromLeft = i % 2 === 0;
+    gsap.set(el, { opacity: 0, x: fromLeft ? -40 : 40 });
+    gsap.to(el, {
+      opacity: 1,
+      x: 0,
+      duration: 0.6,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: el,
+        start: "top 85%",
+      },
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Timeline page: clicking or tapping an event card toggles a persistent
+// highlight (Stage 5a) — the brief's "simply highlight/focus that event"
+// option, chosen over expand-for-detail since there's no additional detail
+// to show yet (mock content is just a name and a date). Plain click/
+// keyboard interaction, not gated by reduced-motion or GSAP: this is a
+// state toggle, not a motion effect, and must work even if a CDN fails.
+// ---------------------------------------------------------------------------
+function initTimelineCardFocus() {
+  const cards = document.querySelectorAll(".timeline-card");
+  if (!cards.length) return;
+
+  cards.forEach((card) => {
+    function toggle() {
+      const focused = card.classList.toggle("is-focused");
+      card.setAttribute("aria-pressed", String(focused));
+    }
+    card.addEventListener("click", toggle);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
 // bridge). Story sits in plain normal document flow regardless of which
 // Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
@@ -813,6 +971,9 @@ initPitchVideoPlayback();
 // .pitch-slide-card, which needs Swiper to have already applied its
 // coverflow positioning to the parent .swiper-slide first.
 initPitchVideoEntrance();
+initEventTimelinePositions();
+initEventTimelineReveal();
+initTimelineCardFocus();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

@@ -854,14 +854,6 @@ button:focus-visible {
   pointer-events: none;
 }
 
-.top-teams-photo-note {
-  margin: 2.5rem 0 0;
-  text-align: center;
-  font-size: 0.8rem;
-  font-style: italic;
-  color: var(--text-secondary);
-}
-
 @media (min-width: 760px) {
   .podium {
     grid-template-columns: 1fr 1.2fr 1fr;

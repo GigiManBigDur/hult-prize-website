@@ -1,6 +1,6 @@
 # Placeholder images
 
-Every image in this folder is a **placeholder**, not real Hult Prize @ UC Davis
+Most images in this folder are **placeholders**, not real Hult Prize @ UC Davis
 event photography. They were sourced from [Lorem Picsum](https://picsum.photos),
 a free-to-use image service built on openly licensed photography, explicitly
 intended for exactly this kind of development/placeholder use. None of them
@@ -9,6 +9,9 @@ tone (varied light, motion, texture) and are styled with a brand color
 treatment in CSS to feel intentional rather than random. They are NOT sourced
 from the Hult Prize Foundation's own website or promotional materials, which
 are the Foundation's copyrighted photography.
+
+**Exception:** `top-teams/*.jpg` are real event photos supplied by the site
+owner (the 1st/2nd/3rd place reveal moments) — not placeholders.
 
 ## Replacing before launch
 

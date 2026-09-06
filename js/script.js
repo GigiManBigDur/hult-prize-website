@@ -80,15 +80,18 @@ function initScrollReveal() {
 }
 
 // ---------------------------------------------------------------------------
-// Top Teams podium: staggered reveal (3rd, then 2nd, then 1st) plus a one-
-// shot confetti burst on 1st place. Unlike the pinned Hero/Explainer/Impact
-// sequence, this isn't gated on a wide viewport or a fine pointer — it's a
-// simple triggered-once animation (not pinned or scroll-scrubbed), so it's
-// safe and lightweight on mobile too. It IS gated on reduced motion: with
-// that preference set, the cards are just visible immediately (nothing to
-// reverse, since we only add hidden inline styles here after confirming
-// motion is OK) and no confetti ever fires — the 1st-place glow is plain
-// CSS in every case, so "the winner" still reads at a glance.
+// Top Teams podium: reveal progress is tied directly to scroll position
+// (3rd place arrives first, then 2nd, then 1st, as the user scrolls down;
+// scrolling back up reverses it, same as any scrub animation) plus a one-
+// shot confetti burst the moment 1st place finishes arriving. Unlike the
+// pinned Hero/Explainer/Impact sequence, this doesn't pin the section or
+// gate on viewport width/pointer type — it's a plain scrubbed timeline tied
+// to normal scroll, which stays smooth on touch scrolling too. It IS gated
+// on reduced motion: with that preference set, the cards are just visible
+// immediately (nothing to reverse, since we only add hidden inline styles
+// here after confirming motion is OK) and no confetti ever fires — the
+// 1st-place glow is plain CSS in every case, so "the winner" still reads at
+// a glance.
 // ---------------------------------------------------------------------------
 function triggerConfetti(targetEl) {
   if (typeof confetti === "undefined") return; // CDN failure: skip quietly
@@ -126,16 +129,35 @@ function initTopTeamsReveal() {
 
   gsap.set([thirdCard, secondCard, firstCard], { opacity: 0, y: 40 });
 
+  // Fractions (0–1) of the scrubbed range. 1st place finishing at 0.95 (not
+  // 1.0) leaves a small settled buffer before the trigger's end, so the
+  // confetti moment doesn't land exactly at the very edge of the range.
+  const tl = gsap.timeline({ defaults: { ease: "none" } });
+  tl.to(thirdCard, { opacity: 1, y: 0, duration: 0.33 }, 0)
+    .to(secondCard, { opacity: 1, y: 0, duration: 0.33 }, 0.3)
+    .to(firstCard, { opacity: 1, y: 0, duration: 0.35 }, 0.6);
+
+  const FIRST_PLACE_DONE = 0.95;
+  let confettiFired = false;
+
   ScrollTrigger.create({
     trigger: section,
-    start: "top 75%",
-    once: true,
-    onEnter: () => {
-      const tl = gsap.timeline({ defaults: { ease: "power2.out", duration: 0.6 } });
-      tl.to(thirdCard, { opacity: 1, y: 0 })
-        .to(secondCard, { opacity: 1, y: 0 }, "-=0.35")
-        .to(firstCard, { opacity: 1, y: 0 }, "-=0.35")
-        .call(() => triggerConfetti(firstCard));
+    start: "top 80%",
+    end: () => "+=" + window.innerHeight * 2,
+    scrub: 0.4,
+    animation: tl,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => {
+      // A plain flag, not `once` on a separate trigger: confetti is a
+      // fire-and-forget effect, not a reversible tween, so scrubbing it or
+      // replaying it on scroll-back would look broken. This fires exactly
+      // once per page load, the first time scroll progress reaches the
+      // point where 1st place has fully arrived — scrolling back past that
+      // point (or down past it again) never re-fires it.
+      if (!confettiFired && self.progress >= FIRST_PLACE_DONE) {
+        confettiFired = true;
+        triggerConfetti(firstCard);
+      }
     },
   });
 }

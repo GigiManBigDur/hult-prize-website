@@ -1,24 +1,37 @@
 /* ==========================================================================
-   Hult Prize @ UC Davis — Home page styles
+   Hult Prize @ UC Davis — Home page styles (v3: dark / magenta rebuild)
    ========================================================================== */
 
 :root {
-  /* Brand palette (locked) */
+  /* Color system v3.
+     UC Davis navy/gold live ONLY in the header — the one deliberate anchor.
+     Everything below the nav uses the dark charcoal base with Hult Prize's
+     verified magenta as the dominant accent, plus a small curated set of
+     secondary accents (teal/sky/orange/gold) used sparingly, never as a
+     full-page wash. */
+  --charcoal: #17141b;
+  --charcoal-deep: #0d0b10;
+  --charcoal-raised: #221d29;
+
+  --magenta: #ec2088;
+  --magenta-dark: #b8156a;
+  --magenta-darker: #93124f;
+
+  --teal: #2bbba0;
+  --sky: #3aa9e0;
+  --orange: #f2994a;
+  --gold: #ffbf00;
+
   --navy: #022851;
-  --navy-deep: #0A1F3D;
-  --gold: #FFBF00;
-  --gold-dark: #E0A800;
-  --white: #FFFFFF;
-  --off-white: #F7F7F5;
-  --warm-gray: #6B6259;
-  --warm-gray-light: #D9D4CC;
   --navy-line: rgba(255, 255, 255, 0.16);
 
-  /* Low-opacity background textures, shared across sections for a
-     consistent visual thread rather than one-off decoration. Opacity is
-     baked into the SVGs themselves and further reduced per use below. */
-  --bg-network: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='%23FFBF00' stroke-opacity='0.45' stroke-width='1'%3E%3Cline x1='20' y1='30' x2='90' y2='70'/%3E%3Cline x1='90' y1='70' x2='160' y2='40'/%3E%3Cline x1='160' y1='40' x2='210' y2='100'/%3E%3Cline x1='40' y1='160' x2='110' y2='190'/%3E%3Cline x1='110' y1='190' x2='180' y2='150'/%3E%3Cline x1='180' y1='150' x2='230' y2='210'/%3E%3C/g%3E%3Cg fill='%23FFBF00' fill-opacity='0.55'%3E%3Ccircle cx='20' cy='30' r='3'/%3E%3Ccircle cx='90' cy='70' r='2.5'/%3E%3Ccircle cx='160' cy='40' r='3'/%3E%3Ccircle cx='210' cy='100' r='2.5'/%3E%3Ccircle cx='40' cy='160' r='3'/%3E%3Ccircle cx='110' cy='190' r='2.5'/%3E%3Ccircle cx='180' cy='150' r='3'/%3E%3Ccircle cx='230' cy='210' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
-  --bg-dotgrid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Ccircle cx='4' cy='4' r='1.4' fill='%230A1F3D' fill-opacity='0.5'/%3E%3C/svg%3E");
+  --white: #ffffff;
+  --text-secondary: #ada8b8;
+  --line: rgba(255, 255, 255, 0.14);
+
+  /* Low-opacity background texture, shared across the dark sections below
+     the pinned sequence for a consistent visual thread. */
+  --bg-network: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='%23EC2088' stroke-opacity='0.4' stroke-width='1'%3E%3Cline x1='20' y1='30' x2='90' y2='70'/%3E%3Cline x1='90' y1='70' x2='160' y2='40'/%3E%3Cline x1='160' y1='40' x2='210' y2='100'/%3E%3Cline x1='40' y1='160' x2='110' y2='190'/%3E%3Cline x1='110' y1='190' x2='180' y2='150'/%3E%3Cline x1='180' y1='150' x2='230' y2='210'/%3E%3C/g%3E%3Cg fill='%23EC2088' fill-opacity='0.5'%3E%3Ccircle cx='20' cy='30' r='3'/%3E%3Ccircle cx='90' cy='70' r='2.5'/%3E%3Ccircle cx='160' cy='40' r='3'/%3E%3Ccircle cx='210' cy='100' r='2.5'/%3E%3Ccircle cx='40' cy='160' r='3'/%3E%3Ccircle cx='110' cy='190' r='2.5'/%3E%3Ccircle cx='180' cy='150' r='3'/%3E%3Ccircle cx='230' cy='210' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
 
   /* Type */
   --font-head: "Space Grotesk", "Segoe UI", sans-serif;
@@ -48,8 +61,8 @@ html {
 body {
   margin: 0;
   font-family: var(--font-body);
-  color: var(--navy-deep);
-  background: var(--white);
+  color: var(--white);
+  background: var(--charcoal);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
@@ -77,7 +90,8 @@ a {
   color: inherit;
 }
 
-ul {
+ul,
+ol {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -107,13 +121,13 @@ ul {
   position: absolute;
   left: 1rem;
   top: -3rem;
-  background: var(--gold);
-  color: var(--navy-deep);
+  background: var(--magenta);
+  color: var(--white);
   padding: 0.75rem 1.25rem;
   font-family: var(--font-head);
   font-weight: 600;
   border-radius: var(--radius);
-  z-index: 100;
+  z-index: 200;
   transition: top 0.15s ease;
 }
 
@@ -121,11 +135,17 @@ ul {
   top: 1rem;
 }
 
-/* Focus visibility (keyboard) */
+/* Focus visibility (keyboard). Magenta reads clearly against the dark base;
+   the header overrides this to gold to stay consistent with its own navy/gold
+   accent system. */
 a:focus-visible,
 button:focus-visible {
-  outline: 3px solid var(--gold);
+  outline: 3px solid var(--magenta);
   outline-offset: 3px;
+}
+
+.site-header a:focus-visible {
+  outline-color: var(--gold);
 }
 
 /* --------------------------------------------------------------------------
@@ -144,14 +164,16 @@ button:focus-visible {
   border: 2px solid transparent;
 }
 
+/* magenta-dark (not the flat brand magenta) so white button text clears
+   WCAG AA contrast at this size — see the design notes in the commit. */
 .btn-primary {
-  background: var(--gold);
-  color: var(--navy-deep);
+  background: var(--magenta-dark);
+  color: var(--white);
 }
 
 .btn-primary:hover,
 .btn-primary:focus-visible {
-  background: var(--gold-dark);
+  background: var(--magenta-darker);
 }
 
 .btn-ghost {
@@ -163,7 +185,7 @@ button:focus-visible {
 .btn-ghost:hover,
 .btn-ghost:focus-visible {
   background: var(--white);
-  color: var(--navy-deep);
+  color: var(--charcoal-deep);
 }
 
 .text-link {
@@ -174,7 +196,7 @@ button:focus-visible {
   font-weight: 600;
   color: inherit;
   text-decoration: none;
-  border-bottom: 2px solid var(--gold);
+  border-bottom: 2px solid var(--magenta);
   padding-bottom: 0.15rem;
 }
 
@@ -184,7 +206,8 @@ button:focus-visible {
 }
 
 /* --------------------------------------------------------------------------
-   Header
+   Header — the one deliberate UC Davis anchor point (navy + gold), unchanged
+   in spirit from earlier stages.
    -------------------------------------------------------------------------- */
 
 .site-header {
@@ -264,7 +287,7 @@ button:focus-visible {
   font-family: var(--font-head);
   font-weight: 600;
   background: var(--gold);
-  color: var(--navy-deep) !important;
+  color: var(--navy) !important;
   padding: 0.55rem 1.1rem;
   border-radius: var(--radius);
   white-space: nowrap;
@@ -272,7 +295,7 @@ button:focus-visible {
 
 .nav-cta:hover,
 .nav-cta:focus-visible {
-  background: var(--gold-dark);
+  background: #e0a800;
 }
 
 /* Below ~640px there isn't room for the full nav alongside the wordmark and
@@ -285,94 +308,157 @@ button:focus-visible {
 }
 
 /* --------------------------------------------------------------------------
-   Hero
+   Pinned scroll sequence — Hero / Explainer / Impact.
+
+   Baseline (this CSS alone, no JS): `.pin-bg` is `position: sticky`, so the
+   full-bleed motif naturally stays put behind the three `.scene` sections as
+   they stack and scroll past it in normal document flow. Nothing here is
+   animated and nothing hijacks scroll — this is the complete, intentional
+   experience for reduced-motion, touch/mobile, and no-JS visitors.
+
+   js/script.js (initPinSequence) progressively enhances this: only when the
+   viewport is wide, the pointer is fine, GSAP + ScrollTrigger loaded, and
+   the user has no reduced-motion preference, it adds `.pin-active` to
+   `.pin-sequence`, which is what switches the scenes to absolute stacking
+   for a true pinned, scroll-scrubbed cross-fade. The extra
+   `(min-width: 900px)` / `no-preference` guards below are a second,
+   CSS-level safety net — even a JS bug can't turn on the pinned layout
+   somewhere it shouldn't.
    -------------------------------------------------------------------------- */
 
-.hero {
-  background: var(--navy);
-  color: var(--white);
+.pin-sequence {
   position: relative;
+  background: var(--charcoal-deep);
+}
+
+.pin-stage {
+  position: relative;
+}
+
+/* Fallback (default): the illustrated motif sits full-bleed behind the Hero
+   scene only — it's absolutely positioned to exactly that first 100vh, not
+   trying to persist behind the normally-stacked scenes below it. Explainer
+   and Impact get their own lighter texture instead (below). `meet` (not
+   `slice`) so the motif never has to crop/zoom to cover odd aspect ratios —
+   important on tall narrow phones. */
+.pin-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 0;
   overflow: hidden;
 }
 
-/* Angled overlap into the section below, in place of a flat seam. */
-.hero-divider {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: clamp(48px, 8vw, 96px);
-  background: var(--off-white);
-  clip-path: polygon(0% 100%, 100% 40%, 100% 100%);
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: center;
-  padding-block: 2.5rem;
-  gap: 2.5rem;
-}
-
-.hero-media {
-  margin: 0;
-  position: relative;
-}
-
-.hero-illustration {
+.pin-bg svg {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  border-radius: var(--radius);
 }
 
-.hero-illustration-badge {
-  position: absolute;
-  left: 1rem;
-  bottom: 1rem;
-  margin: 0;
-  background: rgba(10, 31, 61, 0.85);
-  color: var(--warm-gray-light);
-  font-size: 0.75rem;
-  font-style: italic;
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--navy-line);
-}
-
-/* Hero illustration line-draw: dasharray/dashoffset are set by JS
-   (initHeroLineDraw in js/script.js), which also handles the
-   prefers-reduced-motion fallback by skipping straight to the drawn state. */
-.hero-illustration .draw-path {
-  fill: none;
-}
-
-.hero-node {
+.pinbg-node {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .hero-node {
-    animation: node-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-    animation-delay: 1.4s;
+.scene {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-block: 5rem;
+  overflow: hidden;
+}
+
+.scene-explainer::before,
+.scene-impact::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(700px circle at 80% 15%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.scene-impact::before {
+  background-position: 20% 85%, 0 0;
+}
+
+.scene-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(13, 11, 16, 0.55) 0%, rgba(13, 11, 16, 0.8) 100%);
+}
+
+.scene-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+  .pin-active .pin-stage {
+    height: 100vh;
+    overflow: hidden;
   }
 
-  @keyframes node-pop {
-    from {
-      opacity: 0;
-      transform: scale(0.3);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+  .pin-active .pin-bg {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+
+  .pin-active .scene {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
   }
 }
 
-.hero-copy h1 {
-  font-size: clamp(2.1rem, 5vw, 3.4rem);
+/* Hero scene copy */
+
+.scene-hero h1 {
+  font-size: clamp(2.1rem, 5vw, 3.6rem);
   color: var(--white);
+  max-width: 18ch;
+}
+
+.hero-lede {
+  font-size: 1.15rem;
+  max-width: 46ch;
+  color: var(--text-secondary);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.scene-scroll-cue {
+  margin: 3rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.scene-scroll-cue::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 22px;
+  margin-top: 0.5rem;
+  background: var(--line);
 }
 
 /* Headline cascade: each word is masked by an overflow-hidden wrapper and
@@ -388,28 +474,7 @@ button:focus-visible {
   display: inline-block;
 }
 
-.hero-lede {
-  font-size: 1.15rem;
-  max-width: 46ch;
-  color: var(--warm-gray-light);
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1.75rem;
-}
-
-/* Hero entrance: the illustration fades/rises in first, the headline cascades
-   word by word on top of it, then the lede and actions follow — three
-   distinct treatments for one orchestrated sequence, not one repeated effect. */
 @media (prefers-reduced-motion: no-preference) {
-  .hero-media {
-    animation: hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 0.1s;
-  }
-
   .reveal-word-inner {
     animation: word-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(0.05s * var(--i, 0));
@@ -446,224 +511,25 @@ button:focus-visible {
   }
 }
 
-@media (min-width: 900px) {
-  .hero-grid {
-    grid-template-columns: 1.15fr 1fr;
-    padding-block: 5rem;
-    gap: 3.5rem;
-  }
+/* Explainer scene copy */
+
+.scene-explainer h2 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--white);
+  max-width: 16ch;
 }
 
-/* --------------------------------------------------------------------------
-   Explainer ("What is the Hult Prize")
-   -------------------------------------------------------------------------- */
-
-.explainer {
-  background: var(--off-white);
-  padding-block: 4rem;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Faint dot-grid texture so the white section doesn't read as flat next to
-   the textured navy sections around it. */
-.explainer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image: var(--bg-dotgrid);
-  background-repeat: repeat;
-  background-size: 48px 48px;
-  opacity: 0.55;
-}
-
-.explainer-grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 1.25rem;
-}
-
-/* Overlapping curved edge into the navy Story section — a different
-   transition treatment from the hero's angled cut. */
-.curve-divider {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: clamp(48px, 8vw, 96px);
-  line-height: 0;
-}
-
-.curve-divider svg {
-  display: block;
-}
-
-.explainer h2 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  color: var(--navy);
-}
-
-.explainer p {
-  color: var(--navy-deep);
-  font-size: 1.05rem;
+.scene-body {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
   max-width: 62ch;
 }
 
-@media (min-width: 800px) {
-  .explainer-grid {
-    grid-template-columns: 1fr 2fr;
-    align-items: start;
-    gap: 3rem;
-  }
-
-  .explainer p {
-    font-size: 1.1rem;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   Our Story teaser
-   -------------------------------------------------------------------------- */
-
-.story-teaser {
-  background: var(--navy);
-  color: var(--white);
-  padding-block: 4.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Off-center gold glow + the shared network texture, both very subtle —
-   depth and cohesion with the hero, not a competing visual. */
-.story-teaser::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(650px circle at 82% 8%, rgba(255, 191, 0, 0.16), transparent 62%),
-    var(--bg-network);
-  background-repeat: no-repeat, repeat;
-  background-size: auto, 240px 240px;
-  opacity: 0.5;
-}
-
-.story-content {
-  position: relative;
-  z-index: 1;
-  max-width: 46rem;
-}
-
-.story-intro {
-  margin-bottom: 2.5rem;
-}
-
-.story-intro h2 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-}
-
-.story-intro p {
-  color: var(--warm-gray-light);
-  font-size: 1.05rem;
-  max-width: 50ch;
-  margin: 0;
-}
-
-/* Milestone timeline — an asymmetric single-column layout, structurally
-   distinct from the hero's left-visual/right-text split. */
-.story-timeline {
-  list-style: none;
-  margin: 0 0 2.5rem;
-  padding: 0;
-}
-
-.story-timeline-item {
-  position: relative;
-  padding: 0 0 2rem 2.25rem;
-}
-
-.story-timeline-item:last-child {
-  padding-bottom: 0;
-}
-
-.story-timeline-item::before {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 14px;
-  bottom: -2px;
-  width: 2px;
-  background: var(--navy-line);
-}
-
-.story-timeline-item:last-child::before {
-  display: none;
-}
-
-.story-timeline-dot {
-  position: absolute;
-  left: 0;
-  top: 6px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--gold);
-}
-
-.story-timeline-item h3 {
-  font-family: var(--font-head);
-  font-size: 1.15rem;
-  color: var(--white);
-  margin: 0 0 0.35rem;
-}
-
-.story-timeline-item p {
-  color: var(--warm-gray-light);
-  font-size: 1rem;
-  max-width: 56ch;
-  margin: 0;
-}
-
-/* --------------------------------------------------------------------------
-   Impact numbers — one bold treatment, not repeated stat cards
-   -------------------------------------------------------------------------- */
-
-.impact {
-  /* Gradient fade at the bottom toward the CTA band's shade below — a third,
-     distinct transition treatment (the hero uses an angled cut, the
-     explainer a curved edge; Story→Impact stays a plain flat seam so not
-     every seam repeats the same trick). */
-  background: linear-gradient(180deg, var(--navy) 0%, var(--navy) 75%, var(--navy-deep) 100%);
-  color: var(--white);
-  padding-block: 4.5rem 5.5rem;
-  border-top: 1px solid var(--navy-line);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Off-center lighter-navy glow + the shared network texture, mirrored to
-   the opposite side from the Story section's gold glow. */
-.impact::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(700px circle at 12% 85%, rgba(217, 212, 204, 0.14), transparent 60%),
-    var(--bg-network);
-  background-repeat: no-repeat, repeat;
-  background-size: auto, 240px 240px;
-  opacity: 0.45;
-}
+/* Impact scene — one bold treatment, not repeated stat cards. Gold here is
+   deliberate: these are UC Davis-chapter-specific numbers, so they carry the
+   one accent thread tied to UC Davis identity, same as the header. */
 
 .impact-grid {
-  position: relative;
-  z-index: 1;
   display: grid;
   gap: 2.5rem;
 }
@@ -690,7 +556,7 @@ button:focus-visible {
 
 .impact-label {
   font-size: 1.05rem;
-  color: var(--warm-gray-light);
+  color: var(--text-secondary);
   margin: 0;
   max-width: 28ch;
 }
@@ -706,8 +572,108 @@ button:focus-visible {
     justify-self: start;
     margin-left: 3rem;
     padding-left: 3rem;
-    border-left: 1px solid var(--navy-line);
+    border-left: 1px solid var(--line);
   }
+}
+
+/* --------------------------------------------------------------------------
+   Our Story — normal document scroll, restyled into the dark/magenta system.
+   -------------------------------------------------------------------------- */
+
+.story-teaser {
+  background: var(--charcoal);
+  color: var(--white);
+  padding-block: 4.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.story-teaser::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(650px circle at 82% 8%, rgba(236, 32, 136, 0.16), transparent 62%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.story-content {
+  position: relative;
+  z-index: 1;
+  max-width: 46rem;
+}
+
+.story-intro {
+  margin-bottom: 2.5rem;
+}
+
+.story-intro h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.story-intro p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 50ch;
+  margin: 0;
+}
+
+.story-timeline {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+}
+
+.story-timeline-item {
+  position: relative;
+  padding: 0 0 2rem 2.25rem;
+}
+
+.story-timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.story-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--line);
+}
+
+.story-timeline-item:last-child::before {
+  display: none;
+}
+
+.story-timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.story-timeline-item h3 {
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  color: var(--white);
+  margin: 0 0 0.35rem;
+}
+
+.story-timeline-item p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  max-width: 56ch;
+  margin: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -715,16 +681,13 @@ button:focus-visible {
    -------------------------------------------------------------------------- */
 
 .cta-band {
-  background: var(--navy-deep);
+  background: var(--charcoal-deep);
   color: var(--white);
   padding-block: 4.5rem;
   position: relative;
   overflow: hidden;
 }
 
-/* Full-band glow + the shared network texture — a fuller treatment than a
-   narrow strip, and the same visual thread used in the Story/Impact
-   sections for cohesion with the hero. */
 .cta-band::before {
   content: "";
   position: absolute;
@@ -732,17 +695,14 @@ button:focus-visible {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(900px circle at 20% 30%, rgba(255, 191, 0, 0.14), transparent 55%),
-    radial-gradient(700px circle at 85% 90%, rgba(255, 191, 0, 0.1), transparent 55%),
+    radial-gradient(900px circle at 20% 30%, rgba(236, 32, 136, 0.16), transparent 55%),
+    radial-gradient(700px circle at 85% 90%, rgba(236, 32, 136, 0.12), transparent 55%),
     var(--bg-network);
   background-repeat: no-repeat, no-repeat, repeat;
   background-size: auto, auto, 240px 240px;
   opacity: 0.55;
 }
 
-/* Slow gold shimmer drifting through the band — subtle continuous motion,
-   distinct from every other (one-shot) effect on the page. Has no visual
-   effect at all outside the no-preference query below. */
 .cta-shimmer {
   position: absolute;
   inset: 0;
@@ -752,7 +712,7 @@ button:focus-visible {
 
 @media (prefers-reduced-motion: no-preference) {
   .cta-shimmer {
-    background: linear-gradient(100deg, transparent 45%, rgba(255, 191, 0, 0.08) 50%, transparent 55%);
+    background: linear-gradient(100deg, transparent 45%, rgba(236, 32, 136, 0.12) 50%, transparent 55%);
     background-size: 220% 220%;
     animation: shimmer-drift 16s linear infinite;
   }
@@ -778,7 +738,7 @@ button:focus-visible {
 }
 
 .cta-inner p {
-  color: var(--warm-gray-light);
+  color: var(--text-secondary);
   font-size: 1.05rem;
   margin-bottom: 1.75rem;
 }
@@ -788,10 +748,10 @@ button:focus-visible {
    -------------------------------------------------------------------------- */
 
 .site-footer {
-  background: var(--navy);
-  color: var(--warm-gray-light);
+  background: var(--charcoal-deep);
+  color: var(--text-secondary);
   padding-block: 2.5rem;
-  border-top: 1px solid var(--navy-line);
+  border-top: 1px solid var(--line);
 }
 
 .footer-inner {
@@ -807,6 +767,10 @@ button:focus-visible {
   margin: 0;
 }
 
+.footer-name span {
+  color: var(--gold);
+}
+
 .footer-links {
   display: flex;
   flex-wrap: wrap;
@@ -815,18 +779,19 @@ button:focus-visible {
 
 .footer-links a {
   text-decoration: none;
-  color: var(--warm-gray-light);
+  color: var(--text-secondary);
 }
 
 .footer-links a:hover,
 .footer-links a:focus-visible {
-  color: var(--gold);
+  color: var(--magenta);
 }
 
 .footer-copyright {
   font-size: 0.85rem;
   margin: 0;
-  color: var(--warm-gray);
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 @media (min-width: 700px) {
@@ -866,7 +831,7 @@ button:focus-visible {
   width: 8px;
   height: 8px;
   margin: -4px 0 0 -4px;
-  background: var(--gold);
+  background: var(--magenta);
   transition: width 0.2s ease, height 0.2s ease, margin 0.2s ease;
 }
 
@@ -874,7 +839,7 @@ button:focus-visible {
   width: 34px;
   height: 34px;
   margin: -17px 0 0 -17px;
-  border: 1.5px solid var(--gold);
+  border: 1.5px solid var(--magenta);
   opacity: 0.7;
   transition: width 0.25s ease, height 0.25s ease, margin 0.25s ease, opacity 0.25s ease;
 }

@@ -6,73 +6,35 @@ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
 const supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 // ---------------------------------------------------------------------------
-// Hero illustration line-draw
-// ---------------------------------------------------------------------------
-// Sets stroke-dasharray/dashoffset from each path's real length, then
-// transitions the offset to 0. Under reduced motion, skips straight to the
-// fully-drawn state instead.
-function initHeroLineDraw() {
-  const paths = document.querySelectorAll(".hero-illustration .draw-path");
-
-  paths.forEach((path, i) => {
-    const length = path.getTotalLength();
-    path.style.strokeDasharray = String(length);
-
-    if (prefersReducedMotion) {
-      path.style.strokeDashoffset = "0";
-      return;
-    }
-
-    path.style.strokeDashoffset = String(length);
-    path.style.transition = `stroke-dashoffset 1s ease ${(0.15 + i * 0.08).toFixed(2)}s`;
-
-    // Double rAF so the browser paints the initial (fully hidden) offset
-    // before the transition to 0 starts.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        path.style.strokeDashoffset = "0";
-      });
-    });
-
-    // Safety net: if the page loaded in a background/inactive tab, paint can
-    // be deferred long enough that the transition never visibly runs. Force
-    // the drawn end-state after a few seconds so the illustration can never
-    // get stuck invisible.
-    setTimeout(() => {
-      path.style.transition = "none";
-      path.style.strokeDashoffset = "0";
-    }, 3000);
-  });
-}
-
-// ---------------------------------------------------------------------------
 // Animated impact counters (count up once, when scrolled into view)
 // ---------------------------------------------------------------------------
+// Exposed at module scope (not nested in initImpactCounters) because
+// initPinSequence also needs to re-trigger it — see the comment below on why.
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target, 10) || 0;
+  const suffix = el.dataset.suffix || "";
+
+  if (prefersReducedMotion) {
+    el.textContent = target + suffix;
+    return;
+  }
+
+  const duration = 1400;
+  const start = performance.now();
+
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    el.textContent = Math.round(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
 function initImpactCounters() {
   const counters = document.querySelectorAll(".counter");
   if (!counters.length) return;
-
-  function animateCounter(el) {
-    const target = parseInt(el.dataset.target, 10) || 0;
-    const suffix = el.dataset.suffix || "";
-
-    if (prefersReducedMotion) {
-      el.textContent = target + suffix;
-      return;
-    }
-
-    const duration = 1400;
-    const start = performance.now();
-
-    function tick(now) {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      el.textContent = Math.round(eased * target) + suffix;
-      if (progress < 1) requestAnimationFrame(tick);
-    }
-
-    requestAnimationFrame(tick);
-  }
 
   const observer = new IntersectionObserver(
     (entries, obs) => {
@@ -155,7 +117,6 @@ function initCustomCursor() {
   }
   rafId = requestAnimationFrame(loop);
 
-  // Pause the loop while the tab is hidden.
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       cancelAnimationFrame(rafId);
@@ -176,7 +137,123 @@ function initCustomCursor() {
   });
 }
 
-initHeroLineDraw();
+// ---------------------------------------------------------------------------
+// Pinned scroll sequence (Hero / Explainer / Impact)
+// ---------------------------------------------------------------------------
+// Progressive enhancement ONLY: the page already looks and works correctly
+// without this (see the `.pin-*` rules in css/styles.css — a plain sticky
+// background behind normally-stacked, normally-scrolling sections). This
+// function upgrades that into a true pinned, scroll-scrubbed cross-fade, but
+// only when every one of these is true:
+//   - GSAP + ScrollTrigger both loaded (a CDN failure just skips this)
+//   - the viewport is wide enough to be a real "desktop" layout
+//   - the pointer is fine (not a touch/coarse-pointer device)
+//   - the user has not requested reduced motion
+// If the user's OS-level reduced-motion setting changes to "reduce" after
+// this has already run, it tears itself down and reverts to the CSS fallback
+// rather than continuing to scroll-jack.
+function initPinSequence() {
+  const sequence = document.getElementById("pin-sequence");
+  if (!sequence) return;
+
+  const MIN_WIDTH = 900;
+  const canEnhance =
+    typeof gsap !== "undefined" &&
+    typeof ScrollTrigger !== "undefined" &&
+    supportsFinePointer &&
+    !prefersReducedMotion &&
+    window.innerWidth >= MIN_WIDTH;
+
+  if (!canEnhance) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const heroScene = document.querySelector(".scene-hero");
+  const explainerScene = document.querySelector(".scene-explainer");
+  const impactScene = document.querySelector(".scene-impact");
+  if (!heroScene || !explainerScene || !impactScene) return;
+
+  gsap.set(heroScene, { opacity: 1, y: 0, pointerEvents: "auto" });
+  gsap.set([explainerScene, impactScene], { opacity: 0, y: 40, pointerEvents: "none" });
+
+  // Fractions (0–1) of the pinned scroll distance where each scene is fully
+  // settled — reused below to let the "Impact" nav link jump straight there
+  // instead of landing on an invisible, mid-fade copy of the scene.
+  const sceneProgress = { hero: 0.02, explainer: 0.5, impact: 0.92 };
+
+  const tl = gsap.timeline({ defaults: { ease: "none" } });
+
+  tl.to(heroScene, { opacity: 0, y: -30, duration: 0.14 }, 0.18)
+    .set(heroScene, { pointerEvents: "none" }, 0.32)
+    .set(explainerScene, { pointerEvents: "auto" }, 0.24)
+    .to(explainerScene, { opacity: 1, y: 0, duration: 0.16 }, 0.24)
+    .to(explainerScene, { opacity: 0, y: -30, duration: 0.14 }, 0.6)
+    .set(explainerScene, { pointerEvents: "none" }, 0.74)
+    .set(impactScene, { pointerEvents: "auto" }, 0.66)
+    .to(impactScene, { opacity: 1, y: 0, duration: 0.16 }, 0.66)
+    // Background motif drifts subtly across the whole sequence — tied to
+    // the actual network/brand motif, not a decorative glow.
+    .to(".pinbg-lines", { rotate: 6, transformOrigin: "50% 50%", duration: 1 }, 0)
+    .to(".pinbg-nodes", { scale: 1.08, transformOrigin: "50% 50%", duration: 1 }, 0)
+    // All three scenes share one bounding box (position: absolute; inset: 0)
+    // for the whole pinned sequence, so the impact counters' own
+    // IntersectionObserver sees them as "in view" from the very start and
+    // finishes counting invisibly before opacity ever reaches 1. Re-trigger
+    // it explicitly at the moment the Impact scene actually finishes fading
+    // in, so what the viewer sees still counts up.
+    .call(
+      () => {
+        document.querySelectorAll(".scene-impact .counter").forEach(animateCounter);
+      },
+      [],
+      0.82
+    );
+
+  const st = ScrollTrigger.create({
+    trigger: sequence,
+    start: "top top",
+    end: () => "+=" + window.innerHeight * 2.2,
+    pin: true,
+    scrub: 0.3,
+    animation: tl,
+    invalidateOnRefresh: true,
+  });
+
+  sequence.classList.add("pin-active");
+
+  window.addEventListener("load", () => ScrollTrigger.refresh());
+
+  // "Impact" in the nav points at #impact, which now lives inside the pinned
+  // sequence rather than at its own normal-flow position. Jump to the point
+  // in the pinned scroll range where that scene is fully visible instead of
+  // relying on the browser's default anchor-scroll (which would just land at
+  // the top of the whole pinned section).
+  const impactLink = document.querySelector('[data-scene-link="impact"]');
+  if (impactLink) {
+    impactLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = st.start + sceneProgress.impact * (st.end - st.start);
+      window.scrollTo({ top: target, behavior: "smooth" });
+    });
+  }
+
+  function teardown() {
+    st.kill();
+    tl.kill();
+    sequence.classList.remove("pin-active");
+    gsap.set([heroScene, explainerScene, impactScene], { clearProps: "all" });
+  }
+
+  // If the user turns on reduced motion mid-session, stop scroll-jacking
+  // immediately rather than waiting for a reload.
+  window
+    .matchMedia("(prefers-reduced-motion: reduce)")
+    .addEventListener("change", (e) => {
+      if (e.matches) teardown();
+    });
+}
+
 initImpactCounters();
 initMagneticButtons();
 initCustomCursor();
+initPinSequence();

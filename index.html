@@ -15,13 +15,16 @@
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
 
+  <!-- The one deliberate UC Davis touchpoint below this bar: navy background,
+       gold accents on the wordmark. Everything past the nav uses the dark
+       charcoal / Hult Prize magenta / curated-accent system. -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="wordmark" href="#top">Hult Prize <span>@ UC Davis</span></a>
       <nav aria-label="Primary">
         <ul>
           <li class="nav-link-item"><a href="#story">Our Story</a></li>
-          <li class="nav-link-item"><a href="#impact">Impact</a></li>
+          <li class="nav-link-item"><a href="#impact" data-scene-link="impact">Impact</a></li>
           <li><a class="nav-cta" href="#get-involved">Get Involved</a></li>
         </ul>
       </nav>
@@ -29,105 +32,131 @@
   </header>
 
   <main id="main">
-    <!-- 1. Hero -->
-    <section class="hero" id="top" aria-labelledby="hero-heading">
-      <div class="container hero-grid">
-        <figure class="hero-media">
-          <!--
-            Custom line-art placeholder (abstract global network/connection motif) standing in
-            for real event photography. Inlined (rather than an <img>) so the lines can draw
-            themselves in on load — see initHeroLineDraw() in js/script.js.
-          -->
-          <svg class="hero-illustration" viewBox="0 0 960 720" role="img"
-            aria-label="Placeholder illustration of a connected global network, standing in for a future photo of a Hult Prize @ UC Davis pitch event.">
-            <rect width="960" height="720" fill="var(--navy-deep)"></rect>
-
-            <!-- globe: outline + two meridian arcs -->
-            <circle class="draw-path" cx="480" cy="340" r="150" fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.9"></circle>
-            <path class="draw-path" d="M330,340 A150,55 0 0,0 630,340" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity="0.45"></path>
-            <path class="draw-path" d="M480,190 A55,150 0 0,0 480,490" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity="0.45"></path>
-
-            <!-- connections radiating out to peripheral nodes -->
-            <line class="draw-path" x1="480" y1="190" x2="480" y2="90" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
-            <line class="draw-path" x1="586" y1="234" x2="760" y2="140" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
-            <line class="draw-path" x1="586" y1="446" x2="780" y2="560" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
-            <line class="draw-path" x1="374" y1="234" x2="200" y2="140" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
-            <line class="draw-path" x1="374" y1="446" x2="180" y2="560" stroke="var(--white)" stroke-width="1.5" opacity="0.55"></line>
-
-            <!-- junction nodes on the globe -->
-            <circle class="hero-node" cx="586" cy="234" r="4" fill="var(--white)" opacity="0.85"></circle>
-            <circle class="hero-node" cx="586" cy="446" r="4" fill="var(--white)" opacity="0.85"></circle>
-            <circle class="hero-node" cx="374" cy="234" r="4" fill="var(--white)" opacity="0.85"></circle>
-            <circle class="hero-node" cx="374" cy="446" r="4" fill="var(--white)" opacity="0.85"></circle>
-
-            <!-- peripheral + hub nodes -->
-            <circle class="hero-node" cx="480" cy="90" r="6" fill="var(--gold)"></circle>
-            <circle class="hero-node" cx="760" cy="140" r="6" fill="var(--gold)"></circle>
-            <circle class="hero-node" cx="780" cy="560" r="6" fill="var(--gold)"></circle>
-            <circle class="hero-node" cx="200" cy="140" r="6" fill="var(--gold)"></circle>
-            <circle class="hero-node" cx="180" cy="560" r="6" fill="var(--gold)"></circle>
-            <circle class="hero-node" cx="480" cy="340" r="7" fill="var(--gold)"></circle>
+    <!-- Scroll-driven sequence: Hero -> What is the Hult Prize -> Impact.
+         Baseline (no JS, reduced motion, or mobile/touch) renders as plain
+         full-bleed stacked sections with a CSS `position: sticky` backdrop —
+         no scroll-jacking, nothing animated by default. js/script.js
+         (initPinSequence) progressively enhances this into a true pinned,
+         scroll-scrubbed cross-fade with GSAP + ScrollTrigger ONLY when the
+         viewport is wide, the pointer is fine, and motion isn't reduced. -->
+    <section class="pin-sequence" id="pin-sequence">
+      <div class="pin-stage">
+        <!-- Recolored network/globe motif — the same recurring brand thread
+             from earlier stages, now full-bleed behind all three scenes.
+             Decorative; not a stand-in for content. -->
+        <div class="pin-bg" aria-hidden="true">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+            <g class="pinbg-lines" fill="none" stroke="var(--magenta)" stroke-width="1.5" opacity="0.5">
+              <circle cx="800" cy="430" r="220"></circle>
+              <path d="M580,430 A220,80 0 0,0 1020,430"></path>
+              <path d="M800,210 A80,220 0 0,0 800,650"></path>
+              <line x1="800" y1="210" x2="800" y2="90"></line>
+              <line x1="956" y1="274" x2="1200" y2="140"></line>
+              <line x1="956" y1="586" x2="1230" y2="740"></line>
+              <line x1="644" y1="274" x2="360" y2="150"></line>
+              <line x1="644" y1="586" x2="330" y2="720"></line>
+              <line x1="1200" y1="140" x2="1420" y2="230"></line>
+              <line x1="360" y1="150" x2="140" y2="260"></line>
+            </g>
+            <g class="pinbg-nodes-minor" fill="var(--white)" opacity="0.5">
+              <circle cx="956" cy="274" r="4"></circle>
+              <circle cx="956" cy="586" r="4"></circle>
+              <circle cx="644" cy="274" r="4"></circle>
+              <circle cx="644" cy="586" r="4"></circle>
+            </g>
+            <g class="pinbg-nodes">
+              <circle class="pinbg-node" cx="800" cy="90" r="7" fill="var(--magenta)"></circle>
+              <circle class="pinbg-node" cx="1200" cy="140" r="7" fill="var(--magenta)"></circle>
+              <circle class="pinbg-node" cx="1230" cy="740" r="7" fill="var(--magenta)"></circle>
+              <circle class="pinbg-node" cx="360" cy="150" r="7" fill="var(--sky)"></circle>
+              <circle class="pinbg-node" cx="330" cy="720" r="7" fill="var(--teal)"></circle>
+              <circle class="pinbg-node" cx="1420" cy="230" r="6" fill="var(--orange)"></circle>
+              <circle class="pinbg-node" cx="140" cy="260" r="6" fill="var(--gold)"></circle>
+              <circle class="pinbg-node" cx="800" cy="430" r="8" fill="var(--magenta)"></circle>
+            </g>
           </svg>
-          <figcaption class="hero-illustration-badge">Placeholder — replace with real event photography</figcaption>
-        </figure>
-        <div class="hero-copy">
-          <h1 id="hero-heading" class="reveal-heading">
-            <span class="reveal-word" style="--i:0"><span class="reveal-word-inner">UC</span></span>
-            <span class="reveal-word" style="--i:1"><span class="reveal-word-inner">Davis's</span></span>
-            <span class="reveal-word" style="--i:2"><span class="reveal-word-inner">first</span></span>
-            <span class="reveal-word" style="--i:3"><span class="reveal-word-inner">Hult</span></span>
-            <span class="reveal-word" style="--i:4"><span class="reveal-word-inner">Prize</span></span>
-            <span class="reveal-word" style="--i:5"><span class="reveal-word-inner">chapter,</span></span>
-            <span class="reveal-word" style="--i:6"><span class="reveal-word-inner">built</span></span>
-            <span class="reveal-word" style="--i:7"><span class="reveal-word-inner">from</span></span>
-            <span class="reveal-word" style="--i:8"><span class="reveal-word-inner">the</span></span>
-            <span class="reveal-word" style="--i:9"><span class="reveal-word-inner">ground</span></span>
-            <span class="reveal-word" style="--i:10"><span class="reveal-word-inner">up.</span></span>
-          </h1>
-          <p class="hero-lede">
-            We recruit and train student teams to build for-profit ventures that take on real
-            social and environmental challenges — then send our strongest teams to compete on
-            the national stage.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#get-involved">Get Involved</a>
-            <!-- Placeholder social link — replace with the chapter's real Instagram URL before launch -->
-            <a class="btn btn-ghost" href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">
-              Follow us on Instagram
-            </a>
+        </div>
+
+        <!-- Scene 1: Hero -->
+        <div class="scene scene-hero" id="top" aria-labelledby="hero-heading">
+          <div class="scene-scrim"></div>
+          <div class="container scene-inner">
+            <h1 id="hero-heading" class="reveal-heading">
+              <span class="reveal-word" style="--i:0"><span class="reveal-word-inner">UC</span></span>
+              <span class="reveal-word" style="--i:1"><span class="reveal-word-inner">Davis's</span></span>
+              <span class="reveal-word" style="--i:2"><span class="reveal-word-inner">first</span></span>
+              <span class="reveal-word" style="--i:3"><span class="reveal-word-inner">Hult</span></span>
+              <span class="reveal-word" style="--i:4"><span class="reveal-word-inner">Prize</span></span>
+              <span class="reveal-word" style="--i:5"><span class="reveal-word-inner">chapter,</span></span>
+              <span class="reveal-word" style="--i:6"><span class="reveal-word-inner">built</span></span>
+              <span class="reveal-word" style="--i:7"><span class="reveal-word-inner">from</span></span>
+              <span class="reveal-word" style="--i:8"><span class="reveal-word-inner">the</span></span>
+              <span class="reveal-word" style="--i:9"><span class="reveal-word-inner">ground</span></span>
+              <span class="reveal-word" style="--i:10"><span class="reveal-word-inner">up.</span></span>
+            </h1>
+            <p class="hero-lede">
+              We recruit and train student teams to build for-profit ventures that take on real
+              social and environmental challenges — then send our strongest teams to compete on
+              the national stage.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#get-involved">Get Involved</a>
+              <!-- Placeholder social link — replace with the chapter's real Instagram URL before launch -->
+              <a class="btn btn-ghost" href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">
+                Follow us on Instagram
+              </a>
+            </div>
+            <p class="scene-scroll-cue" aria-hidden="true">Scroll</p>
+          </div>
+        </div>
+
+        <!-- Scene 2: What is the Hult Prize -->
+        <div class="scene scene-explainer" aria-labelledby="explainer-heading">
+          <div class="scene-scrim"></div>
+          <div class="container scene-inner">
+            <!--
+              Verify current prize amounts and eligibility rules against the official
+              Hult Prize site (hultprize.org) before launch — none are stated here as fact.
+            -->
+            <h2 id="explainer-heading">What is the Hult Prize?</h2>
+            <p class="scene-body">
+              The Hult Prize is a global student entrepreneurship competition. Teams of students
+              design for-profit ventures that address social and environmental challenges aligned
+              with the United Nations Sustainable Development Goals, then pitch their ideas and
+              compete through a series of stages toward national and global competition. It turns
+              classroom ideas into real ventures — judged by real entrepreneurs, academics, and
+              industry professionals.
+            </p>
+          </div>
+        </div>
+
+        <!-- Scene 3: Impact numbers -->
+        <div class="scene scene-impact" id="impact" aria-labelledby="impact-heading">
+          <div class="scene-scrim"></div>
+          <div class="container scene-inner impact-grid">
+            <h2 id="impact-heading" class="visually-hidden">Our impact</h2>
+            <div class="impact-figure impact-figure-primary">
+              <p class="impact-number">
+                <span class="counter" data-target="20" data-suffix="+" aria-hidden="true">0</span>
+                <span class="visually-hidden">20+</span>
+              </p>
+              <p class="impact-label">student teams have competed through our chapter and its ENG 108 partnership</p>
+            </div>
+            <div class="impact-figure impact-figure-secondary">
+              <p class="impact-number">
+                <span class="counter" data-target="2" data-suffix="" aria-hidden="true">0</span>
+                <span class="visually-hidden">2</span>
+              </p>
+              <p class="impact-label">teams advanced from UC Davis to the Hult Prize National Competition</p>
+            </div>
           </div>
         </div>
       </div>
-      <div class="hero-divider" aria-hidden="true"></div>
     </section>
 
-    <!-- 2. What is the Hult Prize -->
-    <section class="explainer" aria-labelledby="explainer-heading">
-      <div class="container explainer-grid">
-        <h2 id="explainer-heading">What is the Hult Prize?</h2>
-        <!--
-          Verify current prize amounts, dates, and eligibility rules against the official
-          Hult Prize site (hultprize.org) before launch — none are stated here as fact.
-        -->
-        <p>
-          The Hult Prize is a global student entrepreneurship competition. Teams of students
-          design for-profit ventures that address major social and environmental challenges,
-          then pitch their ideas and compete through a series of stages toward national and
-          global competition. It turns classroom ideas into real ventures — judged by real
-          entrepreneurs, academics, and industry professionals.
-        </p>
-      </div>
-      <!-- Overlapping curved edge into the navy section below — a different
-           transition treatment from the hero's angled cut, not a repeat of it. -->
-      <div class="curve-divider" aria-hidden="true">
-        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" width="100%" height="100%">
-          <path d="M0,40 C 260,110 520,0 800,55 C 960,88 1090,25 1200,48 L1200,120 L0,120 Z" fill="var(--navy)"></path>
-        </svg>
-      </div>
-    </section>
-
-    <!-- 3. Our Story teaser — a milestone timeline rather than a repeat of the
-         hero's image/text split, built from the same founding facts used before. -->
+    <!-- Our Story — normal document scroll from here on, per the brief. Same
+         milestone timeline and facts as before, restyled into the new
+         dark/magenta system. -->
     <section class="story-teaser" id="story" aria-labelledby="story-heading">
       <div class="container story-content">
         <div class="story-intro">
@@ -161,28 +190,7 @@
       </div>
     </section>
 
-    <!-- 4. Impact numbers -->
-    <section class="impact" id="impact" aria-labelledby="impact-heading">
-      <div class="container impact-grid">
-        <h2 id="impact-heading" class="visually-hidden">Our impact</h2>
-        <div class="impact-figure impact-figure-primary">
-          <p class="impact-number">
-            <span class="counter" data-target="20" data-suffix="+" aria-hidden="true">0</span>
-            <span class="visually-hidden">20+</span>
-          </p>
-          <p class="impact-label">student teams have competed through our chapter and its ENG 108 partnership</p>
-        </div>
-        <div class="impact-figure impact-figure-secondary">
-          <p class="impact-number">
-            <span class="counter" data-target="2" data-suffix="" aria-hidden="true">0</span>
-            <span class="visually-hidden">2</span>
-          </p>
-          <p class="impact-label">teams advanced from UC Davis to the Hult Prize National Competition</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. Get Involved CTA band -->
+    <!-- Get Involved CTA band -->
     <section class="cta-band" id="get-involved" aria-labelledby="cta-heading">
       <div class="cta-shimmer" aria-hidden="true"></div>
       <div class="container cta-inner">
@@ -199,7 +207,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p class="footer-name">Hult Prize @ UC Davis</p>
+      <p class="footer-name">Hult Prize <span>@ UC Davis</span></p>
       <ul class="footer-links">
         <!-- Placeholder contact details — replace with the chapter's real email and Instagram before launch -->
         <li><a href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a></li>
@@ -209,6 +217,12 @@
     </div>
   </footer>
 
+  <!-- GSAP + ScrollTrigger power the pinned-scroll sequence only; every other
+       effect on this page is plain CSS/vanilla JS. Loaded before script.js,
+       which checks typeof gsap/ScrollTrigger before using them, so a CDN
+       failure degrades to the static fallback rather than breaking the page. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

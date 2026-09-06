@@ -182,6 +182,23 @@ function initPitchVideoCarousel() {
       slideShadows: true,
     },
     keyboard: { enabled: true },
+    // Trackpad two-finger swipe (Stage 4d) sends wheel events, not touch
+    // events, so it doesn't reach Swiper's existing drag handling at all
+    // without this. forceToAxis: true is what keeps this additive rather
+    // than disruptive: Swiper only acts on (and calls preventDefault for)
+    // wheel events whose horizontal delta dominates, matching this
+    // carousel's own horizontal axis — a vertical two-finger scroll, even
+    // with the cursor sitting right over the carousel, is left alone and
+    // falls through to the page as normal scroll. thresholdDelta/
+    // thresholdTime debounce the many rapid wheel events one continuous
+    // swipe fires into a single slide change rather than skipping several.
+    mousewheel: {
+      forceToAxis: true,
+      sensitivity: 1,
+      thresholdDelta: 30,
+      thresholdTime: 400,
+      releaseOnEdges: true,
+    },
     // Explicit autoplay:false isn't a real Swiper option (it's just absent
     // by default) — the comment is here so nobody adds one later: these are
     // videos a visitor may be mid-watch on, so navigation must stay

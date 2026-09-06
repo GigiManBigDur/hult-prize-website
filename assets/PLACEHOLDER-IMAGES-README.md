@@ -22,14 +22,13 @@ are the Foundation's copyrighted photography.
   `object-fit: cover` already handles that variation without distortion in
   both the static grid and the pinned full-bleed backdrop, so no CSS
   changes were needed for this swap.
-- `cta-photo.jpg`: a real event photo supplied by the site owner (the same
-  two-winners-on-stage moment used elsewhere), replacing the Picsum
-  placeholder behind the Get Involved band's "Ready to build something that
-  matters?" heading. Resized to 1600px wide / ~82% JPEG quality; its native
-  ~2.3:1 aspect ratio is wider than the placeholder it replaced, but
-  `.cta-photo`'s `object-fit: cover` already handles that without
-  distortion, so — same as the impact photos above — this was a pure
-  content swap with no CSS changes.
+- `cta-photo.jpg`: a real event photo supplied by the site owner (the 2024
+  Hult Prize Global Finals stage), behind the Get Involved band's "Ready to
+  build something that matters?" heading. Resized to 1600px wide / ~82%
+  JPEG quality; `.cta-photo`'s `object-fit: cover` already handles its
+  native ~1.8:1 aspect ratio without distortion, so this was a pure content
+  swap with no CSS changes. (Replaced the two-winners-on-stage photo that
+  had briefly been here before this one.)
 
 **Also not Picsum photography:** `leadership/member-1.jpg` through
 `member-6.jpg` (used on the Team/Leadership page, Stage 3a) are generated

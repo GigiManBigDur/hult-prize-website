@@ -10,8 +10,18 @@ treatment in CSS to feel intentional rather than random. They are NOT sourced
 from the Hult Prize Foundation's own website or promotional materials, which
 are the Foundation's copyrighted photography.
 
-**Exception:** `top-teams/*.jpg` are real event photos supplied by the site
-owner (the 1st/2nd/3rd place reveal moments) — not placeholders.
+**Exceptions — real photos, not placeholders:**
+- `top-teams/*.jpg`: real event photos supplied by the site owner (the
+  1st/2nd/3rd place reveal moments).
+- `impact-photos/photo-1.jpg` … `photo-8.jpg`: real competition photos
+  supplied by the site owner (pitches, judges, and the two winning-team
+  trophy moments), replacing the original Picsum placeholders in this same
+  gallery-order sequence. Resized to 1600px wide / ~82% JPEG quality to keep
+  the gallery's page weight reasonable; native aspect ratio preserved per
+  photo (they range roughly 3:2 to 16:9) — the gallery's own
+  `object-fit: cover` already handles that variation without distortion in
+  both the static grid and the pinned full-bleed backdrop, so no CSS
+  changes were needed for this swap.
 
 **Also not Picsum photography:** `leadership/member-1.jpg` through
 `member-6.jpg` (used on the Team/Leadership page, Stage 3a) are generated
@@ -28,8 +38,6 @@ just reading as generic placeholder texture.
 Swap in real event photography using the **same filenames and roughly the
 same aspect ratios** listed below, and no code changes are needed:
 
-- `impact-photos/photo-1.jpg` … `photo-8.jpg` — 1400×1000 (landscape),
-  used in the Impact section's photo gallery.
 - `story-photo.jpg` — 1200×1500 (portrait), used in the Our Story section.
 - `cta-photo.jpg` — 1400×1000 (landscape), used as the Get Involved band's
   background.

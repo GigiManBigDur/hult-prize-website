@@ -423,6 +423,18 @@ button:focus-visible {
     min-height: 0;
   }
 
+  /* .scene-impact overrides the shared .scene layout to stack its two flow
+     children (gallery, then stats) for the fallback case — see the comment
+     by that rule. Once pin-active takes over, the gallery leaves the flex
+     flow entirely (position: absolute below) and .scene-inner is once again
+     the only flex item, so restore the same row/centered layout every other
+     scene uses — otherwise the stats sit pinned to the top instead of
+     vertically centered like before this gallery was added. */
+  .pin-active .scene-impact {
+    flex-direction: row;
+    align-items: center;
+  }
+
   /* The Impact gallery switches from a static grid/carousel to a full-bleed
      cross-fading backdrop only in this same enhanced, wide/fine-pointer/
      motion-ok context — see initImpactGallery in js/script.js. */

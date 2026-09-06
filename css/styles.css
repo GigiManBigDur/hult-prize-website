@@ -2356,14 +2356,6 @@ button:focus-visible {
   box-shadow: 0 0 30px -10px var(--card-accent, var(--magenta));
 }
 
-/* Click/tap-to-focus (initTimelineCardFocus, js/script.js) — the brief's
-   "simply highlight/focus that event" option, chosen over an expand-for-
-   detail treatment since there's no additional detail to show yet (mock
-   content is just name + date). */
-.timeline-card.is-focused {
-  border-color: var(--card-accent, var(--magenta));
-  box-shadow: 0 0 0 2px var(--card-accent, var(--magenta));
-}
 
 /* Accent color rotation — the same secondary palette used on Leadership/
    Pitch Videos, cycled across the 8 events (2 full passes of the 4
@@ -2491,5 +2483,163 @@ button:focus-visible {
     100% {
       box-shadow: 0 0 0 0 rgba(236, 32, 136, 0);
     }
+  }
+}
+
+/* ==========================================================================
+   Event detail modal (Stage 5c) — Timeline page
+
+   Clicking a .timeline-card expands that SAME element into a full detail
+   view via GSAP's Flip plugin (js/script.js: initEventDetailModal) — the
+   card visibly grows into the modal rather than a separate, unrelated
+   popup appearing. Every rule below that shows/hides something (the
+   overlay, the larger .is-modal-open layout, the close button, the detail
+   content) is plain unconditional CSS + class toggling, correct with or
+   without GSAP/Flip; only the morph/stagger animation itself is gated in
+   JS behind GSAP/Flip being available and !prefers-reduced-motion — see
+   that function's comment for exactly what falls back to an instant
+   appearance instead. */
+
+.timeline-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(8, 6, 10, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.timeline-card-close {
+  display: none;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--charcoal-deep);
+  color: var(--white);
+  cursor: pointer;
+}
+
+.timeline-card-close svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.timeline-card.is-modal-open .timeline-card-close {
+  display: flex;
+}
+
+/* Hidden until a card is open — see initEventDetailModal for the
+   staggered title -> meta -> description reveal once it is. */
+.timeline-card-detail {
+  display: none;
+}
+
+.timeline-card.is-modal-open .timeline-card-detail {
+  display: block;
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.timeline-card-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.timeline-card-detail-time,
+.timeline-card-detail-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.timeline-card-detail-time svg,
+.timeline-card-detail-location svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: var(--card-accent, var(--magenta));
+}
+
+.timeline-card-detail-description {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* The expanded state: position: fixed and centered, larger and scrollable,
+   well above the site header's own z-index: 50 so the whole page —
+   including the header — sits behind the dimmed backdrop. Deliberately
+   redeclares transform/box-shadow/opacity/filter (properties the plain
+   hover state and the .is-completed/.is-next-up rules earlier in this
+   file also set) and is placed after all of them specifically so it wins
+   regardless of this card's hover or event status — same equal-
+   specificity-plus-later-in-file technique used elsewhere on this page. */
+.timeline-card.is-modal-open {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 56;
+  width: min(560px, 92vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  cursor: default;
+  padding: 2rem 2rem 2.25rem;
+  border-radius: 16px;
+  border-color: var(--card-accent, var(--magenta));
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--card-accent, var(--magenta));
+}
+
+.timeline-event .timeline-card.is-modal-open {
+  opacity: 1;
+  filter: none;
+}
+
+.timeline-card.is-modal-open .timeline-card-completed-icon,
+.timeline-card.is-modal-open .timeline-next-up-badge {
+  display: none;
+}
+
+.timeline-card.is-modal-open .timeline-card-date {
+  font-size: 0.85rem;
+}
+
+.timeline-card.is-modal-open .timeline-card-name {
+  font-size: 1.5rem;
+  padding-right: 2.5rem;
+}
+
+/* Small viewports: near-full-screen rather than a smaller floating card,
+   for readability and an easily reachable close button — a fresh
+   breakpoint (max-width: 679px, the exact complement of the min-width:
+   680px desktop layout above) chosen for the same duplicate-@media-
+   condition reason documented at the top of this page's CSS section. */
+@media (max-width: 679px) {
+  .timeline-card.is-modal-open {
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    padding: 4.5rem 1.5rem 2.5rem;
+  }
+
+  .timeline-card.is-modal-open .timeline-card-close {
+    top: 1.25rem;
+    right: 1.25rem;
   }
 }

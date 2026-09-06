@@ -88,108 +88,196 @@
             </span>
           </div>
 
+          <!-- Each .timeline-card-detail block below (Stage 5c) is mock
+               PLACEHOLDER content — time, location, and description are all
+               illustrative only. Replace every one with that event's real
+               time, room/venue, and a real description before launch. The
+               close button and detail block start hidden (see
+               .timeline-card-detail/.timeline-card-close in styles.css) and
+               are only ever revealed by initEventDetailModal (js/script.js)
+               when that specific card's modal is open. -->
           <ol class="timeline-events">
             <li class="timeline-event timeline-event-teal" data-event-date="2026-09-01">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">September 1, 2026</p>
                 <h3 class="timeline-card-name">Kickoff / Info Session</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 6:00 PM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> [Placeholder Room], Hutchison Hall</span>
+                  </p>
+                  <p class="timeline-card-detail-description">An open info session introducing the Hult Prize @ UC Davis chapter, this cycle's challenge theme, and how team formation and judging will work. Free food, no commitment required — just show up to learn what the season looks like.</p>
+                </div>
               </article>
             </li>
 
             <li class="timeline-event timeline-event-sky" data-event-date="2026-09-20">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">September 20, 2026</p>
                 <h3 class="timeline-card-name">Team Formation Deadline</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 11:59 PM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> Online — team roster form</span>
+                  </p>
+                  <p class="timeline-card-detail-description">Deadline for participants to lock in a team roster of 2–5 members for this cycle. Haven't found a team yet? Solo participants who submit the interest form by this date will be matched with others looking for teammates.</p>
+                </div>
               </article>
             </li>
 
             <li class="timeline-event timeline-event-orange" data-event-date="2026-10-10">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">October 10, 2026</p>
                 <h3 class="timeline-card-name">Ideation Workshop (ENG 108 partnership)</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 5:30 PM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> [Placeholder Room], ENG 108 building</span>
+                  </p>
+                  <p class="timeline-card-detail-description">A hands-on ideation workshop run in partnership with ENG 108, walking teams through structured brainstorming and problem-framing techniques for early-stage social impact ventures. Come with an open mind, even if you don't have an idea yet.</p>
+                </div>
               </article>
             </li>
 
             <li class="timeline-event timeline-event-gold" data-event-date="2026-11-05">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">November 5, 2026</p>
                 <h3 class="timeline-card-name">Venture Development Workshops</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 5:30 PM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> [Placeholder Room], UC Davis</span>
+                  </p>
+                  <p class="timeline-card-detail-description">A series of workshops covering venture fundamentals — market sizing, customer discovery, and a lean business model canvas — to help teams sharpen their concept ahead of the pitch submission deadline.</p>
+                </div>
               </article>
             </li>
 
             <li class="timeline-event timeline-event-teal" data-event-date="2027-01-15">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">January 15, 2027</p>
                 <h3 class="timeline-card-name">Pitch Submission Deadline</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 11:59 PM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> Online — pitch deck submission portal</span>
+                  </p>
+                  <p class="timeline-card-detail-description">Final deadline for teams to submit their written pitch deck and supporting materials for review ahead of the OnCampus Competition. Late submissions cannot be scored, so build in buffer time before the cutoff.</p>
+                </div>
               </article>
             </li>
 
             <li class="timeline-event timeline-event-sky" data-event-date="2027-02-20">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">February 20, 2027</p>
                 <h3 class="timeline-card-name">OnCampus Competition Day</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 12:00 PM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> [Placeholder Venue], UC Davis</span>
+                  </p>
+                  <p class="timeline-card-detail-description">The chapter's flagship pitch competition, where teams present live in front of a judging panel for a chance to advance to the Hult Prize Regional round. Open to the campus community to attend and watch.</p>
+                </div>
               </article>
             </li>
 
             <li class="timeline-event timeline-event-orange" data-event-date="2027-03-01">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">March 1, 2027</p>
                 <h3 class="timeline-card-name">Results Announcement</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 7:00 PM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> [Placeholder Room], UC Davis</span>
+                  </p>
+                  <p class="timeline-card-detail-description">Winners of the OnCampus Competition are announced, along with which team(s) will advance to represent UC Davis at the next stage of the Hult Prize competition.</p>
+                </div>
               </article>
             </li>
 
             <li class="timeline-event timeline-event-gold" data-event-date="2027-04-15">
               <div class="timeline-node" aria-hidden="true"></div>
-              <article class="timeline-card" tabindex="0" role="button" aria-pressed="false">
+              <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="timeline-next-up-badge">Next Up</span>
+                <button class="timeline-card-close" type="button" aria-label="Close event details">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </button>
                 <p class="timeline-card-date">April 15, 2027</p>
                 <h3 class="timeline-card-name">National Competition (for advancing teams)</h3>
                 <p class="timeline-card-status"></p>
+                <div class="timeline-card-detail">
+                  <p class="timeline-card-detail-meta">
+                    <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 10:00 AM</span>
+                    <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> [Placeholder City / Venue] (set by the Hult Prize Foundation)</span>
+                  </p>
+                  <p class="timeline-card-detail-description">The advancing team(s) compete against other university chapters nationally, with top performers moving on toward the global Hult Prize accelerator and summit.</p>
+                </div>
               </article>
             </li>
           </ol>
@@ -197,6 +285,14 @@
       </div>
     </section>
   </main>
+
+  <!-- Backdrop for the event detail modal (Stage 5c) — a single persistent,
+       empty element rather than one per card; initEventDetailModal
+       (js/script.js) shows/hides it as any card opens/closes. The card
+       itself becomes the dialog (see .timeline-card.is-modal-open in
+       styles.css) rather than this holding a copy of its content, so this
+       stays empty. -->
+  <div class="timeline-modal-overlay" id="timeline-modal-overlay" hidden></div>
 
   <!-- Same footer markup/treatment as the rest of the site. -->
   <footer class="site-footer">
@@ -219,6 +315,12 @@
        the actual date math. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Flip (Stage 5c) drives the event-card-to-detail-modal "shared
+       element" expand/collapse animation only — like ScrollTrigger, its
+       absence (or prefers-reduced-motion) just means the modal opens and
+       closes instantly instead of morphing, never that it fails to work;
+       see initEventDetailModal in js/script.js. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

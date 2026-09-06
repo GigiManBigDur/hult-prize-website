@@ -467,29 +467,246 @@ function initEventTimelineReveal() {
 }
 
 // ---------------------------------------------------------------------------
-// Timeline page: clicking or tapping an event card toggles a persistent
-// highlight (Stage 5a) — the brief's "simply highlight/focus that event"
-// option, chosen over expand-for-detail since there's no additional detail
-// to show yet (mock content is just a name and a date). Plain click/
-// keyboard interaction, not gated by reduced-motion or GSAP: this is a
-// state toggle, not a motion effect, and must work even if a CDN fails.
+// Timeline page: clicking or tapping an event card expands it into a full
+// detail view (Stage 5c) — this replaces Stage 5a's simpler "click toggles
+// a highlight" behavior, which was only ever a stand-in for this until
+// there was real detail content to show (see the removed initTimelineCardFocus
+// and its comment in git history). The card itself becomes the modal via
+// GSAP's Flip plugin: it's the SAME element, given position: fixed and a
+// larger size/layout by the .is-modal-open class (styles.css), so it visibly
+// grows from its spot on the timeline into the detail view rather than a
+// separate popup appearing unrelated to what was clicked. Closing reverses
+// that: the class comes off and Flip animates it back down into place.
+//
+// Every actual state change here — adding/removing .is-modal-open, showing
+// the overlay, revealing the detail content and close button, focus and
+// ARIA attribute changes — happens unconditionally in plain JS, so the
+// modal opens, closes, and reads correctly even if GSAP/Flip never loads.
+// Only the morph animation itself (Flip.from) and the staggered title ->
+// meta -> description reveal are gated behind GSAP/Flip being available
+// AND !prefersReducedMotion; skipping them just means the content appears
+// instantly instead of growing/staggering in, per the brief's explicit
+// "instant or basic fade... is fine" fallback allowance.
 // ---------------------------------------------------------------------------
-function initTimelineCardFocus() {
+function initEventDetailModal() {
   const cards = document.querySelectorAll(".timeline-card");
-  if (!cards.length) return;
+  const overlay = document.getElementById("timeline-modal-overlay");
+  if (!cards.length || !overlay) return;
 
-  cards.forEach((card) => {
-    function toggle() {
-      const focused = card.classList.toggle("is-focused");
-      card.setAttribute("aria-pressed", String(focused));
+  const canFlip = !prefersReducedMotion && typeof gsap !== "undefined" && typeof Flip !== "undefined";
+  if (canFlip) gsap.registerPlugin(Flip);
+
+  let activeCard = null;
+  let cardOriginalParent = null;
+  let cardOriginalNextSibling = null;
+  let scrollLockPaddingRight = "";
+
+  // Compensates for the scrollbar disappearing when body scroll locks below
+  // — without this the page content (and the fixed header) shifts sideways
+  // by the scrollbar's width for as long as the modal is open.
+  function lockBodyScroll() {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    scrollLockPaddingRight = document.body.style.paddingRight;
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = scrollbarWidth + "px";
     }
-    card.addEventListener("click", toggle);
+    document.body.style.overflow = "hidden";
+  }
+  function unlockBodyScroll() {
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = scrollLockPaddingRight;
+  }
+
+  // The only focusable descendants a card ever has are its close button
+  // (always) — description/date/time/location are plain text. Queried
+  // fresh each time rather than assumed, so the trap still holds if that
+  // ever changes.
+  function getFocusable(card) {
+    return Array.from(
+      card.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter((el) => el.offsetParent !== null);
+  }
+
+  function onKeydown(e) {
+    if (!activeCard) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeCard();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const focusable = getFocusable(activeCard);
+    if (!focusable.length) {
+      e.preventDefault();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const outside = !activeCard.contains(document.activeElement);
+    if (e.shiftKey) {
+      if (outside || document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else if (outside || document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function openCard(card) {
+    if (activeCard) return;
+    activeCard = card;
+
+    // --card-accent is normally inherited from the .timeline-event-{color}
+    // <li> this card sits inside. Freezing the resolved value as an inline
+    // custom property on the card itself — while it's still in its normal
+    // position and inheriting correctly — keeps the right accent color once
+    // it's moved out of that ancestor below.
+    const accent = getComputedStyle(card).getPropertyValue("--card-accent");
+    if (accent) card.style.setProperty("--card-accent", accent.trim());
+
+    const state = canFlip ? Flip.getState(card, { props: "borderRadius" }) : null;
+    const detailGroups = card.querySelectorAll(".timeline-card-detail-meta, .timeline-card-detail-description");
+
+    // Moved to a direct child of <body> rather than left inside its
+    // .timeline-event <li> for .is-modal-open's position: fixed centering
+    // to actually work: initEventTimelineReveal (Stage 5a) leaves a
+    // (harmless, at-rest) inline transform on that li once its scroll-in
+    // animation finishes, and CSS says ANY transform on an ancestor turns
+    // it into the containing block for a fixed-position descendant — so
+    // without this move, the "fixed" card would center itself inside that
+    // li's box instead of the viewport. Restored to its exact original
+    // spot (originalParent/originalNextSibling) on close.
+    cardOriginalParent = card.parentElement;
+    cardOriginalNextSibling = card.nextElementSibling;
+    document.body.appendChild(card);
+
+    card.classList.add("is-modal-open");
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-modal", "true");
+    const titleEl = card.querySelector(".timeline-card-name");
+    const descEl = card.querySelector(".timeline-card-detail-description");
+    if (titleEl) card.setAttribute("aria-labelledby", titleEl.id);
+    if (descEl) card.setAttribute("aria-describedby", descEl.id);
+    card.setAttribute("tabindex", "-1");
+
+    overlay.hidden = false;
+    lockBodyScroll();
+
+    if (canFlip) {
+      gsap.set(detailGroups, { opacity: 0, y: 10 });
+      gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power1.out" });
+      // .timeline-card has its own CSS transition on transform/box-shadow
+      // (for the plain hover lift, under prefers-reduced-motion:no-
+      // preference) — left on, it would fight Flip's own per-frame
+      // transform writes here. Suspended for the duration of the Flip-
+      // driven open/close and restored once closeCard's Flip finishes.
+      card.style.transition = "none";
+      Flip.from(state, {
+        duration: 0.55,
+        ease: "power2.inOut",
+        absolute: true,
+        onComplete: () => {
+          gsap.to(detailGroups, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out", stagger: 0.15 });
+        },
+      });
+    }
+
+    const closeBtn = card.querySelector(".timeline-card-close");
+    if (closeBtn) closeBtn.focus();
+    document.addEventListener("keydown", onKeydown, true);
+  }
+
+  function closeCard() {
+    const card = activeCard;
+    if (!card) return;
+    activeCard = null;
+
+    const state = canFlip ? Flip.getState(card, { props: "borderRadius" }) : null;
+    const detailGroups = card.querySelectorAll(".timeline-card-detail-meta, .timeline-card-detail-description");
+
+    card.classList.remove("is-modal-open");
+    card.setAttribute("role", "button");
+    card.removeAttribute("aria-modal");
+    card.removeAttribute("aria-describedby");
+    card.setAttribute("tabindex", "0");
+
+    // Move back to its exact original spot in the .timeline-event <li>
+    // (captured in openCard) before animating — Flip.from below needs the
+    // real, restored DOM position to animate TO, the same way it needed
+    // the real original position to animate FROM when opening.
+    if (cardOriginalParent) {
+      if (cardOriginalNextSibling && cardOriginalNextSibling.parentElement === cardOriginalParent) {
+        cardOriginalParent.insertBefore(card, cardOriginalNextSibling);
+      } else {
+        cardOriginalParent.appendChild(card);
+      }
+    }
+    cardOriginalParent = null;
+    cardOriginalNextSibling = null;
+
+    unlockBodyScroll();
+    document.removeEventListener("keydown", onKeydown, true);
+
+    if (canFlip) {
+      gsap.set(detailGroups, { opacity: 0, y: 0 });
+      gsap.to(overlay, {
+        opacity: 0,
+        duration: 0.25,
+        ease: "power1.in",
+        onComplete: () => {
+          overlay.hidden = true;
+        },
+      });
+      Flip.from(state, {
+        duration: 0.5,
+        ease: "power2.inOut",
+        absolute: true,
+        onComplete: () => {
+          card.style.transition = "";
+        },
+      });
+    } else {
+      overlay.hidden = true;
+    }
+
+    card.focus();
+  }
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeCard();
+  });
+
+  cards.forEach((card, i) => {
+    // Assigned once here (rather than hardcoded in timeline.html) so every
+    // card gets a unique id for aria-labelledby/aria-describedby without
+    // repeating that bookkeeping across all 8 markup blocks.
+    const titleEl = card.querySelector(".timeline-card-name");
+    const descEl = card.querySelector(".timeline-card-detail-description");
+    if (titleEl && !titleEl.id) titleEl.id = `timeline-card-title-${i}`;
+    if (descEl && !descEl.id) descEl.id = `timeline-card-desc-${i}`;
+
+    card.setAttribute("aria-haspopup", "dialog");
+
+    card.addEventListener("click", () => {
+      if (!card.classList.contains("is-modal-open")) openCard(card);
+    });
     card.addEventListener("keydown", (e) => {
+      if (card.classList.contains("is-modal-open")) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        toggle();
+        openCard(card);
       }
     });
+
+    const closeBtn = card.querySelector(".timeline-card-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeCard();
+      });
+    }
   });
 }
 
@@ -997,7 +1214,7 @@ initPitchVideoPlayback();
 initPitchVideoEntrance();
 initEventTimelinePositions();
 initEventTimelineReveal();
-initTimelineCardFocus();
+initEventDetailModal();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

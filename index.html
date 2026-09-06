@@ -173,6 +173,12 @@
             </div>
           </div>
         </div>
+        <!-- Fades to solid charcoal-deep during the tail of Impact's hold —
+             the outgoing half of the fade-to-black bridge into Top Teams'
+             own entry fade (Stage 2g). See the CSS comment on
+             .pin-active .pin-exit-fade for why this is a matched pair of
+             overlays rather than a literal cross-section blend. -->
+        <div class="pin-exit-fade" aria-hidden="true"></div>
       </div>
     </section>
 
@@ -231,6 +237,10 @@
             </g>
           </svg>
         </div>
+        <!-- Incoming half of the Impact -> Top Teams fade bridge: starts
+             fully opaque (same solid color Impact just faded to) and fades
+             away during Phase 0's opening moment, revealing the title. -->
+        <div class="tt-pin-entry-fade" aria-hidden="true"></div>
         <div class="top-teams-title-scrim" aria-hidden="true"></div>
         <div class="container top-teams-title">
           <h2 id="top-teams-heading">Top Teams — 2025 Cohort</h2>
@@ -266,6 +276,10 @@
             <p class="team-card-year">2025</p>
           </article>
         </div>
+        <!-- Outgoing half of the Top Teams -> Our Story fade bridge: fades
+             to solid charcoal-deep during the tail of Phase 4's hold, right
+             before this section's pin releases. -->
+        <div class="tt-pin-exit-fade" aria-hidden="true"></div>
       </div>
     </section>
 

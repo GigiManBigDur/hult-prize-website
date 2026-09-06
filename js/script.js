@@ -80,6 +80,39 @@ function initScrollReveal() {
 }
 
 // ---------------------------------------------------------------------------
+// Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
+// bridge). Story sits in plain normal document flow regardless of which
+// Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
+// on the section's own opacity as it scrolls into view — cheap enough to
+// run on every device (same gating as initScrollReveal's photo fades, no
+// width/pointer check needed). Pairs with Top Teams' .tt-pin-exit-fade on
+// desktop (tier 3); on tiers 1-2, where nothing pins or fades on the way
+// out, this fade-in alone still softens the boundary rather than an
+// instant pop, which is the "simplified" treatment the brief allows for
+// when a device doesn't get the full pinned handoff.
+// ---------------------------------------------------------------------------
+function initStoryEntranceFade() {
+  const story = document.getElementById("story");
+  if (!story) return;
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.set(story, { opacity: 0 });
+
+  gsap.to(story, {
+    opacity: 1,
+    ease: "none",
+    scrollTrigger: {
+      trigger: story,
+      start: "top bottom",
+      end: "top 55%",
+      scrub: 0.3,
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Top Teams podium — three tiers, same shape as the Hero/Explainer/Impact
 // sequence's own gating:
 //   1. Reduced motion, or no GSAP/ScrollTrigger: do nothing here at all.
@@ -188,10 +221,18 @@ function initTopTeamsPinSequence(section) {
   const thirdCard = section.querySelector(".team-card-third");
   const secondCard = section.querySelector(".team-card-second");
   const firstCard = section.querySelector(".team-card-first");
+  const entryFade = section.querySelector(".tt-pin-entry-fade");
+  const exitFade = section.querySelector(".tt-pin-exit-fade");
   if (!stage || !titleEl || !thirdCard || !secondCard || !firstCard) return;
 
   gsap.set(titleEl, { opacity: 1, y: 0 });
   gsap.set([thirdCard, secondCard, firstCard], { opacity: 0, y: 40 });
+  // Entry fade starts fully opaque (the same solid color Impact's exit fade
+  // just settled on) and clears during Phase 0's opening moment; exit fade
+  // starts clear and covers the podium again during the tail of Phase 4 —
+  // see the Stage 2g comment on .pin-exit-fade in css/styles.css.
+  if (entryFade) gsap.set(entryFade, { opacity: 1 });
+  if (exitFade) gsap.set(exitFade, { opacity: 0 });
 
   const tl = gsap.timeline({ defaults: { ease: "none" } });
   tl.to(titleEl, { opacity: 0, y: -20, duration: 0.08 }, 0.14)
@@ -204,6 +245,9 @@ function initTopTeamsPinSequence(section) {
     // loop running independently of scroll.
     .to(".tt-pinbg-lines", { rotate: 8, transformOrigin: "50% 50%", duration: 1 }, 0)
     .to(".tt-pinbg-nodes", { scale: 1.1, transformOrigin: "50% 50%", duration: 1 }, 0);
+
+  if (entryFade) tl.to(entryFade, { opacity: 0, duration: 0.08 }, 0);
+  if (exitFade) tl.to(exitFade, { opacity: 1, duration: 0.08 }, 0.92);
 
   const FIRST_PLACE_DONE = 0.82;
   let confettiFired = false;
@@ -239,6 +283,8 @@ function initTopTeamsPinSequence(section) {
     tl.kill();
     section.classList.remove("tt-pin-active");
     gsap.set([titleEl, thirdCard, secondCard, firstCard], { clearProps: "all" });
+    if (entryFade) gsap.set(entryFade, { clearProps: "all" });
+    if (exitFade) gsap.set(exitFade, { clearProps: "all" });
   }
 
   // Same live safeguard as the Hero sequence: stop pinning immediately if
@@ -413,10 +459,15 @@ function initPinSequence() {
   const heroScene = document.querySelector(".scene-hero");
   const explainerScene = document.querySelector(".scene-explainer");
   const impactScene = document.querySelector(".scene-impact");
+  const pinExitFade = document.querySelector(".pin-exit-fade");
   if (!heroScene || !explainerScene || !impactScene) return;
 
   gsap.set(heroScene, { opacity: 1, y: 0, pointerEvents: "auto" });
   gsap.set([explainerScene, impactScene], { opacity: 0, y: 40, pointerEvents: "none" });
+  // Starts fully clear; fades to solid charcoal-deep during the tail of
+  // Impact's hold, handing off to Top Teams' matching entry fade — see the
+  // Stage 2g comment on .pin-exit-fade in css/styles.css.
+  if (pinExitFade) gsap.set(pinExitFade, { opacity: 0 });
 
   // Fractions (0–1) of the pinned scroll distance where each scene is fully
   // settled — reused below to let the "Impact" nav link jump straight there
@@ -457,6 +508,8 @@ function initPinSequence() {
       GALLERY_START
     );
 
+  if (pinExitFade) tl.to(pinExitFade, { opacity: 1, duration: 0.08 }, 0.92);
+
   initImpactGallery(tl, GALLERY_START, GALLERY_END);
 
   const galleryScrollHeights = 3.5; // roughly how many viewport-heights the gallery itself deserves
@@ -494,6 +547,7 @@ function initPinSequence() {
     sequence.classList.remove("pin-active");
     gsap.set([heroScene, explainerScene, impactScene], { clearProps: "all" });
     gsap.set(document.querySelectorAll(".impact-gallery-img"), { clearProps: "all" });
+    if (pinExitFade) gsap.set(pinExitFade, { clearProps: "all" });
   }
 
   // If the user turns on reduced motion mid-session, stop scroll-jacking
@@ -507,7 +561,13 @@ function initPinSequence() {
 
 initImpactCounters();
 initScrollReveal();
-initTopTeamsAnimation();
 initMagneticButtons();
 initCustomCursor();
+// Both pin sequences must run first: each adds a large ScrollTrigger
+// spacer that pushes everything after it (including #story) much further
+// down the page. initStoryEntranceFade measures #story's position when it
+// runs — creating it before those spacers exist would capture the wrong
+// (pre-pin) position and the fade would trigger at the wrong scroll point.
 initPinSequence();
+initTopTeamsAnimation();
+initStoryEntranceFade();

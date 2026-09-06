@@ -22,6 +22,14 @@ are the Foundation's copyrighted photography.
   `object-fit: cover` already handles that variation without distortion in
   both the static grid and the pinned full-bleed backdrop, so no CSS
   changes were needed for this swap.
+- `cta-photo.jpg`: a real event photo supplied by the site owner (the same
+  two-winners-on-stage moment used elsewhere), replacing the Picsum
+  placeholder behind the Get Involved band's "Ready to build something that
+  matters?" heading. Resized to 1600px wide / ~82% JPEG quality; its native
+  ~2.3:1 aspect ratio is wider than the placeholder it replaced, but
+  `.cta-photo`'s `object-fit: cover` already handles that without
+  distortion, so — same as the impact photos above — this was a pure
+  content swap with no CSS changes.
 
 **Also not Picsum photography:** `leadership/member-1.jpg` through
 `member-6.jpg` (used on the Team/Leadership page, Stage 3a) are generated
@@ -39,8 +47,6 @@ Swap in real event photography using the **same filenames and roughly the
 same aspect ratios** listed below, and no code changes are needed:
 
 - `story-photo.jpg` — 1200×1500 (portrait), used in the Our Story section.
-- `cta-photo.jpg` — 1400×1000 (landscape), used as the Get Involved band's
-  background.
 - `leadership/member-1.jpg` … `member-6.jpg` — 600×600 (square), used on the
   Team/Leadership page for each exec board entry, in roster order (1 =
   Campus Director … 6 = Treasurer per team.html). Replace the bracketed

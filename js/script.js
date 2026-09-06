@@ -5,6 +5,21 @@ document.getElementById("year").textContent = new Date().getFullYear();
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+// Shared with initImpactCounters below (see the comment there on why it
+// needs to know this ahead of time) — kept as a single source of truth so
+// the two never drift apart and silently disagree about which tier is
+// active.
+const PIN_SEQUENCE_MIN_WIDTH = 900;
+function canRunPinSequence() {
+  return (
+    typeof gsap !== "undefined" &&
+    typeof ScrollTrigger !== "undefined" &&
+    supportsFinePointer &&
+    !prefersReducedMotion &&
+    window.innerWidth >= PIN_SEQUENCE_MIN_WIDTH
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Animated impact counters (count up once, when scrolled into view)
 // ---------------------------------------------------------------------------
@@ -36,6 +51,22 @@ function initImpactCounters() {
   const counters = document.querySelectorAll(".counter");
   if (!counters.length) return;
 
+  // On the tier-3 desktop path, initPinSequence (which runs after this,
+  // later in the same synchronous init pass) stacks every scene at the
+  // same absolute inset:0 box the moment it runs. By the time this
+  // observer's callback actually fires (IntersectionObserver always
+  // reports asynchronously, on a later frame), that's already true — so
+  // .scene-impact's counters read as "in view" immediately, and finish
+  // counting up silently behind the still-opaque Hero scene before the
+  // visitor has scrolled anywhere near Impact. initPinSequence already
+  // re-triggers these same counters explicitly, in sync with its own
+  // timeline, once Impact's scene has actually faded in (see the .call()
+  // there) — so on this tier, skip observing them here entirely. Besides
+  // the invisible pre-completion, leaving the observer active here too
+  // risks a second, overlapping rAF loop racing that retrigger if a fast
+  // scroll reaches Impact before the first loop has finished.
+  const impactHandledByPinSequence = canRunPinSequence();
+
   const observer = new IntersectionObserver(
     (entries, obs) => {
       entries.forEach((entry) => {
@@ -48,7 +79,10 @@ function initImpactCounters() {
     { threshold: 0.4 }
   );
 
-  counters.forEach((el) => observer.observe(el));
+  counters.forEach((el) => {
+    if (impactHandledByPinSequence && el.closest(".scene-impact")) return;
+    observer.observe(el);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -444,15 +478,7 @@ function initPinSequence() {
   const sequence = document.getElementById("pin-sequence");
   if (!sequence) return;
 
-  const MIN_WIDTH = 900;
-  const canEnhance =
-    typeof gsap !== "undefined" &&
-    typeof ScrollTrigger !== "undefined" &&
-    supportsFinePointer &&
-    !prefersReducedMotion &&
-    window.innerWidth >= MIN_WIDTH;
-
-  if (!canEnhance) return;
+  if (!canRunPinSequence()) return;
 
   gsap.registerPlugin(ScrollTrigger);
 

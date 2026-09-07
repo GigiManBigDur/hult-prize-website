@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- See the matching comment in index.html/team.html/pitch-videos.html/
+       timeline.html/blog.html/gallery.html/about.html: opt out of the
+       browser's default scroll-position restoration so a reload or a
+       pasted link starts at the top rather than wherever this page was
+       last scrolled to (an explicit #hash deep link is still honored). -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ | Hult Prize @ UC Davis</title>
+  <meta name="description" content="Answers to common questions about Hult Prize @ UC Davis.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Same header markup/treatment as the rest of the site. -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="pitch-videos.html">Pitch Videos</a></li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="faq.html" aria-current="page">FAQ</a></li>
+          <li><a class="nav-cta" href="index.html#get-involved">Get Involved</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="faq-page">
+    <section class="faq-hero">
+      <!-- Same one-time entry flourish + per-word reveal pattern as Pitch
+           Videos'/Blog's/Gallery's/About's hero, reused here via
+           initFaqEntrance (js/script.js) rather than inventing a new
+           entry style — independently named (.faq-hero-flourish/
+           .fq-reveal-word/-inner) so this page's word-reveal spans can't
+           collide with the others'. -->
+      <div class="faq-hero-flourish" aria-hidden="true"></div>
+      <div class="container">
+        <h1>
+          <span class="fq-reveal-word"><span class="fq-reveal-word-inner">Frequently</span></span>
+          <span class="fq-reveal-word"><span class="fq-reveal-word-inner">Asked</span></span>
+          <span class="fq-reveal-word"><span class="fq-reveal-word-inner">Questions</span></span>
+        </h1>
+        <p class="faq-hero-lede">
+          Common questions about the Hult Prize, our chapter, and how to get involved. A couple
+          of answers below are still being finalized by the chapter — those are marked clearly.
+        </p>
+      </div>
+    </section>
+
+    <section class="faq-section" aria-labelledby="faq-heading">
+      <div class="container">
+        <h2 id="faq-heading" class="section-heading">Questions</h2>
+
+        <!-- Filter pills (Stage 8b) — reuses the exact same filter
+             interaction already built for the Photo Gallery page
+             (initGalleryFilter): fade out tiles/cards leaving the
+             filter, Flip-animate the ones staying visible into their
+             repacked position, fade in the ones entering. initFaqFilter
+             (js/script.js) is effectively that same function adapted to
+             a vertical list of cards instead of a grid of tiles, rather
+             than a new filtering mechanism. -->
+        <div class="faq-filters" role="group" aria-label="Filter questions by category">
+          <button type="button" class="faq-filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="faq-filter-btn" data-filter="getting-started" aria-pressed="false">Getting Started</button>
+          <button type="button" class="faq-filter-btn" data-filter="competition" aria-pressed="false">Competition</button>
+          <button type="button" class="faq-filter-btn" data-filter="general" aria-pressed="false">General</button>
+        </div>
+
+        <!-- Accordion (Stage 8b) — initFaqAccordion (js/script.js) drives
+             the open/close entirely; base CSS collapses every .faq-answer
+             to height: 0 so nothing depends on JS running for the closed
+             (default) state to look right. Single-open by default
+             (opening one closes whichever other is currently open).
+             Category accent (left border) follows the site's established
+             --card-accent convention: General/teal, Getting Started/sky,
+             Competition/orange — one consistent color per category, not
+             per-card. -->
+        <ul class="faq-list" id="faq-list">
+          <li class="faq-item faq-item-general" data-category="general">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-1" id="faq-question-1">
+                <span class="faq-question-text">What is the Hult Prize?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-1" role="region" aria-labelledby="faq-question-1" aria-hidden="true">
+              <p>The Hult Prize is a global student entrepreneurship competition. Teams of students design for-profit ventures that address major social and environmental challenges, then pitch and compete through a series of stages toward national and global competition.</p>
+            </div>
+          </li>
+
+          <li class="faq-item faq-item-getting-started" data-category="getting-started">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-2" id="faq-question-2">
+                <span class="faq-question-text">Do I need a business background to participate?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-2" role="region" aria-labelledby="faq-question-2" aria-hidden="true">
+              <p>No — no business background is required to participate.</p>
+            </div>
+          </li>
+
+          <li class="faq-item faq-item-competition" data-category="competition">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-3" id="faq-question-3">
+                <span class="faq-question-text">How does judging work?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-3" role="region" aria-labelledby="faq-question-3" aria-hidden="true">
+              <p>Judges are recruited from academia and industry to evaluate teams at the chapter's OnCampus competition.</p>
+            </div>
+          </li>
+
+          <li class="faq-item faq-item-getting-started" data-category="getting-started">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-4" id="faq-question-4">
+                <span class="faq-question-text">How can I get involved?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-4" role="region" aria-labelledby="faq-question-4" aria-hidden="true">
+              <p>You can join a team, apply for the executive board, or attend the OnCampus competition — see <a class="text-link" href="index.html#get-involved">Get Involved <span aria-hidden="true">→</span></a> for details.</p>
+            </div>
+          </li>
+
+          <li class="faq-item faq-item-general" data-category="general">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-5" id="faq-question-5">
+                <span class="faq-question-text">How can I stay updated on events and news?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-5" role="region" aria-labelledby="faq-question-5" aria-hidden="true">
+              <p>Check the <a class="text-link" href="timeline.html">Event Timeline <span aria-hidden="true">→</span></a> page for key dates, and the <a class="text-link" href="blog.html">Blog &amp; Newsletter <span aria-hidden="true">→</span></a> page for announcements and recaps.</p>
+            </div>
+          </li>
+
+          <li class="faq-item faq-item-competition" data-category="competition">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-6" id="faq-question-6">
+                <span class="faq-question-text">What are the competition stages?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-6" role="region" aria-labelledby="faq-question-6" aria-hidden="true">
+              <p>Teams compete at the chapter's OnCampus level first, with top teams advancing toward the Hult Prize National Competition. Specific dates, prize amounts, and eligibility rules change from year to year, so check the <a class="text-link" href="https://www.hultprize.org" target="_blank" rel="noopener noreferrer">official Hult Prize website <span aria-hidden="true">→</span></a> for this year's current terms rather than relying on this page for them.</p>
+            </div>
+          </li>
+
+          <!-- The two answers below are genuinely unknown — not something
+               to guess at. Marked as placeholder text in both the visible
+               copy and this comment so the site owner knows to fill them
+               in before launch; do not replace "[Answer TBD — site owner
+               to confirm]" with an invented answer. -->
+          <li class="faq-item faq-item-getting-started" data-category="getting-started">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-7" id="faq-question-7">
+                <span class="faq-question-text">Do I need a full team already, or can I join solo?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-7" role="region" aria-labelledby="faq-question-7" aria-hidden="true">
+              <p class="faq-answer-tbd">[Answer TBD — site owner to confirm]</p>
+            </div>
+          </li>
+
+          <li class="faq-item faq-item-general" data-category="general">
+            <h3 class="faq-question-heading">
+              <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-8" id="faq-question-8">
+                <span class="faq-question-text">Is there a cost to participate?</span>
+                <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+              </button>
+            </h3>
+            <div class="faq-answer" id="faq-answer-8" role="region" aria-labelledby="faq-question-8" aria-hidden="true">
+              <p class="faq-answer-tbd">[Answer TBD — site owner to confirm]</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Same footer markup/treatment as the rest of the site. -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-name">Hult Prize <span>@ UC Davis</span></p>
+      <ul class="footer-links">
+        <!-- Placeholder contact details — replace with the chapter's real email and Instagram before launch -->
+        <li><a href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a></li>
+        <li><a href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">@hultprizeucdavis</a></li>
+      </ul>
+      <p class="footer-copyright">&copy; <span id="year"></span> Hult Prize @ UC Davis.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP drives the one-time hero entrance (initFaqEntrance), the
+       scroll-triggered card reveal (initFaqReveal), the filter reflow
+       (initFaqFilter), and the accordion expand/collapse
+       (initFaqAccordion) — js/script.js checks typeof gsap/ScrollTrigger/
+       Flip before using any of them, so a CDN failure just skips those
+       animations (everything shows/filters/opens instantly in its final
+       state instead) rather than breaking the page. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

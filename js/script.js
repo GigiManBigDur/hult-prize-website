@@ -1048,45 +1048,62 @@ function initGalleryReveal() {
 }
 
 // ---------------------------------------------------------------------------
-// Gallery page: category filter pills (Stage 7a). Every actual visibility
-// change ([hidden] on non-matching .gallery-tile elements) happens
+// Shared category-filter-pill behavior (Stage 7a, generalized in Stage 8b)
+// — every actual visibility change ([hidden] on non-matching items) happens
 // unconditionally in plain JS; only the transition is gated behind GSAP/
-// Flip + !prefersReducedMotion, in which case filtering is an instant
-// swap instead — still fully correct, per the brief's fallback allowance.
+// Flip + !prefersReducedMotion, in which case filtering is an instant swap
+// instead — still fully correct, per each page's brief's fallback
+// allowance.
 //
-// The animated case is three things happening together: tiles leaving the
-// filter fade out first (still in their grid slot); Flip then animates
-// every tile that stays visible in both the old and new filter sliding
-// into its newly-repacked (grid-auto-flow: dense) position, since hiding
-// some tiles changes where the rest land; and tiles newly entering the
-// filter fade in once that reflow lands. Flip can't itself animate an
-// element being hidden via [hidden] (display: none can't be transitioned
-// through), which is why the leaving tiles get a plain opacity/scale tween
-// first rather than being folded into the Flip call.
+// The animated case is three things happening together: items leaving the
+// filter fade out first (still in their original slot); Flip then animates
+// every item that stays visible in both the old and new filter sliding
+// into its newly-repacked position, since hiding some items changes where
+// the rest land; and items newly entering the filter fade in once that
+// reflow lands. Flip can't itself animate an element being hidden via
+// [hidden] (display: none can't be transitioned through), which is why the
+// leaving items get a plain opacity/scale tween first rather than being
+// folded into the Flip call.
+//
+// Originally built for the Gallery page's photo grid (initGalleryFilter);
+// factored out here rather than duplicated a second time for the FAQ
+// page's question list (initFaqFilter), per that page's brief calling for
+// reusing this exact interaction instead of a new filtering mechanism.
+// Works on any flat list of items with a data-category attribute — a CSS
+// grid of tiles and a plain vertical list of cards both just need Flip to
+// animate whatever layout change hiding/showing items produces, which
+// isn't specific to either shape.
+//
+// buttons/items: NodeLists (or arrays) — each button needs a data-filter
+// attribute ("all" or a category value), each item a data-category
+// attribute. onBeforeFilter, if given, runs before anything else changes
+// (the FAQ page uses this to close whichever accordion item is open,
+// since a filtered-out-but-still-open item would be an odd state to
+// animate back into later).
 // ---------------------------------------------------------------------------
-function initGalleryFilter() {
-  const buttons = document.querySelectorAll(".gallery-filter-btn");
-  const tiles = document.querySelectorAll(".gallery-tile");
-  if (!buttons.length || !tiles.length) return;
+function initFilterGroup(buttons, items, { onBeforeFilter } = {}) {
+  if (!buttons.length || !items.length) return;
 
   const canFlip = !prefersReducedMotion && typeof gsap !== "undefined" && typeof Flip !== "undefined";
   if (canFlip) gsap.registerPlugin(Flip);
 
   function applyFilter(value) {
-    const allTiles = Array.from(tiles);
-    const willShow = allTiles.filter((t) => value === "all" || t.dataset.category === value);
-    const currentlyVisible = allTiles.filter((t) => !t.hidden);
+    if (onBeforeFilter) onBeforeFilter();
+
+    const allItems = Array.from(items);
+    const willShow = allItems.filter((el) => value === "all" || el.dataset.category === value);
+    const currentlyVisible = allItems.filter((el) => !el.hidden);
 
     if (!canFlip) {
-      allTiles.forEach((t) => {
-        t.hidden = !willShow.includes(t);
+      allItems.forEach((el) => {
+        el.hidden = !willShow.includes(el);
       });
       return;
     }
 
-    const leaving = currentlyVisible.filter((t) => !willShow.includes(t));
-    const staying = currentlyVisible.filter((t) => willShow.includes(t));
-    const entering = willShow.filter((t) => !currentlyVisible.includes(t));
+    const leaving = currentlyVisible.filter((el) => !willShow.includes(el));
+    const staying = currentlyVisible.filter((el) => willShow.includes(el));
+    const entering = willShow.filter((el) => !currentlyVisible.includes(el));
 
     const tl = gsap.timeline();
     if (leaving.length) {
@@ -1094,10 +1111,10 @@ function initGalleryFilter() {
     }
     tl.add(() => {
       const state = Flip.getState(staying);
-      allTiles.forEach((t) => {
-        t.hidden = !willShow.includes(t);
+      allItems.forEach((el) => {
+        el.hidden = !willShow.includes(el);
       });
-      // Reset leaving tiles' inline opacity/scale now that they're
+      // Reset leaving items' inline opacity/scale now that they're
       // [hidden] — otherwise they'd reappear still faded out next time
       // this same filter shows them again.
       gsap.set(leaving, { opacity: 1, scale: 1 });
@@ -1128,6 +1145,10 @@ function initGalleryFilter() {
       applyFilter(btn.dataset.filter);
     });
   });
+}
+
+function initGalleryFilter() {
+  initFilterGroup(document.querySelectorAll(".gallery-filter-btn"), document.querySelectorAll(".gallery-tile"));
 }
 
 // ---------------------------------------------------------------------------
@@ -1537,6 +1558,187 @@ function initAboutReveal() {
         gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }),
     });
   }
+}
+
+// ---------------------------------------------------------------------------
+// FAQ page: one-time hero entrance (Stage 8b) — the same background-
+// flourish + staggered-title + staggered-content pattern as the other
+// pages' own entrance functions, reused rather than inventing a new entry
+// style. Independently named (.fq-reveal-word/-inner) so this page's
+// word-reveal spans can't collide with the others'.
+// ---------------------------------------------------------------------------
+function initFaqEntrance() {
+  const hero = document.querySelector(".faq-hero");
+  if (!hero) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+
+  const flourish = document.querySelector(".faq-hero-flourish");
+  const words = document.querySelectorAll(".faq-hero .fq-reveal-word-inner");
+  const lede = document.querySelector(".faq-hero-lede");
+
+  if (flourish) gsap.set(flourish, { opacity: 0, scale: 0.85, rotate: -8 });
+  if (words.length) gsap.set(words, { yPercent: 115 });
+  if (lede) gsap.set(lede, { opacity: 0, y: 18 });
+
+  const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+  if (flourish) {
+    tl.to(flourish, { opacity: 0.4, scale: 1, rotate: 0, duration: 0.35 }, 0).to(
+      flourish,
+      { opacity: 0, duration: 0.35 },
+      0.35
+    );
+  }
+
+  if (words.length) {
+    tl.to(words, { yPercent: 0, duration: 0.45, stagger: 0.045, ease: "power3.out" }, 0.15);
+  }
+
+  if (lede) {
+    tl.to(lede, { opacity: 1, y: 0, duration: 0.4 }, 0.55);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// FAQ page: scroll-triggered stagger reveal (Stage 8b) — same
+// ScrollTrigger.batch approach as initLeadershipReveal/initBlogGridReveal/
+// initGalleryReveal/initAboutReveal.
+// ---------------------------------------------------------------------------
+function initFaqReveal() {
+  const items = document.querySelectorAll(".faq-item");
+  if (!items.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(items, { opacity: 0, y: 28 });
+
+  ScrollTrigger.batch(items, {
+    start: "top 92%",
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// FAQ page: category filter pills (Stage 8b) — thin wrapper around the
+// shared initFilterGroup (see that function's comment), reusing the exact
+// Gallery filter interaction rather than a new mechanism, per the brief.
+// The one FAQ-specific addition is onBeforeFilter: close whichever
+// accordion item is currently open before the filter changes, since an
+// item that's mid-filtered-out shouldn't stay open underneath.
+// ---------------------------------------------------------------------------
+function initFaqFilter() {
+  initFilterGroup(document.querySelectorAll(".faq-filter-btn"), document.querySelectorAll(".faq-item"), {
+    onBeforeFilter: () => {
+      if (typeof window.__closeOpenFaqItem === "function") window.__closeOpenFaqItem();
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// FAQ page: accordion (Stage 8b). Every actual state change — aria-
+// expanded/aria-hidden, which item (if any) is open — happens
+// unconditionally in plain JS; only the height/opacity transition is
+// gated behind GSAP + !prefersReducedMotion, in which case opening/
+// closing is instant instead, per the brief's fallback allowance.
+//
+// Single-open by default: opening one item closes whichever other is
+// currently open (closeOpenItem, below, also exposed on window so
+// initFaqFilter can call it when the active filter changes). Height is
+// animated from/to a measured pixel value (scrollHeight) rather than
+// animating to/from "auto" directly, since browsers can't tween a CSS
+// keyword — settling on height: auto once fully open keeps it correct
+// across reflows (e.g. a resize rewrapping the answer text).
+//
+// The answer's own padding lives on the <p> inside .faq-answer, not on
+// .faq-answer itself: with box-sizing: border-box, padding directly on
+// the height: 0 element would still force it to render at that padding's
+// height instead of truly collapsing.
+// ---------------------------------------------------------------------------
+function initFaqAccordion() {
+  const items = document.querySelectorAll(".faq-item");
+  if (!items.length) return;
+
+  const canAnimate = !prefersReducedMotion && typeof gsap !== "undefined";
+
+  let openItem = null;
+
+  function closeItem(item) {
+    const question = item.querySelector(".faq-question");
+    const answer = item.querySelector(".faq-answer");
+    question.setAttribute("aria-expanded", "false");
+    answer.setAttribute("aria-hidden", "true");
+
+    if (canAnimate) {
+      const currentHeight = answer.getBoundingClientRect().height;
+      gsap.set(answer, { height: currentHeight });
+      gsap.to(answer, { height: 0, opacity: 0, duration: 0.3, ease: "power2.inOut" });
+    } else {
+      answer.style.height = "0";
+      answer.style.opacity = "0";
+    }
+
+    if (openItem === item) openItem = null;
+  }
+
+  function openItemFn(item) {
+    const question = item.querySelector(".faq-question");
+    const answer = item.querySelector(".faq-answer");
+    question.setAttribute("aria-expanded", "true");
+    answer.setAttribute("aria-hidden", "false");
+
+    if (canAnimate) {
+      gsap.set(answer, { height: "auto", opacity: 1 });
+      const targetHeight = answer.getBoundingClientRect().height;
+      gsap.fromTo(
+        answer,
+        { height: 0, opacity: 0 },
+        {
+          height: targetHeight,
+          opacity: 1,
+          duration: 0.35,
+          ease: "power2.out",
+          onComplete: () => {
+            // Locks in "auto" once the tween lands so the answer isn't
+            // stuck at a stale pixel height if its content later
+            // reflows (a window resize rewrapping the text, say).
+            gsap.set(answer, { height: "auto" });
+          },
+        }
+      );
+    } else {
+      answer.style.height = "auto";
+      answer.style.opacity = "1";
+    }
+
+    openItem = item;
+  }
+
+  function toggleItem(item) {
+    const isOpen = item.querySelector(".faq-question").getAttribute("aria-expanded") === "true";
+    if (isOpen) {
+      closeItem(item);
+      return;
+    }
+    if (openItem && openItem !== item) closeItem(openItem);
+    openItemFn(item);
+  }
+
+  // Exposed for initFaqFilter to call when the active category changes —
+  // see that function's comment.
+  window.__closeOpenFaqItem = () => {
+    if (openItem) closeItem(openItem);
+  };
+
+  items.forEach((item) => {
+    const question = item.querySelector(".faq-question");
+    question.addEventListener("click", () => toggleItem(item));
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -2057,6 +2259,10 @@ initGalleryFilter();
 initGalleryLightbox();
 initAboutEntrance();
 initAboutReveal();
+initFaqEntrance();
+initFaqReveal();
+initFaqAccordion();
+initFaqFilter();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

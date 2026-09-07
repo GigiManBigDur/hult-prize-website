@@ -1854,6 +1854,15 @@ button:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 18px 36px -22px var(--card-accent, var(--magenta));
   }
+
+  /* FAQ (Stage 8b) — appended here rather than a separate (hover: hover)
+     and (pointer: fine) block, same reasoning as the merges above. A
+     glow rather than a lift/border-color change, since border-color
+     already carries this card's category accent unconditionally (the
+     left border), not just on hover. */
+  .faq-item:hover {
+    box-shadow: 0 14px 30px -20px var(--card-accent, var(--magenta));
+  }
 }
 
 /* No hover gesture exists on touch/coarse-pointer devices — show the same
@@ -3916,4 +3925,272 @@ button:focus-visible {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin: 0 0 1rem;
+}
+
+/* ==========================================================================
+   FAQ page (Stage 8b)
+
+   An eighth full page, alongside Home, Leadership, Pitch Videos, Event
+   Timeline, Blog & Newsletter, the Photo Gallery, and About — same header/
+   footer/color system, same one-time hero-entrance pattern as the other
+   pages' own hero sections (initFaqEntrance), same scroll-triggered
+   stagger reveal (initFaqReveal), and the same category-filter-pill
+   interaction as the Gallery page, generalized into the shared
+   initFilterGroup (js/script.js) rather than duplicated. A plain vertical
+   list of cards, not a grid — no multi-track-spanning tiles involved, so
+   none of the stylesheet-grid cascade risk documented elsewhere in this
+   file applies to anything below.
+   ========================================================================== */
+
+.faq-page {
+  position: relative;
+  background: var(--charcoal);
+  overflow: hidden;
+}
+
+.faq-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(750px circle at 12% 0%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.faq-hero,
+.faq-section {
+  position: relative;
+  z-index: 1;
+}
+
+.faq-hero {
+  padding-block: 5rem 2.5rem;
+  overflow: hidden;
+}
+
+.faq-hero-flourish {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg at 50% 30%,
+    var(--magenta),
+    var(--sky),
+    var(--teal),
+    var(--orange),
+    var(--gold),
+    var(--magenta)
+  );
+  filter: blur(70px);
+  mix-blend-mode: screen;
+}
+
+.faq-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.faq-hero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  max-width: 22ch;
+}
+
+.fq-reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.fq-reveal-word-inner {
+  display: inline-block;
+}
+
+.faq-hero-lede {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 62ch;
+  margin: 0;
+}
+
+.faq-section {
+  padding-block: 1.5rem 5.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Filter pills — visually identical to the Gallery page's own
+   .gallery-filter-btn (independently named/declared per this file's
+   established per-page class-naming convention), driven by the same
+   shared initFilterGroup behind the scenes.
+   -------------------------------------------------------------------------- */
+
+.faq-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 2rem;
+}
+
+.faq-filter-btn {
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.55rem 1.15rem;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq-filter-btn {
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+.faq-filter-btn:hover {
+  border-color: var(--magenta);
+  color: var(--white);
+}
+
+.faq-filter-btn.is-active {
+  background: var(--magenta);
+  border-color: var(--magenta);
+  color: var(--white);
+}
+
+/* --------------------------------------------------------------------------
+   Accordion list
+   -------------------------------------------------------------------------- */
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.faq-item {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--card-accent, var(--magenta));
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq-item {
+    transition: box-shadow 0.3s ease;
+  }
+}
+
+/* Category -> accent mapping — every question in a category shares a
+   color, same taxonomy idea as the Blog post categories and the Timeline
+   event colors. */
+.faq-item-general { --card-accent: var(--teal); }
+.faq-item-getting-started { --card-accent: var(--sky); }
+.faq-item-competition { --card-accent: var(--orange); }
+
+.faq-question-heading {
+  margin: 0;
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+}
+
+.faq-question-text {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+
+/* A plus that rotates 45deg into an X when open — two bars (one
+   horizontal, one vertical) forming the plus; rotating the whole icon,
+   rather than each bar individually, is what turns it into an X instead
+   of a minus sign. */
+.faq-toggle-icon {
+  position: relative;
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  color: var(--card-accent, var(--magenta));
+}
+
+.faq-toggle-icon span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.faq-toggle-icon span:first-child {
+  width: 100%;
+  height: 2px;
+}
+
+.faq-toggle-icon span:last-child {
+  width: 2px;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq-toggle-icon {
+    transition: transform 0.3s ease;
+  }
+}
+
+.faq-question[aria-expanded="true"] .faq-toggle-icon {
+  transform: rotate(45deg);
+}
+
+/* Animated by initFaqAccordion (js/script.js) between height: 0 and a
+   measured pixel value, settling on height: auto once open — see that
+   function's comment. No padding lives directly on this element on
+   purpose: with box-sizing: border-box, padding here would stop it from
+   truly collapsing to a height of 0 (the padding on the <p> inside is what
+   provides the visual spacing instead). */
+.faq-answer {
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.faq-answer p {
+  margin: 0;
+  padding: 0 1.5rem 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+/* Flags the two not-yet-confirmed answers as clearly provisional — not
+   just plain body text a reader could mistake for a real answer.
+   Selector is .faq-answer p.faq-answer-tbd rather than the bare class:
+   .faq-answer p above already sets color at (class + descendant tag)
+   specificity, which beats a lone class selector regardless of source
+   order — confirmed via getComputedStyle that the bare-class version left
+   this rendering in the ordinary --text-secondary color instead of gold. */
+.faq-answer p.faq-answer-tbd {
+  font-style: italic;
+  color: var(--gold);
 }

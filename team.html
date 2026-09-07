@@ -74,7 +74,7 @@
         </p>
 
         <ul class="leadership-grid">
-          <li class="leadership-card leadership-card-teal leadership-card-featured">
+          <li id="leadership-member-1" class="leadership-card leadership-card-teal leadership-card-featured">
             <figure class="leadership-card-photo">
               <img src="assets/leadership/member-1.jpg" alt="Placeholder photo for the Campus Director — real photo coming soon.">
             </figure>
@@ -85,7 +85,7 @@
             </div>
           </li>
 
-          <li class="leadership-card leadership-card-sky leadership-card-wide">
+          <li id="leadership-member-2" class="leadership-card leadership-card-sky leadership-card-wide">
             <figure class="leadership-card-photo">
               <img src="assets/leadership/member-2.jpg" alt="Placeholder photo for the VP of Operations — real photo coming soon.">
             </figure>
@@ -96,7 +96,7 @@
             </div>
           </li>
 
-          <li class="leadership-card leadership-card-orange">
+          <li id="leadership-member-3" class="leadership-card leadership-card-orange">
             <figure class="leadership-card-photo">
               <img src="assets/leadership/member-3.jpg" alt="Placeholder photo for the VP of Marketing — real photo coming soon.">
             </figure>
@@ -107,7 +107,7 @@
             </div>
           </li>
 
-          <li class="leadership-card leadership-card-gold">
+          <li id="leadership-member-4" class="leadership-card leadership-card-gold">
             <figure class="leadership-card-photo">
               <img src="assets/leadership/member-4.jpg" alt="Placeholder photo for the VP of Partnerships — real photo coming soon.">
             </figure>
@@ -118,7 +118,7 @@
             </div>
           </li>
 
-          <li class="leadership-card leadership-card-teal leadership-card-wide">
+          <li id="leadership-member-5" class="leadership-card leadership-card-teal leadership-card-wide">
             <figure class="leadership-card-photo">
               <img src="assets/leadership/member-5.jpg" alt="Placeholder photo for the Events Director — real photo coming soon.">
             </figure>
@@ -129,7 +129,7 @@
             </div>
           </li>
 
-          <li class="leadership-card leadership-card-sky leadership-card-wide">
+          <li id="leadership-member-6" class="leadership-card leadership-card-sky leadership-card-wide">
             <figure class="leadership-card-photo">
               <img src="assets/leadership/member-6.jpg" alt="Placeholder photo for the Treasurer — real photo coming soon.">
             </figure>
@@ -162,6 +162,14 @@
        (cards fully visible, no stagger) rather than breaking the page. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Site-wide Search (Stage 11a) — Fuse.js powers fuzzy client-side
+       matching across blog posts, FAQ entries, and team bios (see
+       SEARCH_INDEX/initSiteSearch in js/script.js). Loaded on every page
+       since the search trigger lives in the shared header; a CDN
+       failure just means initSiteSearch never wires up the trigger
+       (typeof Fuse checked before use), never a broken page.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

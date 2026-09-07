@@ -72,6 +72,224 @@ function getNextUpHultEvent(today) {
 }
 
 // ---------------------------------------------------------------------------
+// Site-wide Search (Stage 11a) — the search index.
+//
+// IMPORTANT: this array is hand-maintained, NOT generated from the page
+// content. Add/remove/edit an entry here whenever a blog post, FAQ item,
+// or team bio is added, removed, or changed on its actual page — nothing
+// keeps this automatically in sync. Each entry's `url` is a plain
+// page.html#id link; the id must match a real id on the destination page
+// (a .blog-card/.leadership-card <li>, or an existing .faq-question
+// button's id) for the highlight/expand behavior in
+// initSearchResultHighlight below to find it.
+//
+// `accent` names one of the site's existing secondary accent colors
+// (teal/sky/orange/gold) and is looked up as --{accent} against :root in
+// CSS — see .search-result-teal etc. in css/styles.css. Team entries
+// reuse each member's existing .leadership-card-* accent; Blog/FAQ
+// entries reuse their existing category -> accent mapping (Recap/
+// General = teal, Announcement/Getting Started = sky, Behind the Scenes/
+// Competition = orange, Tips = gold) rather than inventing a new palette.
+// ---------------------------------------------------------------------------
+const SEARCH_INDEX = [
+  // Blog posts (blog.html) — title/excerpt/category copied from each
+  // .blog-card; accent follows that card's existing category color.
+  {
+    type: "blog",
+    id: "blog-post-1",
+    title: "OnCampus 2025 Recap: DOZEY Takes First Place",
+    subtitle:
+      "DOZEY took first place at this year's OnCampus Competition, with Sumeru Quantum Inc. and SQUELLET rounding out the podium.",
+    meta: "Recap",
+    accent: "teal",
+    url: "blog.html#blog-post-1",
+  },
+  {
+    type: "blog",
+    id: "blog-post-2",
+    title: "Meet Our Executive Board",
+    subtitle: "Meet the students leading Hult Prize @ UC Davis this year.",
+    meta: "Announcement",
+    accent: "sky",
+    url: "blog.html#blog-post-2",
+  },
+  {
+    type: "blog",
+    id: "blog-post-3",
+    title: "Why We Partnered with ENG 108",
+    subtitle: "Bringing structured ideation techniques to our teams this year through a new partnership.",
+    meta: "Behind the Scenes",
+    accent: "orange",
+    url: "blog.html#blog-post-3",
+  },
+  {
+    type: "blog",
+    id: "blog-post-4",
+    title: "5 Tips for Your Hult Prize Pitch",
+    subtitle: "Practical tips from past judges and mentors to help your team stand out on competition day.",
+    meta: "Tips",
+    accent: "gold",
+    url: "blog.html#blog-post-4",
+  },
+  {
+    type: "blog",
+    id: "blog-post-5",
+    title: "Two Teams Advance to Nationals",
+    subtitle: "Two teams have officially advanced to the Hult Prize National Competition after strong showings at OnCampus.",
+    meta: "Recap",
+    accent: "teal",
+    url: "blog.html#blog-post-5",
+  },
+  {
+    type: "blog",
+    id: "blog-post-6",
+    title: "Chapter Kickoff: What to Expect This Year",
+    subtitle: "What to expect this cycle, from the info session to team formation, plus key dates.",
+    meta: "Announcement",
+    accent: "sky",
+    url: "blog.html#blog-post-6",
+  },
+
+  // FAQ entries (faq.html) — question/answer-snippet/category copied from
+  // each .faq-item; accent follows that item's existing category color.
+  // url points straight at the question button's own existing id.
+  {
+    type: "faq",
+    id: "faq-question-1",
+    title: "What is the Hult Prize?",
+    subtitle: "A global student entrepreneurship competition where teams design for-profit ventures addressing social and environmental challenges.",
+    meta: "General",
+    accent: "teal",
+    url: "faq.html#faq-question-1",
+  },
+  {
+    type: "faq",
+    id: "faq-question-2",
+    title: "Do I need a business background to participate?",
+    subtitle: "No — no business background is required to participate.",
+    meta: "Getting Started",
+    accent: "sky",
+    url: "faq.html#faq-question-2",
+  },
+  {
+    type: "faq",
+    id: "faq-question-3",
+    title: "How does judging work?",
+    subtitle: "Judges are recruited from academia and industry to evaluate teams at the OnCampus competition.",
+    meta: "Competition",
+    accent: "orange",
+    url: "faq.html#faq-question-3",
+  },
+  {
+    type: "faq",
+    id: "faq-question-4",
+    title: "How can I get involved?",
+    subtitle: "Join a team, apply for the executive board, or attend the OnCampus competition.",
+    meta: "Getting Started",
+    accent: "sky",
+    url: "faq.html#faq-question-4",
+  },
+  {
+    type: "faq",
+    id: "faq-question-5",
+    title: "How can I stay updated on events and news?",
+    subtitle: "Check the Event Timeline page for key dates, and the Blog & Newsletter page for announcements and recaps.",
+    meta: "General",
+    accent: "teal",
+    url: "faq.html#faq-question-5",
+  },
+  {
+    type: "faq",
+    id: "faq-question-6",
+    title: "What are the competition stages?",
+    subtitle: "Teams compete at the chapter's OnCampus level first, with top teams advancing toward the Hult Prize National Competition.",
+    meta: "Competition",
+    accent: "orange",
+    url: "faq.html#faq-question-6",
+  },
+  {
+    type: "faq",
+    id: "faq-question-7",
+    title: "Do I need a full team already, or can I join solo?",
+    subtitle: "[Answer TBD — site owner to confirm]",
+    meta: "Getting Started",
+    accent: "sky",
+    url: "faq.html#faq-question-7",
+  },
+  {
+    type: "faq",
+    id: "faq-question-8",
+    title: "Is there a cost to participate?",
+    subtitle: "[Answer TBD — site owner to confirm]",
+    meta: "General",
+    accent: "teal",
+    url: "faq.html#faq-question-8",
+  },
+
+  // Team bios (team.html) — name/role copied from each .leadership-card;
+  // accent follows that card's existing color. Every name below is
+  // currently the same placeholder ("[Name Placeholder]" — see
+  // team.html); role is the field actually worth searching/distinguishing
+  // by until the real roster replaces it, so results show role as the
+  // primary label and name as the secondary line, not the other way
+  // around.
+  {
+    type: "team",
+    id: "leadership-member-1",
+    title: "Campus Director",
+    subtitle: "[Name Placeholder]",
+    meta: "",
+    accent: "teal",
+    url: "team.html#leadership-member-1",
+  },
+  {
+    type: "team",
+    id: "leadership-member-2",
+    title: "VP of Operations",
+    subtitle: "[Name Placeholder]",
+    meta: "",
+    accent: "sky",
+    url: "team.html#leadership-member-2",
+  },
+  {
+    type: "team",
+    id: "leadership-member-3",
+    title: "VP of Marketing",
+    subtitle: "[Name Placeholder]",
+    meta: "",
+    accent: "orange",
+    url: "team.html#leadership-member-3",
+  },
+  {
+    type: "team",
+    id: "leadership-member-4",
+    title: "VP of Partnerships",
+    subtitle: "[Name Placeholder]",
+    meta: "",
+    accent: "gold",
+    url: "team.html#leadership-member-4",
+  },
+  {
+    type: "team",
+    id: "leadership-member-5",
+    title: "Events Director",
+    subtitle: "[Name Placeholder]",
+    meta: "",
+    accent: "teal",
+    url: "team.html#leadership-member-5",
+  },
+  {
+    type: "team",
+    id: "leadership-member-6",
+    title: "Treasurer",
+    subtitle: "[Name Placeholder]",
+    meta: "",
+    accent: "sky",
+    url: "team.html#leadership-member-6",
+  },
+];
+
+// ---------------------------------------------------------------------------
 // Site-wide: the nav wordmark ("Hult Prize @ UC Davis") doubles as a Home
 // button that always does a genuine full page reload — never a manual
 // reset of hero-entrance/pin-sequence/ScrollTrigger state, which would be
@@ -2613,6 +2831,426 @@ function initPinSequence() {
     });
 }
 
+// ---------------------------------------------------------------------------
+// Site-wide Search (Stage 11a) — nav trigger, keyboard shortcuts (`/` and
+// Cmd/Ctrl+K), and the fuzzy-search overlay itself. Runs on every page: the
+// trigger button and overlay markup are both built here in JS (not
+// hardcoded per page), the same way initCustomCursor builds its cursor
+// elements, rather than duplicating the same markup block across all 9
+// HTML files. If the Fuse.js CDN failed to load, this bails out entirely
+// before creating anything — no half-working search button left behind,
+// same progressive-enhancement contract as everywhere else on the site.
+//
+// Fuse.js itself is only used for the actual fuzzy string matching; the
+// overlay's open/close, keyboard nav, and focus handling are all plain JS
+// so none of that depends on the library being present once loaded (it
+// either loaded, in which case everything works, or it didn't, in which
+// case nothing here runs at all).
+// ---------------------------------------------------------------------------
+function initSiteSearch() {
+  if (typeof Fuse === "undefined") return;
+
+  const headerInner = document.querySelector(".site-header .header-inner");
+  if (!headerInner) return;
+
+  const fuse = new Fuse(SEARCH_INDEX, {
+    keys: [
+      { name: "title", weight: 0.6 },
+      { name: "subtitle", weight: 0.3 },
+      { name: "meta", weight: 0.1 },
+    ],
+    threshold: 0.36,
+    ignoreLocation: true,
+    minMatchCharLength: 2,
+    includeScore: true,
+  });
+
+  const GROUPS = [
+    { type: "blog", label: "Blog" },
+    { type: "faq", label: "FAQ" },
+    { type: "team", label: "Team" },
+  ];
+
+  // --- Build the trigger button (inserted right after the primary nav) ---
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "search-trigger";
+  trigger.setAttribute("aria-haspopup", "dialog");
+  trigger.setAttribute("aria-controls", "site-search-overlay");
+  trigger.setAttribute("aria-label", "Search the site");
+  trigger.innerHTML =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16.3" y1="16.3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+    '<span class="search-trigger-hint" aria-hidden="true">/</span>';
+  // Inserted right after the wordmark (before nav), not after nav: on a
+  // narrow viewport the nav's own link row already has no collapse/wrap
+  // behavior and can overflow past the right edge on its own (a
+  // pre-existing layout gap, not something this feature introduces) — a
+  // trigger placed after nav would be pushed off-screen along with it.
+  // Placed here instead, it stays reachable regardless. See the paired
+  // `.header-inner nav { margin-left: auto }` in css/styles.css, which
+  // keeps nav hugging the right edge the same way `justify-content:
+  // space-between` did before this became a 3-item flex row instead of 2.
+  const wordmark = headerInner.querySelector(".wordmark");
+  if (wordmark) wordmark.insertAdjacentElement("afterend", trigger);
+  else headerInner.appendChild(trigger);
+
+  // --- Build the overlay (appended to <body>, one per page) ---
+  const overlay = document.createElement("div");
+  overlay.className = "search-overlay";
+  overlay.id = "site-search-overlay";
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <div class="search-overlay-backdrop"></div>
+    <div class="search-panel" role="dialog" aria-modal="true" aria-label="Search the site">
+      <div class="search-input-row">
+        <svg class="search-input-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16.3" y1="16.3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input
+          type="text"
+          class="search-input"
+          id="site-search-input"
+          role="combobox"
+          aria-expanded="false"
+          aria-controls="site-search-listbox"
+          aria-autocomplete="list"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Search blog posts, FAQ, team…"
+        >
+        <button type="button" class="search-close-btn" aria-label="Close search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="search-results" id="site-search-listbox" role="listbox" aria-label="Search results"></div>
+      <p class="search-hint">
+        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+        <span><kbd>Enter</kbd> select</span>
+        <span><kbd>Esc</kbd> close</span>
+      </p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const backdropEl = overlay.querySelector(".search-overlay-backdrop");
+  const panelEl = overlay.querySelector(".search-panel");
+  const inputEl = overlay.querySelector(".search-input");
+  const closeBtn = overlay.querySelector(".search-close-btn");
+  const resultsEl = overlay.querySelector(".search-results");
+
+  let isOpen = false;
+  let activeIndex = -1;
+  let flatResults = [];
+  let debounceTimer = null;
+  let scrollLockPaddingRight = "";
+
+  // Same scrollbar-compensated body-scroll lock as the Timeline event
+  // modal and Gallery lightbox (js/script.js) — kept as its own local
+  // copy here rather than a shared helper, consistent with how each of
+  // those already duplicates it rather than introducing a new shared
+  // utility for three call sites.
+  function lockBodyScroll() {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    scrollLockPaddingRight = document.body.style.paddingRight;
+    if (scrollbarWidth > 0) document.body.style.paddingRight = scrollbarWidth + "px";
+    document.body.style.overflow = "hidden";
+  }
+  function unlockBodyScroll() {
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = scrollLockPaddingRight;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function updateActiveDescendant() {
+    const optionEls = resultsEl.querySelectorAll(".search-result");
+    optionEls.forEach((el, i) => {
+      const isActive = i === activeIndex;
+      el.classList.toggle("is-active", isActive);
+      el.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    const activeEl = optionEls[activeIndex];
+    if (activeEl) {
+      inputEl.setAttribute("aria-activedescendant", activeEl.id);
+      // "auto" would inherit this site's global `html { scroll-behavior:
+      // smooth }` (css/styles.css) rather than mean instant — explicit
+      // "instant" is what actually bypasses it, same fix as
+      // highlightSearchTarget below.
+      activeEl.scrollIntoView({ block: "nearest", behavior: prefersReducedMotion ? "instant" : "smooth" });
+    } else {
+      inputEl.removeAttribute("aria-activedescendant");
+    }
+  }
+
+  function moveActive(delta) {
+    if (!flatResults.length) return;
+    activeIndex = (activeIndex + delta + flatResults.length) % flatResults.length;
+    updateActiveDescendant();
+  }
+
+  // Renders items already grouped Blog -> FAQ -> Team (fixed order,
+  // regardless of Fuse's own score-ranked order) and rebuilds flatResults
+  // in that same rendered order, so keyboard-nav indices always line up
+  // with what's actually on screen.
+  function renderResults(items) {
+    const query = inputEl.value.trim();
+    flatResults = [];
+    activeIndex = -1;
+    inputEl.removeAttribute("aria-activedescendant");
+
+    if (!query) {
+      inputEl.setAttribute("aria-expanded", "false");
+      resultsEl.innerHTML = '<p class="search-empty-state">Start typing to search blog posts, FAQ, and team bios.</p>';
+      return;
+    }
+
+    if (!items.length) {
+      inputEl.setAttribute("aria-expanded", "false");
+      resultsEl.innerHTML = `<p class="search-empty-state">No results found for &ldquo;${escapeHtml(query)}&rdquo;.</p>`;
+      return;
+    }
+
+    inputEl.setAttribute("aria-expanded", "true");
+
+    let html = "";
+    GROUPS.forEach((group) => {
+      const groupItems = items.filter((item) => item.type === group.type);
+      if (!groupItems.length) return;
+      const labelId = `search-group-${group.type}-label`;
+      html += `<div class="search-group" role="group" aria-labelledby="${labelId}">`;
+      html += `<p class="search-group-label" id="${labelId}">${group.label}</p>`;
+      groupItems.forEach((item) => {
+        const i = flatResults.length;
+        flatResults.push(item);
+        html += `<a href="${escapeHtml(item.url)}" class="search-result search-result-${item.accent}" role="option" id="search-result-${i}" data-index="${i}" aria-selected="false" tabindex="-1">
+          <span class="search-result-title">${escapeHtml(item.title)}</span>
+          <span class="search-result-subtitle">${escapeHtml(item.subtitle)}</span>
+          ${item.meta ? `<span class="search-result-meta">${escapeHtml(item.meta)}</span>` : ""}
+        </a>`;
+      });
+      html += `</div>`;
+    });
+    resultsEl.innerHTML = html;
+
+    // Staggered fade-in for the freshly rendered options — purely
+    // decorative; skipped under reduced motion, where the results (already
+    // written above regardless) are just present immediately with nothing
+    // animating in.
+    if (!prefersReducedMotion && typeof gsap !== "undefined") {
+      const optionEls = resultsEl.querySelectorAll(".search-result, .search-group-label");
+      gsap.fromTo(optionEls, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.25, stagger: 0.02, ease: "power1.out" });
+    }
+  }
+
+  // Fuse's constructor `threshold` gates whether each individual field
+  // fuzzy-matches at all, but with multiple weighted keys the combined
+  // `score` it reports for an included result can land well above that
+  // same number (a short, incidental fuzzy hit in one low-weight field is
+  // enough to include an item, even if its other fields don't match at
+  // all) — observed in testing: a typo like "juding" correctly surfaces
+  // "How does judging work?" around a 0.53 score, but also drags in
+  // unrelated posts scoring 0.90+ on the strength of one loosely-matched
+  // word. SCORE_CUTOFF re-filters on that final combined score (Fuse's
+  // own `threshold` doesn't), trimming that long noisy tail while keeping
+  // every genuine typo match seen in testing (worst case ~0.75, e.g.
+  // "nashunals" -> "Two Teams Advance to Nationals").
+  const SCORE_CUTOFF = 0.8;
+
+  function runSearch() {
+    const query = inputEl.value.trim();
+    if (!query) {
+      renderResults([]);
+      return;
+    }
+    const matches = fuse
+      .search(query, { limit: 30 })
+      .filter((r) => r.score <= SCORE_CUTOFF)
+      .map((r) => r.item);
+    renderResults(matches);
+  }
+
+  function selectResult(item) {
+    const [targetPage, targetHash] = item.url.split("#");
+    const currentPage = location.pathname.split("/").pop() || "index.html";
+    closeOverlay();
+    if (targetPage === currentPage) {
+      // Already on the destination page: no navigation needed (and a
+      // location.href round-trip to the same document wouldn't re-run
+      // this script anyway) — just update the URL for a shareable link
+      // and run the exact same highlight/expand logic a fresh load of
+      // that link would run.
+      history.pushState(null, "", "#" + targetHash);
+      highlightSearchTarget(targetHash);
+    } else {
+      window.location.href = item.url;
+    }
+  }
+
+  function openOverlay() {
+    if (isOpen) return;
+    isOpen = true;
+    overlay.hidden = false;
+    lockBodyScroll();
+    inputEl.value = "";
+    renderResults([]);
+
+    if (!prefersReducedMotion && typeof gsap !== "undefined") {
+      gsap.set(panelEl, { opacity: 0, scale: 0.94 });
+      gsap.set(backdropEl, { opacity: 0 });
+      gsap.to(backdropEl, { opacity: 1, duration: 0.2, ease: "power1.out" });
+      gsap.to(panelEl, { opacity: 1, scale: 1, duration: 0.28, ease: "power2.out" });
+    }
+
+    // Plain synchronous focus — no reason to defer this behind a
+    // requestAnimationFrame (removing `hidden` doesn't need a paint to
+    // happen first for focus() to work), and rAF callbacks specifically
+    // can end up throttled/starved in some environments (a backgrounded
+    // tab), which would needlessly delay something that has no actual
+    // dependency on it.
+    inputEl.focus();
+  }
+
+  function closeOverlay() {
+    if (!isOpen) return;
+    isOpen = false;
+
+    function finish() {
+      overlay.hidden = true;
+      unlockBodyScroll();
+      trigger.focus();
+    }
+
+    if (!prefersReducedMotion && typeof gsap !== "undefined") {
+      gsap.to(panelEl, { opacity: 0, scale: 0.96, duration: 0.16, ease: "power1.in" });
+      gsap.to(backdropEl, { opacity: 0, duration: 0.16, ease: "power1.in", onComplete: finish });
+    } else {
+      finish();
+    }
+  }
+
+  trigger.addEventListener("click", openOverlay);
+  closeBtn.addEventListener("click", closeOverlay);
+  backdropEl.addEventListener("click", closeOverlay);
+
+  inputEl.addEventListener("input", () => {
+    window.clearTimeout(debounceTimer);
+    debounceTimer = window.setTimeout(runSearch, 150);
+  });
+
+  // aria-activedescendant combobox pattern: DOM focus never leaves the
+  // input while the overlay is open — arrow keys move a virtual selection
+  // (tracked via aria-activedescendant + the .is-active class) instead of
+  // real focus, so typing keeps working the instant a result is
+  // highlighted. Result links themselves carry tabindex="-1" (CSS/markup
+  // above) for the same reason: Tab only ever needs to move between the
+  // input and the close button.
+  overlay.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeOverlay();
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      moveActive(1);
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      moveActive(-1);
+      return;
+    }
+    if (e.key === "Enter") {
+      if (activeIndex >= 0 && flatResults[activeIndex]) {
+        e.preventDefault();
+        selectResult(flatResults[activeIndex]);
+      }
+      return;
+    }
+    if (e.key === "Tab") {
+      // Only two real focus stops while open: the input and the close
+      // button — trap Tab/Shift+Tab between them.
+      if (e.shiftKey) {
+        if (document.activeElement === inputEl) {
+          e.preventDefault();
+          closeBtn.focus();
+        }
+      } else if (document.activeElement === closeBtn) {
+        e.preventDefault();
+        inputEl.focus();
+      }
+    }
+  });
+
+  resultsEl.addEventListener("click", (e) => {
+    const link = e.target.closest(".search-result");
+    if (!link) return;
+    e.preventDefault();
+    const item = flatResults[Number(link.dataset.index)];
+    if (item) selectResult(item);
+  });
+
+  function isTypingTarget(el) {
+    if (!el) return false;
+    return el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
+  }
+
+  // Global shortcuts: `/` (only when not already typing somewhere else on
+  // the page — the newsletter email field, say) and Cmd/Ctrl+K (always,
+  // the more deliberate chord doesn't need that guard).
+  document.addEventListener("keydown", (e) => {
+    if (isOpen) return; // overlay's own handler above owns keys while open
+    const isModK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k";
+    if (isModK) {
+      e.preventDefault();
+      openOverlay();
+      return;
+    }
+    if (e.key === "/" && !isTypingTarget(e.target)) {
+      e.preventDefault();
+      openOverlay();
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Site-wide Search (Stage 11a) — landing on a search result. Shared by
+// initSearchResultHighlight (a fresh page load with a #hash already in the
+// URL) and initSiteSearch's selectResult (choosing a result for the page
+// you're already on, which never navigates/reloads) so both paths land the
+// visitor on the matched item the same way: scrolled into view, briefly
+// highlighted, and — for an FAQ match specifically — with its accordion
+// already open rather than just a highlighted collapsed question.
+// ---------------------------------------------------------------------------
+function highlightSearchTarget(id) {
+  if (!id) return;
+  const target = document.getElementById(id);
+  if (!target) return;
+
+  let highlightEl = target;
+  if (target.classList.contains("faq-question")) {
+    if (target.getAttribute("aria-expanded") !== "true") target.click();
+    highlightEl = target.closest(".faq-item") || target;
+  }
+
+  // "auto" would inherit this site's global `html { scroll-behavior:
+  // smooth }` (css/styles.css) rather than mean instant — explicit
+  // "instant" is what actually bypasses it.
+  highlightEl.scrollIntoView({ behavior: prefersReducedMotion ? "instant" : "smooth", block: "center" });
+  highlightEl.classList.add("search-target-highlight");
+  window.setTimeout(() => highlightEl.classList.remove("search-target-highlight"), 2200);
+}
+
+// Runs once per page load; a no-op unless the URL already carries a
+// #hash (i.e. arriving via a search result, or any other deep link into
+// a blog post/FAQ item/team bio). Placed last in the init call list below
+// so every page-specific accordion/listener it might need to trigger
+// (initFaqAccordion, specifically) is already wired up first.
+function initSearchResultHighlight() {
+  if (!location.hash) return;
+  highlightSearchTarget(location.hash.slice(1));
+}
+
 initHomeLogoReset();
 initImpactCounters();
 initScrollReveal();
@@ -2655,3 +3293,8 @@ initCustomCursor();
 initPinSequence();
 initTopTeamsAnimation();
 initStoryEntranceFade();
+initSiteSearch();
+// Last: may click a .faq-question button to expand it (if the incoming
+// #hash is a search result on this same page), which needs
+// initFaqAccordion's click listener already attached above.
+initSearchResultHighlight();

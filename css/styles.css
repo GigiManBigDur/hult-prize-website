@@ -245,6 +245,16 @@ button:focus-visible {
   color: var(--gold);
 }
 
+/* Stage 11a: the search trigger (js/script.js, initSiteSearch) is inserted
+   between the wordmark and nav, making this a 3-item flex row instead of
+   the original 2 — margin-left: auto keeps nav pinned to the right edge
+   exactly as `.header-inner`'s justify-content: space-between did on its
+   own before, rather than that space getting redistributed into a gap on
+   both sides of the trigger. */
+.header-inner nav {
+  margin-left: auto;
+}
+
 .header-inner nav ul {
   display: flex;
   align-items: center;
@@ -4723,5 +4733,303 @@ button:focus-visible {
 
   .countdown-flaps {
     gap: 0.7rem 0.85rem;
+  }
+}
+
+/* ==========================================================================
+   Site-Wide Search (Stage 11a)
+   ========================================================================== */
+
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 0;
+  color: var(--white);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.search-trigger svg {
+  width: 19px;
+  height: 19px;
+}
+
+.search-trigger-hint {
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--navy-line);
+  border-radius: 3px;
+  padding: 0.05rem 0.4rem;
+  line-height: 1.4;
+}
+
+.search-trigger:hover,
+.search-trigger:focus-visible {
+  color: var(--gold);
+}
+
+@media (max-width: 640px) {
+  .search-trigger-hint {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Overlay
+   -------------------------------------------------------------------------- */
+
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10vh 1.25rem 2rem;
+}
+
+/* [hidden] bug (established elsewhere on this site — see .newsletter-form/
+   .countdown-flaps in this file): an authored `display` value beats the
+   browser's own [hidden]{display:none} at equal specificity. */
+.search-overlay[hidden] {
+  display: none;
+}
+
+.search-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 11, 16, 0.82);
+}
+
+.search-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 600px;
+  max-height: 76vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .search-overlay {
+    padding: 0;
+  }
+
+  .search-panel {
+    max-width: none;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    border: 0;
+  }
+}
+
+.search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.search-input-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.search-close-btn {
+  background: none;
+  border: 0;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.search-close-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.search-close-btn:hover,
+.search-close-btn:focus-visible {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.search-results {
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.search-empty-state {
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.search-group + .search-group {
+  margin-top: 0.5rem;
+}
+
+.search-group-label {
+  margin: 0;
+  padding: 0.6rem 1.25rem 0.35rem;
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.search-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 1.25rem 0.65rem 1.1rem;
+  border-left: 3px solid var(--card-accent, var(--magenta));
+  text-decoration: none;
+  color: var(--white);
+  cursor: pointer;
+}
+
+.search-result-teal {
+  --card-accent: var(--teal);
+}
+.search-result-sky {
+  --card-accent: var(--sky);
+}
+.search-result-orange {
+  --card-accent: var(--orange);
+}
+.search-result-gold {
+  --card-accent: var(--gold);
+}
+
+.search-result:hover,
+.search-result.is-active {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.search-result-title {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.search-result-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--card-accent, var(--magenta));
+}
+
+.search-hint {
+  display: flex;
+  gap: 1.1rem;
+  padding: 0.6rem 1.25rem;
+  border-top: 1px solid var(--line);
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.search-hint kbd {
+  display: inline-block;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  margin-right: 0.2rem;
+}
+
+@media (max-width: 640px) {
+  .search-hint {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Landing highlight — the brief flash applied to whatever blog card/FAQ
+   item/leadership card a search result (or any other #hash deep link)
+   points at. `outline` rather than `box-shadow`: all three target element
+   types (.blog-card/.leadership-card/.faq-item) have their own
+   `overflow: hidden` for their thumbnail/photo corners, which would clip a
+   box-shadow glow to almost nothing — outline is deliberately excluded
+   from an element's own overflow-clipping in every browser, so it stays
+   fully visible regardless. The static outline alone (no animation) is
+   the reduced-motion state: fully visible, nothing moving. Under normal
+   motion the pulse keyframes below take over for as long as the class is
+   applied, settling by the time initSearchResultHighlight/
+   highlightSearchTarget (js/script.js) removes it.
+   -------------------------------------------------------------------------- */
+
+.search-target-highlight {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .search-target-highlight {
+    animation: search-highlight-pulse 1.8s ease-out;
+  }
+
+  @keyframes search-highlight-pulse {
+    0% {
+      outline-offset: 8px;
+      outline-color: color-mix(in srgb, var(--gold) 60%, transparent);
+    }
+    100% {
+      outline-offset: 3px;
+      outline-color: var(--gold);
+    }
   }
 }

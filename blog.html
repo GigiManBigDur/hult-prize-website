@@ -104,7 +104,7 @@
              event colors, applied to categories instead of chronological
              position. -->
         <ul class="blog-grid">
-          <li class="blog-card blog-card-teal blog-card-featured">
+          <li id="blog-post-1" class="blog-card blog-card-teal blog-card-featured">
             <figure class="blog-card-thumb">
               <img src="assets/blog/post-1-oncampus-recap.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
             </figure>
@@ -116,7 +116,7 @@
             </div>
           </li>
 
-          <li class="blog-card blog-card-sky">
+          <li id="blog-post-2" class="blog-card blog-card-sky">
             <figure class="blog-card-thumb">
               <img src="assets/blog/post-2-exec-board.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
             </figure>
@@ -128,7 +128,7 @@
             </div>
           </li>
 
-          <li class="blog-card blog-card-orange">
+          <li id="blog-post-3" class="blog-card blog-card-orange">
             <figure class="blog-card-thumb">
               <img src="assets/blog/post-3-eng108-partnership.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
             </figure>
@@ -140,7 +140,7 @@
             </div>
           </li>
 
-          <li class="blog-card blog-card-gold">
+          <li id="blog-post-4" class="blog-card blog-card-gold">
             <figure class="blog-card-thumb">
               <img src="assets/blog/post-4-pitch-tips.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
             </figure>
@@ -152,7 +152,7 @@
             </div>
           </li>
 
-          <li class="blog-card blog-card-teal">
+          <li id="blog-post-5" class="blog-card blog-card-teal">
             <figure class="blog-card-thumb">
               <img src="assets/blog/post-5-nationals.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
             </figure>
@@ -164,7 +164,7 @@
             </div>
           </li>
 
-          <li class="blog-card blog-card-sky blog-card-banner">
+          <li id="blog-post-6" class="blog-card blog-card-sky blog-card-banner">
             <figure class="blog-card-thumb">
               <img src="assets/blog/post-6-kickoff.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
             </figure>
@@ -260,6 +260,14 @@
        page. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Site-wide Search (Stage 11a) — Fuse.js powers fuzzy client-side
+       matching across blog posts, FAQ entries, and team bios (see
+       SEARCH_INDEX/initSiteSearch in js/script.js). Loaded on every page
+       since the search trigger lives in the shared header; a CDN
+       failure just means initSiteSearch never wires up the trigger
+       (typeof Fuse checked before use), never a broken page.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

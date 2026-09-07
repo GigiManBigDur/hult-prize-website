@@ -243,6 +243,14 @@
        page. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/14.2.0/swiper-bundle.min.js"></script>
+  <!-- Site-wide Search (Stage 11a) — Fuse.js powers fuzzy client-side
+       matching across blog posts, FAQ entries, and team bios (see
+       SEARCH_INDEX/initSiteSearch in js/script.js). Loaded on every page
+       since the search trigger lives in the shared header; a CDN
+       failure just means initSiteSearch never wires up the trigger
+       (typeof Fuse checked before use), never a broken page.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

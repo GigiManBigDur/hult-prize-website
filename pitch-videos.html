@@ -90,127 +90,44 @@
       <div class="container">
         <h2 id="pitch-videos-grid-heading" class="visually-hidden">Pitch videos</h2>
 
-        <!-- Every entry below is mock content for this page's build (Stage
-             4a, redesigned as a Swiper coverflow carousel in Stage 4b) —
-             see assets/PLACEHOLDER-IMAGES-README.md. Bracketed team names
-             and a clearly-labeled placeholder thumbnail (baked into the
-             image itself) for the generic slots, so this can't be mistaken
-             for real videos. The embedded video (Google for Developers'
-             own "Embedded Web Player Customization" clip, id M7lc1UVf-VE,
-             confirmed embeddable via YouTube's oEmbed endpoint) is a stand-
-             in for all 6 slides — not each team's actual pitch, which
-             doesn't exist yet.
-
-             IMPORTANT — do not act on this now, content is mock: once real
-             pitch videos exist, each one must only be published with that
-             team's EXPLICIT consent, obtained separately from (and held to
-             a HIGHER bar than) the name-only consent already covering the
-             Top Teams section. A video reveals substantially more about a
-             team's actual venture — the pitch content, the founders' faces
-             and voices, unreleased business details — than a name and a
-             placement ever does. Do not assume the consent that allowed
-             listing a name/placement on Top Teams also covers publishing
-             that team's video; ask again, specifically for video. -->
+        <!-- IMPORTANT: once real pitch videos exist, each one must only be
+             published with that team's EXPLICIT consent, obtained
+             separately from (and held to a HIGHER bar than) the name-only
+             consent already covering the Top Teams section. A video
+             reveals substantially more about a team's actual venture —
+             the pitch content, the founders' faces and voices, unreleased
+             business details — than a name and a placement ever does. Do
+             not assume the consent that allowed listing a name/placement
+             on Top Teams also covers publishing that team's video; ask
+             again, specifically for video. Since Stage 2d this warning is
+             no longer only a code comment here — it's also the hint text
+             on the /admin CMS's Pitch Videos collection's video field
+             itself, so whoever is actually adding entries sees it in the
+             editing interface, not just in source they'll never open. -->
         <p class="pitch-videos-placeholder-note">
           Roster below is placeholder content — real pitch videos will be added here once each
           team has given separate, explicit consent to publish theirs.
         </p>
 
-        <!-- Swiper coverflow carousel (Stage 4b) — see js/script.js
-             (initPitchVideoCarousel) for the config, and
-             initPitchVideoPlayback for the click-to-embed behavior. Each
-             .pitch-slide-thumb's data-video-id is read on click to build
-             the YouTube embed src lazily — nothing loads or plays until
-             the visitor clicks that slide's play button. -->
+        <!-- Stage 2d (Admin CMS extension): the 6 slides below used to be
+             hand-authored here — they're now built at runtime by
+             initPitchVideoContent/renderPitchVideoSlides (js/script.js),
+             which fetches content/pitch-videos.json (the file the /admin
+             CMS's Pitch Videos collection edits) and renders the exact
+             same markup this comment used to describe: same classes, same
+             gold/silver/bronze-vs-teal/sky/orange accent convention
+             (placement-driven for 1st/2nd/3rd, cycling by position among
+             "None"-placement entries otherwise — not stored in the JSON,
+             same reasoning as Team's masonry sizing and Timeline's accent
+             cycling). initPitchVideoCarousel (Swiper)/initPitchVideoPlayback
+             (click-to-embed)/initPitchVideoEntrance only run once this
+             fetch resolves, since all three need the real rendered slide
+             DOM to work against. If content/pitch-videos.json fails to
+             load, the wrapper shows a plain-text fallback message with a
+             mailto contact instead of stale hardcoded slides — same
+             pattern as FAQ/Team/Blog/Timeline. -->
         <div class="swiper pitch-swiper">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <article class="pitch-slide-card pitch-slide-gold">
-                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="DOZEY pitch video (placeholder)">
-                  <img src="assets/pitch-videos/dozey-thumbnail.jpg" alt="" loading="lazy">
-                  <button type="button" class="pitch-play-button" aria-label="Play DOZEY's pitch video">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="pitch-slide-body">
-                  <p class="team-card-badge team-card-badge-gold">1st place</p>
-                  <h3 class="pitch-slide-name">DOZEY</h3>
-                </div>
-              </article>
-            </div>
-
-            <div class="swiper-slide">
-              <article class="pitch-slide-card pitch-slide-silver">
-                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Sumeru Quantum Inc. pitch video (placeholder)">
-                  <img src="assets/pitch-videos/sumeru-quantum-thumbnail.jpg" alt="" loading="lazy">
-                  <button type="button" class="pitch-play-button" aria-label="Play Sumeru Quantum Inc.'s pitch video">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="pitch-slide-body">
-                  <p class="team-card-badge team-card-badge-silver">2nd place</p>
-                  <h3 class="pitch-slide-name">Sumeru Quantum Inc.</h3>
-                </div>
-              </article>
-            </div>
-
-            <div class="swiper-slide">
-              <article class="pitch-slide-card pitch-slide-bronze">
-                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="SQUELLET pitch video (placeholder)">
-                  <img src="assets/pitch-videos/squellet-thumbnail.jpg" alt="" loading="lazy">
-                  <button type="button" class="pitch-play-button" aria-label="Play SQUELLET's pitch video">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="pitch-slide-body">
-                  <p class="team-card-badge team-card-badge-bronze">3rd place</p>
-                  <h3 class="pitch-slide-name">SQUELLET</h3>
-                </div>
-              </article>
-            </div>
-
-            <div class="swiper-slide">
-              <article class="pitch-slide-card pitch-slide-teal">
-                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Placeholder pitch video">
-                  <img src="assets/pitch-videos/placeholder-4-thumbnail.jpg" alt="" loading="lazy">
-                  <button type="button" class="pitch-play-button" aria-label="Play placeholder pitch video">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="pitch-slide-body">
-                  <h3 class="pitch-slide-name">[Team Placeholder]</h3>
-                </div>
-              </article>
-            </div>
-
-            <div class="swiper-slide">
-              <article class="pitch-slide-card pitch-slide-sky">
-                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Placeholder pitch video">
-                  <img src="assets/pitch-videos/placeholder-5-thumbnail.jpg" alt="" loading="lazy">
-                  <button type="button" class="pitch-play-button" aria-label="Play placeholder pitch video">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="pitch-slide-body">
-                  <h3 class="pitch-slide-name">[Team Placeholder]</h3>
-                </div>
-              </article>
-            </div>
-
-            <div class="swiper-slide">
-              <article class="pitch-slide-card pitch-slide-orange">
-                <div class="pitch-slide-thumb" data-video-id="M7lc1UVf-VE" data-video-title="Placeholder pitch video">
-                  <img src="assets/pitch-videos/placeholder-6-thumbnail.jpg" alt="" loading="lazy">
-                  <button type="button" class="pitch-play-button" aria-label="Play placeholder pitch video">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="pitch-slide-body">
-                  <h3 class="pitch-slide-name">[Team Placeholder]</h3>
-                </div>
-              </article>
-            </div>
-          </div>
+          <div class="swiper-wrapper"></div>
 
           <div class="swiper-pagination"></div>
           <button type="button" class="swiper-button-prev" aria-label="Previous video"></button>

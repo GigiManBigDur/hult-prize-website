@@ -569,6 +569,118 @@ function initLeadershipReveal() {
   });
 }
 
+// Generic (unplaced) pitch slide accent cycling — teal, sky, orange,
+// repeating — same position-based reasoning as Team's card accents and
+// Timeline's TIMELINE_ACCENTS: computed from a counter incremented only
+// for "None"-placement entries as they're encountered, so the schema
+// stays exactly Team Name/Placement/Video/Thumbnail and isn't storing a
+// color a re-ordering could leave stale. Placed entries (1st/2nd/3rd) use
+// the fixed gold/silver/bronze accents instead, matching the existing
+// Top Teams badge convention.
+const PITCH_GENERIC_ACCENTS = ["teal", "sky", "orange"];
+
+// Accepts either a bare 11-character YouTube video id (what every mock
+// entry used pre-CMS) or a full URL in any of the forms an editor might
+// actually paste — youtube.com/watch?v=, youtu.be/, youtube.com/embed/,
+// youtube.com/shorts/, and the -nocookie domain this site's own embed
+// already uses — and returns just the id, which is all
+// initPitchVideoPlayback's embed-src template needs. Falls back to
+// returning the trimmed input as-is if nothing matches, so a bare id
+// (or any already-correct value) passes through unchanged.
+function extractYouTubeId(input) {
+  const str = String(input || "").trim();
+  const patterns = [/(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/, /youtu\.be\/([\w-]{11})/];
+  for (const pattern of patterns) {
+    const match = str.match(pattern);
+    if (match) return match[1];
+  }
+  return str;
+}
+
+// Builds every .swiper-slide from the fetched (CMS-ordered — order here IS
+// display order, unlike Timeline's date-sort) videos array — the exact
+// same markup that used to be hand-authored once per slide directly in
+// pitch-videos.html. initPitchVideoCarousel/initPitchVideoPlayback/
+// initPitchVideoEntrance, all called right after this from
+// initPitchVideoContent, then wire up Swiper, click-to-play, and the
+// entrance animation against these exact elements.
+function renderPitchVideoSlides(wrapperEl, videos) {
+  let genericIndex = 0;
+  wrapperEl.innerHTML = videos
+    .map((video) => {
+      const teamName = video.teamName || "";
+      let accent;
+      let badgeHtml = "";
+      if (video.placement === "1st") {
+        accent = "gold";
+        badgeHtml = '<p class="team-card-badge team-card-badge-gold">1st place</p>';
+      } else if (video.placement === "2nd") {
+        accent = "silver";
+        badgeHtml = '<p class="team-card-badge team-card-badge-silver">2nd place</p>';
+      } else if (video.placement === "3rd") {
+        accent = "bronze";
+        badgeHtml = '<p class="team-card-badge team-card-badge-bronze">3rd place</p>';
+      } else {
+        accent = PITCH_GENERIC_ACCENTS[genericIndex % PITCH_GENERIC_ACCENTS.length];
+        genericIndex++;
+      }
+      const videoId = extractYouTubeId(video.videoUrl);
+      return `
+        <div class="swiper-slide">
+          <article class="pitch-slide-card pitch-slide-${accent}">
+            <div class="pitch-slide-thumb" data-video-id="${escapeHtml(videoId)}" data-video-title="${escapeHtml(teamName)} pitch video">
+              <img src="${escapeHtml(video.thumbnail || "")}" alt="" loading="lazy">
+              <button type="button" class="pitch-play-button" aria-label="Play ${escapeHtml(teamName)}'s pitch video">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+              </button>
+            </div>
+            <div class="pitch-slide-body">
+              ${badgeHtml}
+              <h3 class="pitch-slide-name">${escapeHtml(teamName)}</h3>
+            </div>
+          </article>
+        </div>`;
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
+// Pitch Videos data (Stage 2d, Admin CMS extension) — fetches content/
+// pitch-videos.json (the file the /admin CMS's Pitch Videos collection
+// edits), renders the carousel's slides from it, and only then wires up
+// the carousel/playback/entrance behaviors below — all three read the
+// real rendered DOM (Swiper needs real .swiper-slide elements to measure
+// and position; the entrance animation needs real .pitch-slide-card
+// elements to fade/scale in), so none of them can safely run before this
+// fetch resolves. Unlike Timeline's collection, entry ORDER here IS
+// display order (there's nothing to sort by) — an editor reordering this
+// CMS list reorders the carousel, by design.
+// ---------------------------------------------------------------------------
+function initPitchVideoContent() {
+  const wrapper = document.querySelector(".pitch-swiper .swiper-wrapper");
+  if (!wrapper) return; // not the Pitch Videos page
+
+  fetch("content/pitch-videos.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/pitch-videos.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const videos = Array.isArray(data.videos) ? data.videos : [];
+      if (!videos.length) throw new Error("content/pitch-videos.json has no videos");
+      renderPitchVideoSlides(wrapper, videos);
+      initPitchVideoCarousel();
+      initPitchVideoPlayback();
+      initPitchVideoEntrance();
+    })
+    .catch((err) => {
+      console.error("Pitch video content failed to load:", err);
+      wrapper.innerHTML =
+        '<div class="swiper-slide"><p class="pitch-video-load-error">Something went wrong loading these videos. Please refresh, or reach out directly at ' +
+        '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</p></div>';
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Pitch Videos page: coverflow carousel (Stage 4b — replaced the original
 // scroll-stagger grid entirely, see git history for that version). No-op on
@@ -582,6 +694,9 @@ function initLeadershipReveal() {
 // stay fully navigable), only its transition animation — speed: 0 makes
 // slide changes instant while keeping the coverflow arrangement, dragging,
 // keyboard nav, and pagination all working exactly the same.
+//
+// Only ever called from initPitchVideoContent (Stage 2d), once the real
+// slides have been rendered from content/pitch-videos.json.
 // ---------------------------------------------------------------------------
 function initPitchVideoCarousel() {
   const el = document.querySelector(".pitch-swiper");
@@ -3734,12 +3849,7 @@ initHomeLogoReset();
 initImpactCounters();
 initScrollReveal();
 initTeamContent();
-initPitchVideoCarousel();
-initPitchVideoPlayback();
-// Must run after initPitchVideoCarousel: it animates each slide's own
-// .pitch-slide-card, which needs Swiper to have already applied its
-// coverflow positioning to the parent .swiper-slide first.
-initPitchVideoEntrance();
+initPitchVideoContent();
 initTimelineContent();
 initBlogEntrance();
 initBlogContent();

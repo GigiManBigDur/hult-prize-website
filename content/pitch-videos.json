@@ -1,0 +1,40 @@
+{
+  "videos": [
+    {
+      "teamName": "DOZEY",
+      "placement": "1st",
+      "videoUrl": "M7lc1UVf-VE",
+      "thumbnail": "assets/pitch-videos/dozey-thumbnail.jpg"
+    },
+    {
+      "teamName": "Sumeru Quantum Inc.",
+      "placement": "2nd",
+      "videoUrl": "M7lc1UVf-VE",
+      "thumbnail": "assets/pitch-videos/sumeru-quantum-thumbnail.jpg"
+    },
+    {
+      "teamName": "SQUELLET",
+      "placement": "3rd",
+      "videoUrl": "M7lc1UVf-VE",
+      "thumbnail": "assets/pitch-videos/squellet-thumbnail.jpg"
+    },
+    {
+      "teamName": "[Team Placeholder]",
+      "placement": "None",
+      "videoUrl": "M7lc1UVf-VE",
+      "thumbnail": "assets/pitch-videos/placeholder-4-thumbnail.jpg"
+    },
+    {
+      "teamName": "[Team Placeholder]",
+      "placement": "None",
+      "videoUrl": "M7lc1UVf-VE",
+      "thumbnail": "assets/pitch-videos/placeholder-5-thumbnail.jpg"
+    },
+    {
+      "teamName": "[Team Placeholder]",
+      "placement": "None",
+      "videoUrl": "M7lc1UVf-VE",
+      "thumbnail": "assets/pitch-videos/placeholder-6-thumbnail.jpg"
+    }
+  ]
+}

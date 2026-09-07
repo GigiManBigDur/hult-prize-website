@@ -5297,3 +5297,20 @@ button:focus-visible {
   color: var(--text-secondary);
   text-align: center;
 }
+
+/* ==========================================================================
+   Pitch Videos page: content-load error state (Stage 2d) — shown only if
+   content/pitch-videos.json fails to fetch/parse; see initPitchVideoContent
+   in js/script.js. Same treatment as .faq-load-error/.leadership-load-error/
+   .blog-load-error/.timeline-load-error.
+   ========================================================================== */
+
+.pitch-video-load-error {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  margin: 0;
+  text-align: center;
+}

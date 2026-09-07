@@ -1,5 +1,5 @@
 # Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog) +
-# Stage 2c (Timeline).
+# Stage 2c (Timeline) + Stage 2d (Pitch Videos).
 #
 # Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
 # -> edit -> commit -> deploy pipeline before migrating anything else.
@@ -7,11 +7,15 @@
 # added Blog (blog.html's post grid + each post's own page, blog-post.html
 # — NOT the newsletter section on that same page, which stays exactly as
 # it was: hardcoded, non-functional signup, untouched by this collection).
-# Stage 2c adds Timeline (timeline.html's event track AND the Countdown
+# Stage 2c added Timeline (timeline.html's event track AND the Countdown
 # widget on both timeline.html and index.html, which reads the same
 # underlying data so the two can never fall out of sync — see
-# initTimelineContent in js/script.js). Every OTHER page (Home's own
-# content besides the countdown widget, About, Pitch Videos, Gallery, Get
+# initTimelineContent in js/script.js). Stage 2d adds Pitch Videos
+# (pitch-videos.html's coverflow carousel) — its video field's `hint`
+# carries the real-video-consent warning that used to live only as a
+# code comment, since exec board members editing here need to see it in
+# THIS interface, not in source they'll never open. Every OTHER page
+# (Home's own content besides the countdown widget, About, Gallery, Get
 # Involved) is still untouched, plain HTML, not editable here.
 
 backend:
@@ -219,3 +223,43 @@ collections:
                 hint: >-
                   Shown in the event's detail view when its card is
                   opened.
+
+  - name: pitch_videos
+    label: Pitch Videos
+    description: >-
+      Slides in the Pitch Video Hub's carousel (pitch-videos.html), in the
+      order they'll appear — reorder this list to reorder the carousel.
+    files:
+      - name: pitch_videos
+        label: Pitch Videos
+        file: content/pitch-videos.json
+        format: json
+        fields:
+          - label: Videos
+            name: videos
+            widget: list
+            summary: "{{fields.teamName}} ({{fields.placement}})"
+            fields:
+              - label: Team Name
+                name: teamName
+                widget: string
+              - label: Placement
+                name: placement
+                widget: select
+                options: ["1st", "2nd", "3rd", "None"]
+                hint: >-
+                  Drives the card's gold/silver/bronze badge for a placed
+                  team, or the generic accent styling for "None".
+              - label: YouTube Video ID or URL
+                name: videoUrl
+                widget: string
+                hint: >-
+                  Only add a real video here if the team has given
+                  explicit, separate consent to publish it. A pitch video
+                  shows far more about their venture than a name alone
+                  would.
+              - label: Thumbnail
+                name: thumbnail
+                widget: image
+                media_folder: /assets/pitch-videos
+                public_folder: /assets/pitch-videos

@@ -1550,6 +1550,55 @@ button:focus-visible {
   .leadership-card-wide .leadership-card-body {
     justify-content: center;
   }
+
+  /* Blog & Newsletter (Stage 6a) — appended here rather than a separate
+     min-width: 640px block, for the same duplicate-@media-condition
+     reason documented at the top of that page's CSS section.
+     grid-template-columns below is scoped with the parent section
+     (.blog-grid-section .blog-grid / .newsletter-section .newsletter-
+     archive) rather than the bare class: this file's own base (photo of
+     no @media at all) .blog-grid/.newsletter-archive rule, which also
+     sets grid-template-columns, is declared LATER in the file (appended
+     near the end) than this block — at equal specificity the later rule
+     wins the cascade regardless of which one is behind a query that
+     currently matches, so the bare-class version here was confirmed (via
+     getComputedStyle) to lose to the base rule's grid-template-columns: 1fr
+     the moment the viewport was wide enough for both to apply. The extra
+     ancestor class raises specificity just enough to win regardless of
+     source order, the same fix this project has used before for a base
+     rule that has to stay after an earlier @media block it's merged
+     into. */
+  .blog-grid-section .blog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .blog-card-featured,
+  .blog-card-banner {
+    grid-column: 1 / -1;
+  }
+
+  .blog-card-banner {
+    flex-direction: row;
+  }
+
+  .blog-card-banner .blog-card-thumb {
+    width: 40%;
+    max-width: 280px;
+    flex-shrink: 0;
+  }
+
+  .blog-card-banner .blog-card-body {
+    justify-content: center;
+  }
+
+  .newsletter-section .newsletter-archive {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .newsletter-card-featured {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (min-width: 1000px) {
@@ -1574,6 +1623,25 @@ button:focus-visible {
      short next to the tall photo/text tile it actually is here. */
   .leadership-card-featured .leadership-card-photo img {
     aspect-ratio: 1 / 1;
+  }
+
+  /* Blog & Newsletter (Stage 6a): the featured tile's thumb only — the
+     actual desktop bento GRID (grid-template-columns + each card's grid-
+     column/grid-row) is applied by initBlogGridLayout (js/script.js)
+     instead of a min-width: 1000px rule here. Confirmed via repeated
+     getComputedStyle checks during this stage's testing that a stylesheet
+     rule placing this same 2x2-spanning featured tile in a 4-column grid
+     — tried as fr units, percentages, minmax(0, 1fr), both named
+     grid-template-areas and explicit grid-column/grid-row lines — always
+     collapsed the two columns the featured tile alone touches down to
+     0px ("0px 0px 522px 522px" instead of four equal columns), even on a
+     genuinely fresh reload of the changed CSS file (so not a stylesheet-
+     edit-caching artifact). The identical placement applied as inline
+     styles on the actual elements sized correctly every time, hence the
+     JS-driven approach — see that function's own comment for the exact
+     placements. */
+  .blog-card-featured .blog-card-thumb {
+    aspect-ratio: 4 / 3;
   }
 }
 
@@ -1707,6 +1775,23 @@ button:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 20px 40px -25px var(--card-accent, var(--magenta));
   }
+
+  /* Blog & Newsletter (Stage 6a) — appended here rather than a separate
+     (hover: hover) and (pointer: fine) block; same box-shadow/transform-
+     only reasoning as the Event Timeline merge above. */
+  .blog-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -25px var(--card-accent, var(--magenta));
+  }
+
+  .blog-card:hover .blog-card-thumb img {
+    transform: scale(1.06);
+  }
+
+  .newsletter-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px -22px var(--magenta);
+  }
 }
 
 /* No hover gesture exists on touch/coarse-pointer devices — show the same
@@ -1726,6 +1811,14 @@ button:focus-visible {
      hover) merge above. */
   .timeline-node {
     box-shadow: 0 0 12px var(--card-accent, var(--magenta));
+  }
+
+  /* Blog & Newsletter (Stage 6a) — appended here rather than a separate
+     (hover: none) block; same "always show the accented state" reasoning
+     as Leadership's touch equivalent above, applied to a border instead of
+     a photo filter since these cards have no photo to desaturate. */
+  .blog-card {
+    border-color: var(--card-accent, var(--magenta));
   }
 }
 
@@ -2641,5 +2734,418 @@ button:focus-visible {
   .timeline-card.is-modal-open .timeline-card-close {
     top: 1.25rem;
     right: 1.25rem;
+  }
+}
+
+/* ==========================================================================
+   Blog & Newsletter page (Stage 6a)
+
+   A fifth full page, alongside Home, Leadership, Pitch Videos, and Event
+   Timeline — same header/footer/color system, same progressive-enhancement
+   approach (initBlogGridReveal/initNewsletterReveal mirror
+   initLeadershipReveal, js/script.js), and the same one-time hero-entrance
+   pattern as Pitch Videos (initBlogEntrance mirrors initPitchVideoEntrance)
+   rather than a new entry style, per the brief. Cards are plain, fully-
+   visible, normal-flow content by default; GSAP and the hover micro-
+   interactions merged into the shared blocks earlier in this file are
+   enhancements layered on top, never required to read or use the page.
+   ========================================================================== */
+
+.blog-page {
+  position: relative;
+  background: var(--charcoal);
+  overflow: hidden;
+}
+
+/* Full-bleed textured backdrop — same treatment as .leadership-page::before/
+   .pitch-videos-page::before, not a new visual idiom. Glow anchored top-
+   right rather than top-left, purely so this page doesn't look like a
+   carbon copy of Pitch Videos at a glance. */
+.blog-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(750px circle at 88% 0%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.blog-hero,
+.blog-grid-section,
+.newsletter-section {
+  position: relative;
+  z-index: 1;
+}
+
+.blog-hero {
+  padding-block: 5rem 2.5rem;
+  overflow: hidden;
+}
+
+/* Sits between .blog-page::before (this page's own static texture,
+   z-index: 0 in that ancestor's stacking context) and this section's own
+   content — needs its own z-index/position so paint order can't come down
+   to ambiguous default stacking rules. initBlogEntrance (js/script.js) is
+   the only thing that ever animates this; base CSS leaves it at opacity: 0,
+   so nothing shows if that never runs (reduced motion, or a GSAP CDN
+   failure) — same reasoning as .pitch-videos-flourish. */
+.blog-hero-flourish {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg at 50% 30%,
+    var(--magenta),
+    var(--gold),
+    var(--teal),
+    var(--sky),
+    var(--orange),
+    var(--magenta)
+  );
+  filter: blur(70px);
+  mix-blend-mode: screen;
+}
+
+.blog-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.blog-hero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  max-width: 20ch;
+}
+
+/* Same per-word overflow-hidden mask as Pitch Videos' .pv-reveal-word/-inner
+   (itself borrowed from Home's .reveal-word/-inner) — independently named
+   so it doesn't also inherit either page's own animation. Base state is
+   plain and fully visible; nothing is hidden until initBlogEntrance
+   actually decides to hide it. */
+.bl-reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.bl-reveal-word-inner {
+  display: inline-block;
+}
+
+.blog-hero-lede {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 62ch;
+  margin: 0;
+}
+
+.blog-placeholder-note {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  margin: 1.25rem 0 0;
+}
+
+/* This page visibly labels its two sections ("Latest Posts" / "Newsletter")
+   rather than the visually-hidden <h2> pattern used on Leadership/Timeline
+   — those pages cover one content type each, so the hero alone orients the
+   visitor; this page covers two distinct ones on a single scroll, so a
+   visible divider between them earns its place. */
+.section-heading {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  margin: 0 0 1.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   Blog grid — see the min-width: 640px/1000px merges earlier in this file
+   for the responsive bento layout, and the (hover: hover)/(hover: none)
+   merges for the hover/touch treatment.
+   -------------------------------------------------------------------------- */
+
+.blog-grid-section {
+  padding-block: 1.5rem 4rem;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.blog-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .blog-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .blog-card-thumb img {
+    transition: transform 0.4s ease;
+  }
+}
+
+.blog-card-thumb {
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+
+.blog-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blog-card-body {
+  padding: 1.35rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.blog-card-category {
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--card-accent, var(--magenta));
+  margin: 0;
+}
+
+.blog-card-title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.blog-card-date {
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.blog-card-excerpt {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin: 0.15rem 0 0;
+}
+
+.blog-card-featured .blog-card-category {
+  font-size: 0.8rem;
+}
+
+.blog-card-featured .blog-card-title {
+  font-size: 1.5rem;
+}
+
+.blog-card-featured .blog-card-excerpt {
+  font-size: 1rem;
+}
+
+/* Category -> accent mapping (Stage 6a) — every post sharing a category
+   shares a color, so the coloring reads as a taxonomy rather than
+   decoration: Recap/teal, Announcement/sky, Behind the Scenes/orange,
+   Tips/gold. Same --card-accent mechanism as Leadership/Pitch Videos/
+   Timeline. */
+.blog-card-teal { --card-accent: var(--teal); }
+.blog-card-sky { --card-accent: var(--sky); }
+.blog-card-orange { --card-accent: var(--orange); }
+.blog-card-gold { --card-accent: var(--gold); }
+
+/* --------------------------------------------------------------------------
+   Newsletter
+   -------------------------------------------------------------------------- */
+
+.newsletter-section {
+  padding-block: 1rem 5.5rem;
+}
+
+.newsletter-lede {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 62ch;
+  margin: -1rem 0 2.5rem;
+}
+
+.newsletter-archive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+  margin: 0 0 3rem;
+}
+
+/* A compact "ticket stub" shape (accent bar down the left edge) rather than
+   .blog-card's thumbnail-led layout — deliberately different so an issue
+   reads as visually distinct from a blog post, not a recolored copy of it.
+   One consistent --magenta accent for every card here (issues aren't
+   categorized the way posts are), which itself reinforces "this is the
+   newsletter" as its own visual identity. */
+.newsletter-card {
+  position: relative;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--magenta);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .newsletter-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+}
+
+.newsletter-card-date {
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--magenta);
+  margin: 0 0 0.3rem;
+}
+
+.newsletter-card-title {
+  font-size: 1.05rem;
+  margin: 0 0 0.35rem;
+}
+
+.newsletter-card-summary {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.newsletter-card-featured {
+  border-left-width: 6px;
+}
+
+.newsletter-card-featured .newsletter-card-title {
+  font-size: 1.25rem;
+}
+
+.newsletter-signup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+
+.newsletter-signup-copy h3 {
+  font-size: 1.2rem;
+  margin: 0 0 0.35rem;
+}
+
+.newsletter-signup-copy p {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Setting display: flex above overrides the browser's default [hidden] {
+   display: none } rule at equal specificity (author styles always beat the
+   UA stylesheet) — confirmed via testing that without this, initNewsletter
+   Signup's form.hidden = true left the form still visibly laid out
+   alongside the confirmation message instead of replacing it. */
+.newsletter-form[hidden] {
+  display: none;
+}
+
+.newsletter-form input[type="email"] {
+  width: 100%;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--white);
+  background: var(--charcoal-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+
+.newsletter-form input[type="email"]::placeholder {
+  color: var(--text-secondary);
+}
+
+.newsletter-form input[type="email"]:focus-visible {
+  outline: 2px solid var(--magenta);
+  outline-offset: 2px;
+}
+
+.newsletter-form .btn {
+  align-self: flex-start;
+}
+
+.newsletter-confirmation {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--teal);
+  margin: 0;
+}
+
+/* A fresh, unused breakpoint (not already used elsewhere in this file) —
+   see this section's opening comment for why that matters. Puts the email
+   field and Subscribe button on one row once there's room. */
+@media (min-width: 560px) {
+  .newsletter-form {
+    flex-direction: row;
+  }
+
+  .newsletter-form input[type="email"] {
+    flex: 1;
+  }
+
+  .newsletter-form .btn {
+    flex-shrink: 0;
+  }
+}
+
+/* Another fresh breakpoint — puts the copy and the form side by side once
+   there's room for both without cramping either. */
+@media (min-width: 780px) {
+  .newsletter-signup {
+    flex-direction: row;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  .newsletter-signup-copy {
+    flex: 1;
+    max-width: 30ch;
+  }
+
+  .newsletter-form {
+    flex: 1;
+    max-width: 28rem;
   }
 }

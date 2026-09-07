@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- See the matching comment in index.html/team.html/pitch-videos.html/
+       timeline.html: opt out of the browser's default scroll-position
+       restoration so a reload or a pasted link starts at the top rather
+       than wherever this page was last scrolled to (an explicit #hash deep
+       link is still honored). -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog & Newsletter | Hult Prize @ UC Davis</title>
+  <meta name="description" content="Updates, recaps, and newsletter archive from Hult Prize @ UC Davis.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Same header markup/treatment as the rest of the site. -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
+      <nav aria-label="Primary">
+        <ul>
+          <li class="nav-link-item"><a href="index.html#story">Our Story</a></li>
+          <li class="nav-link-item"><a href="index.html#impact">Impact</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="pitch-videos.html">Pitch Videos</a></li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li><a href="blog.html" aria-current="page">Blog</a></li>
+          <li><a class="nav-cta" href="index.html#get-involved">Get Involved</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="blog-page">
+    <section class="blog-hero">
+      <!-- Same one-time entry flourish + per-word reveal pattern as Pitch
+           Videos' hero (Stage 4c: initPitchVideoEntrance), reused here via
+           initBlogEntrance (js/script.js) rather than inventing a new
+           entry style — independently named (.blog-hero-flourish/
+           .bl-reveal-word/-inner) so the two pages' scripts/CSS don't
+           collide, but the same background-flourish + staggered-title +
+           staggered-content approach. Base CSS renders this at opacity: 0
+           with nothing animating it, so a GSAP CDN failure (or reduced
+           motion) just means it never appears — never a stuck visible
+           smear. -->
+      <div class="blog-hero-flourish" aria-hidden="true"></div>
+      <div class="container">
+        <h1>
+          <span class="bl-reveal-word"><span class="bl-reveal-word-inner">Blog</span></span>
+          <span class="bl-reveal-word"><span class="bl-reveal-word-inner">&amp;</span></span>
+          <span class="bl-reveal-word"><span class="bl-reveal-word-inner">Newsletter</span></span>
+        </h1>
+        <p class="blog-hero-lede">
+          Recaps, announcements, and behind-the-scenes updates from Hult Prize @ UC Davis —
+          plus our newsletter archive and a way to get new posts sent to your inbox.
+        </p>
+        <!-- All post/newsletter content below is illustrative PLACEHOLDER
+             for this page's design (Stage 6a) — see the matching comments
+             on the blog grid and newsletter archive further down. Topics
+             are grounded in real established chapter facts (the "OnCampus
+             2025" competition and its DOZEY/Sumeru Quantum Inc./SQUELLET
+             podium already referenced on the Pitch Videos and Home pages,
+             the ENG 108 partnership and cycle dates already on the
+             Timeline page) but every headline, excerpt, and date here is
+             mock and must be replaced with real published content before
+             launch. -->
+        <p class="blog-placeholder-note">
+          Posts and newsletter issues below are placeholder content — real chapter updates
+          will replace them before launch.
+        </p>
+      </div>
+    </section>
+
+    <section class="blog-grid-section" aria-labelledby="blog-grid-heading">
+      <div class="container">
+        <h2 id="blog-grid-heading" class="section-heading">Latest Posts</h2>
+
+        <!-- Bento grid (Stage 6a) — a featured tile plus a full-width
+             banner tile bookending four regular tiles, the same "vary tile
+             size rather than a uniform grid" idea as Leadership's 6-card
+             bento (.leadership-card-featured/-wide), independently shaped
+             here (see the min-width: 1000px merge in styles.css) rather
+             than reusing that exact layout. Each accent color is assigned
+             by CATEGORY, not per-card at random — every "Recap" post
+             shares --teal, every "Announcement" shares --sky, "Behind the
+             Scenes" --orange, "Tips" --gold — so the coloring reads as a
+             taxonomy a visitor can learn, the same idea as the timeline
+             event colors, applied to categories instead of chronological
+             position. -->
+        <ul class="blog-grid">
+          <li class="blog-card blog-card-teal blog-card-featured">
+            <figure class="blog-card-thumb">
+              <img src="assets/blog/post-1-oncampus-recap.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
+            </figure>
+            <div class="blog-card-body">
+              <p class="blog-card-category">Recap</p>
+              <h3 class="blog-card-title">OnCampus 2025 Recap: DOZEY Takes First Place</h3>
+              <p class="blog-card-date">March 2, 2025</p>
+              <p class="blog-card-excerpt">DOZEY took first place at this year's OnCampus Competition, with Sumeru Quantum Inc. and SQUELLET rounding out the podium. Here's a look back at the day's pitches and the moment the winner was announced.</p>
+            </div>
+          </li>
+
+          <li class="blog-card blog-card-sky">
+            <figure class="blog-card-thumb">
+              <img src="assets/blog/post-2-exec-board.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
+            </figure>
+            <div class="blog-card-body">
+              <p class="blog-card-category">Announcement</p>
+              <h3 class="blog-card-title">Meet Our Executive Board</h3>
+              <p class="blog-card-date">August 20, 2026</p>
+              <p class="blog-card-excerpt">Meet the students leading Hult Prize @ UC Davis this year — from recruiting new teams to running workshops and organizing OnCampus.</p>
+            </div>
+          </li>
+
+          <li class="blog-card blog-card-orange">
+            <figure class="blog-card-thumb">
+              <img src="assets/blog/post-3-eng108-partnership.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
+            </figure>
+            <div class="blog-card-body">
+              <p class="blog-card-category">Behind the Scenes</p>
+              <h3 class="blog-card-title">Why We Partnered with ENG 108</h3>
+              <p class="blog-card-date">September 25, 2026</p>
+              <p class="blog-card-excerpt">We're bringing structured ideation techniques to our teams this year through a new partnership with ENG 108. Here's how it came together and what it means for participants.</p>
+            </div>
+          </li>
+
+          <li class="blog-card blog-card-gold">
+            <figure class="blog-card-thumb">
+              <img src="assets/blog/post-4-pitch-tips.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
+            </figure>
+            <div class="blog-card-body">
+              <p class="blog-card-category">Tips</p>
+              <h3 class="blog-card-title">5 Tips for Your Hult Prize Pitch</h3>
+              <p class="blog-card-date">October 15, 2026</p>
+              <p class="blog-card-excerpt">Preparing to pitch? Here are five practical tips from past judges and mentors to help your team stand out on competition day.</p>
+            </div>
+          </li>
+
+          <li class="blog-card blog-card-teal">
+            <figure class="blog-card-thumb">
+              <img src="assets/blog/post-5-nationals.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
+            </figure>
+            <div class="blog-card-body">
+              <p class="blog-card-category">Recap</p>
+              <h3 class="blog-card-title">Two Teams Advance to Nationals</h3>
+              <p class="blog-card-date">March 10, 2025</p>
+              <p class="blog-card-excerpt">Two teams have officially advanced to the Hult Prize National Competition after strong showings at OnCampus. Meet the teams heading to Nationals.</p>
+            </div>
+          </li>
+
+          <li class="blog-card blog-card-sky blog-card-banner">
+            <figure class="blog-card-thumb">
+              <img src="assets/blog/post-6-kickoff.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
+            </figure>
+            <div class="blog-card-body">
+              <p class="blog-card-category">Announcement</p>
+              <h3 class="blog-card-title">Chapter Kickoff: What to Expect This Year</h3>
+              <p class="blog-card-date">August 28, 2026</p>
+              <p class="blog-card-excerpt">A new chapter cycle kicks off soon — here's what to expect, from the info session to team formation, plus the key dates worth having on your calendar.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="newsletter-section" aria-labelledby="newsletter-heading">
+      <div class="container">
+        <h2 id="newsletter-heading" class="section-heading">Newsletter</h2>
+        <p class="newsletter-lede">
+          Monthly updates on chapter events, deadlines, and wins — sent straight to your inbox.
+        </p>
+
+        <!-- Newsletter archive (Stage 6a) — mock past issues, illustrative
+             PLACEHOLDER content like the blog grid above. Deliberately
+             given its own card treatment (.newsletter-card: a compact
+             date-led "ticket" shape in a single consistent magenta accent)
+             rather than reusing .blog-card, so an issue reads as visually
+             distinct from a blog post even at a glance — categories don't
+             apply here, so one consistent brand color stands in for "this
+             is the newsletter," the same way the multi-color palette above
+             stands in for "this is categorized." -->
+        <ul class="newsletter-archive">
+          <li class="newsletter-card newsletter-card-featured">
+            <p class="newsletter-card-date">September 2026</p>
+            <h3 class="newsletter-card-title">Kickoff Edition</h3>
+            <p class="newsletter-card-summary">Welcome back — this cycle's key dates, how to join a team, and what's new from the exec board this year.</p>
+          </li>
+          <li class="newsletter-card">
+            <p class="newsletter-card-date">October 2026</p>
+            <h3 class="newsletter-card-title">Workshops &amp; ENG 108</h3>
+            <p class="newsletter-card-summary">A recap of the ideation workshop and what the ENG 108 partnership means for your team's next few weeks.</p>
+          </li>
+          <li class="newsletter-card">
+            <p class="newsletter-card-date">March 2026</p>
+            <h3 class="newsletter-card-title">OnCampus Results</h3>
+            <p class="newsletter-card-summary">Full results from OnCampus, plus which teams are headed to the Hult Prize National Competition.</p>
+          </li>
+        </ul>
+
+        <!-- Signup form (Stage 6a) — no email service (Mailchimp,
+             Buttondown, etc.) is connected yet, so this is a non-functional
+             placeholder: initNewsletterSignup (js/script.js) only ever
+             swaps the form for the confirmation message below, nothing is
+             actually sent or stored anywhere. Wire this up to a real
+             provider's own form action/API before launch, at which point
+             the confirmation swap can stay as the post-submit UI. -->
+        <div class="newsletter-signup">
+          <div class="newsletter-signup-copy">
+            <h3>Get new posts by email</h3>
+            <p>One email a month. No spam, unsubscribe anytime.</p>
+          </div>
+          <form class="newsletter-form" id="newsletter-form" novalidate>
+            <label for="newsletter-email" class="visually-hidden">Email address</label>
+            <input type="email" id="newsletter-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+          </form>
+          <p class="newsletter-confirmation" role="status" hidden>
+            Thanks — we'll be in touch!
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Same footer markup/treatment as the rest of the site. -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-name">Hult Prize <span>@ UC Davis</span></p>
+      <ul class="footer-links">
+        <!-- Placeholder contact details — replace with the chapter's real email and Instagram before launch -->
+        <li><a href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a></li>
+        <li><a href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">@hultprizeucdavis</a></li>
+      </ul>
+      <p class="footer-copyright">&copy; <span id="year"></span> Hult Prize @ UC Davis.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP drives the one-time hero entrance (initBlogEntrance) and the
+       scroll-triggered card reveals (initBlogGridReveal/
+       initNewsletterReveal) — same pattern as every other page, js/
+       script.js checks typeof gsap/ScrollTrigger before using either, so a
+       CDN failure just skips those animations (everything shows fully
+       visible in its final position instead) rather than breaking the
+       page. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

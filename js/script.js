@@ -711,6 +711,177 @@ function initEventDetailModal() {
 }
 
 // ---------------------------------------------------------------------------
+// Blog page: one-time hero entrance (Stage 6a) — the same background-
+// flourish + staggered-title + staggered-content pattern as Pitch Videos'
+// initPitchVideoEntrance, reused rather than inventing a new entry style
+// (per the brief). Independently named (.bl-reveal-word/-inner vs.
+// .pv-reveal-word/-inner) so the two pages' word-reveal spans can't collide,
+// but the timeline construction below mirrors that function almost exactly.
+// ---------------------------------------------------------------------------
+function initBlogEntrance() {
+  const hero = document.querySelector(".blog-hero");
+  if (!hero) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+
+  const flourish = document.querySelector(".blog-hero-flourish");
+  const words = document.querySelectorAll(".blog-hero .bl-reveal-word-inner");
+  const lede = document.querySelector(".blog-hero-lede");
+  const note = document.querySelector(".blog-placeholder-note");
+  const fadeUpTargets = [lede, note].filter(Boolean);
+
+  if (flourish) gsap.set(flourish, { opacity: 0, scale: 0.85, rotate: -8 });
+  if (words.length) gsap.set(words, { yPercent: 115 });
+  if (fadeUpTargets.length) gsap.set(fadeUpTargets, { opacity: 0, y: 18 });
+
+  const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+  if (flourish) {
+    tl.to(flourish, { opacity: 0.4, scale: 1, rotate: 0, duration: 0.35 }, 0).to(
+      flourish,
+      { opacity: 0, duration: 0.35 },
+      0.35
+    );
+  }
+
+  if (words.length) {
+    tl.to(words, { yPercent: 0, duration: 0.45, stagger: 0.045, ease: "power3.out" }, 0.15);
+  }
+
+  if (fadeUpTargets.length) {
+    tl.to(fadeUpTargets, { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 }, 0.55);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Blog page: desktop bento grid placement (Stage 6a) — the four-column,
+// 2x2-featured-tile layout is applied here via inline styles rather than a
+// min-width: 1000px stylesheet rule. During this stage's testing, a
+// stylesheet rule placing .blog-grid's columns and each .blog-card's
+// grid-column/grid-row at that breakpoint reliably collapsed the two
+// columns the 2x2 featured tile alone touches down to 0px wide (confirmed
+// repeatedly via getComputedStyle: "0px 0px Npx Npx" instead of four equal
+// columns) — reproduced with fr units, percentages, minmax(0, 1fr), and
+// both named grid-template-areas and explicit grid-column/grid-row lines,
+// including on a genuinely fresh reload of the changed CSS file (so not a
+// stylesheet-edit-caching artifact). The IDENTICAL placement applied as
+// inline styles on the actual elements sized correctly every time, which
+// is what this function does instead. Not gated by reduced-motion or
+// GSAP: this is layout correctness, not a motion effect, and must be
+// right regardless of either.
+// ---------------------------------------------------------------------------
+function initBlogGridLayout() {
+  const grid = document.querySelector(".blog-grid");
+  const cards = document.querySelectorAll(".blog-card");
+  if (!grid || cards.length < 6) return;
+
+  const desktopQuery = window.matchMedia("(min-width: 1000px)");
+  // One featured tile spanning the first two columns and both rows, four
+  // regular tiles filling the rest of that 2x2 block's neighboring cells,
+  // and a full-width banner tile along the bottom — see the blog-grid-
+  // section comment in blog.html for why this shape (rather than
+  // Leadership's own bento) was chosen.
+  const placements = [
+    { col: "1 / 3", row: "1 / 3" },
+    { col: "3 / 4", row: "1 / 2" },
+    { col: "4 / 5", row: "1 / 2" },
+    { col: "3 / 4", row: "2 / 3" },
+    { col: "4 / 5", row: "2 / 3" },
+    { col: "1 / 5", row: "3 / 4" },
+  ];
+
+  function apply() {
+    if (desktopQuery.matches) {
+      grid.style.gridTemplateColumns = "repeat(4, minmax(0, 1fr))";
+      cards.forEach((card, i) => {
+        card.style.gridColumn = placements[i].col;
+        card.style.gridRow = placements[i].row;
+      });
+    } else {
+      // Below 1000px, styles.css's own min-width: 640px rule (2 columns,
+      // featured/banner spanning both) or the base single-column layout
+      // takes back over.
+      grid.style.gridTemplateColumns = "";
+      cards.forEach((card) => {
+        card.style.gridColumn = "";
+        card.style.gridRow = "";
+      });
+    }
+  }
+
+  apply();
+  // Reruns if the viewport crosses the breakpoint after load (a window
+  // resize, or a device rotation), not just once at page load.
+  desktopQuery.addEventListener("change", apply);
+}
+
+// ---------------------------------------------------------------------------
+// Blog page: scroll-triggered stagger reveal for the post grid and,
+// separately, the newsletter archive (Stage 6a) — same ScrollTrigger.batch
+// approach as initLeadershipReveal, just run twice against two different
+// card sets, since a visitor can scroll to either section independently and
+// each should reveal on its own arrival rather than both waiting on the
+// first one to be scrolled to.
+// ---------------------------------------------------------------------------
+function initBlogGridReveal() {
+  const cards = document.querySelectorAll(".blog-card");
+  if (!cards.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(cards, { opacity: 0, y: 36 });
+
+  ScrollTrigger.batch(cards, {
+    start: "top 88%",
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: "power2.out" }),
+  });
+}
+
+function initNewsletterReveal() {
+  const cards = document.querySelectorAll(".newsletter-card");
+  if (!cards.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(cards, { opacity: 0, y: 28 });
+
+  ScrollTrigger.batch(cards, {
+    start: "top 90%",
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Blog page: newsletter signup (Stage 6a) — no email service (Mailchimp,
+// Buttondown, etc.) is connected yet, so submitting only ever swaps the
+// form for a static confirmation message; nothing is sent or stored
+// anywhere. Plain submit handling, not gated by reduced-motion or GSAP:
+// this is a state change, not a motion effect, and must work even if a CDN
+// fails.
+// ---------------------------------------------------------------------------
+function initNewsletterSignup() {
+  const form = document.getElementById("newsletter-form");
+  const confirmation = document.querySelector(".newsletter-confirmation");
+  if (!form || !confirmation) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    form.hidden = true;
+    confirmation.hidden = false;
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
 // bridge). Story sits in plain normal document flow regardless of which
 // Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
@@ -1215,6 +1386,11 @@ initPitchVideoEntrance();
 initEventTimelinePositions();
 initEventTimelineReveal();
 initEventDetailModal();
+initBlogEntrance();
+initBlogGridLayout();
+initBlogGridReveal();
+initNewsletterReveal();
+initNewsletterSignup();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

@@ -1,6 +1,6 @@
 # Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog) +
 # Stage 2c (Timeline) + Stage 2d (Pitch Videos) + Stage 2e (Gallery) +
-# Stage 2f (About Page).
+# Stage 2f (About Page) + Stage 2g (Home Page + shared Site Settings).
 #
 # Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
 # -> edit -> commit -> deploy pipeline before migrating anything else.
@@ -27,8 +27,27 @@
 # icon and accent color are still assigned automatically by position (see
 # ABOUT_VALUE_ICONS/ABOUT_VALUE_ACCENTS in js/script.js) — same reasoning as
 # Gallery's tile sizing — so adding/removing/reordering a value never needs
-# a layout decision here. Every OTHER page (Home's own content besides the
-# countdown widget, Get Involved) is still untouched, plain HTML, not
+# a layout decision here.
+#
+# Stage 2g adds Home (index.html) — the highest-risk migration so far: this
+# page's hero/explainer/impact/top-teams/story/CTA sections are built on
+# several interlocking pinned, scroll-scrubbed GSAP systems (see
+# initPinSequence/initTopTeamsAnimation/initStoryEntranceFade/
+# initImpactCounters, js/script.js), all wired directly to specific
+# existing classes/ids/data-attributes in index.html. Home's own document
+# (single `files` entry, like About) updates that existing markup IN PLACE
+# rather than rebuilding it from a template, to avoid disturbing any of
+# those systems. Top Teams is the one list field on this document: each
+# entry's Placement (1st/2nd/3rd, a dropdown — not the entry's position in
+# this list) decides which fixed podium slot, accent, and badge it becomes,
+# so reordering this list, or putting "1st" anywhere in it, never breaks
+# the podium order or which team's card gets the confetti burst (see
+# renderTopTeamsPodium, js/script.js). Stage 2g also adds Site Settings — a
+# second, SEPARATE single document (not nested under Home) for the
+# Instagram URL and contact email repeated across the Home hero and every
+# page's footer, so either only ever needs updating in one place.
+#
+# Every OTHER page (Get Involved) is still untouched, plain HTML, not
 # editable here.
 
 backend:
@@ -384,3 +403,171 @@ collections:
               The chapter's continuity/legacy story. Same rule as Founding
               Story: the chapter's own real history only, not the
               competition's current terms.
+
+  - name: site_settings
+    label: Site Settings
+    description: >-
+      Shared values used in more than one place across the site: the
+      Instagram URL (Home page hero, plus every page's footer) and contact
+      email (every page's footer). Change either one here and it updates
+      everywhere it appears — there's nothing to edit per-page.
+    files:
+      - name: site_settings
+        label: Site Settings
+        file: content/site-settings.json
+        format: json
+        fields:
+          - label: Instagram URL
+            name: instagramUrl
+            widget: string
+            hint: 'Full URL, e.g. "https://instagram.com/hultprizeucdavis".'
+          - label: Contact Email
+            name: contactEmail
+            widget: string
+
+  - name: home
+    label: Home Page
+    description: >-
+      The single Home page (index.html) — hero, "What is the Hult Prize?"
+      explainer, impact stats, Top Teams podium, Our Story intro, and the
+      "Ready to build something that matters?" CTA band. This is a
+      single-document collection, like About: there's one Home page, not a
+      growing list, so editing opens straight into its one entry.
+      HIGH RISK: this page's sections are built on several interlocking
+      pinned, scroll-scrubbed animations (the Hero/Explainer/Impact
+      sequence, the Top Teams podium reveal + confetti, the Impact
+      counting-up numbers, the Our Story fade-in) — always preview a
+      change on the live page after publishing, the same way you would for
+      any other collection here, but pay extra attention to those
+      animations specifically. IMPORTANT: like the About page, this page
+      covers the CHAPTER'S OWN HISTORY and current standing, not the Hult
+      Prize competition's own current rules, dates, or prize amounts — do
+      not state those as fact in the Explainer or Our Story fields. The
+      site-wide nav, Instagram/email links (see the separate Site Settings
+      collection), and the Countdown widget near the CTA band (which reads
+      Timeline dates, not anything here) are not editable on this
+      document.
+    files:
+      - name: home
+        label: Home Page
+        file: content/home.json
+        format: json
+        fields:
+          - label: Hero Headline
+            name: heroHeadline
+            widget: string
+            hint: >-
+              The big scroll-in headline at the top of the page. Keep it
+              short — it's split word-by-word for the entrance animation.
+          - label: Hero Subtext
+            name: heroSubtext
+            widget: markdown
+          - label: Hero Primary CTA Label
+            name: heroCtaLabel
+            widget: string
+            hint: >-
+              Button text only — it always links to the Get Involved page,
+              which can't be changed here.
+          - label: Explainer Heading
+            name: explainerHeading
+            widget: string
+          - label: Explainer Body
+            name: explainerBody
+            widget: markdown
+            hint: >-
+              What the Hult Prize competition is. Verify current prize
+              amounts, dates, and eligibility rules against the official
+              Hult Prize site (hultprize.org) before stating anything here
+              as fact — this is chapter-maintained content, and the
+              competition's own current terms can change independently of
+              it.
+          - label: Impact Stat 1 Number
+            name: impactStat1Number
+            widget: string
+            hint: 'e.g. "20+" — the leading digits are what count up.'
+          - label: Impact Stat 1 Description
+            name: impactStat1Description
+            widget: markdown
+          - label: Impact Stat 2 Number
+            name: impactStat2Number
+            widget: string
+            hint: 'e.g. "2" — the leading digits are what count up.'
+          - label: Impact Stat 2 Description
+            name: impactStat2Description
+            widget: markdown
+          - label: Our Story Heading
+            name: storyHeading
+            widget: string
+          - label: Our Story Body
+            name: storyBody
+            widget: markdown
+            hint: >-
+              The short intro next to the Our Story photo — not the
+              Founded/Organized/Partnered/Built to Last milestones below
+              it, which stay fixed here (edit the About page's own
+              Founding Story/Built to Last fields for those instead).
+          - label: Our Story Photo
+            name: storyPhoto
+            widget: image
+            media_folder: /assets/our-story
+            public_folder: /assets/our-story
+            hint: >-
+              A real, specific photo works best here — this is deliberately
+              NOT generic stock imagery, same as the rest of this page's
+              photography.
+          - label: Our Story "Learn More" Link Label
+            name: storyLearnMoreLabel
+            widget: string
+            hint: >-
+              Button text only — it always links to the About page, which
+              can't be changed here.
+          - label: Top Teams Section Title
+            name: topTeamsSectionTitle
+            widget: string
+          - label: Top Teams
+            name: topTeams
+            widget: list
+            summary: "{{fields.placement}} — {{fields.teamName}}"
+            hint: >-
+              Exactly one entry each for 1st, 2nd, and 3rd place — this
+              section's podium and confetti are built for exactly those
+              three placements, not an arbitrary list. Reorder entries
+              freely: which podium position (and which team gets the
+              confetti burst) is decided entirely by each entry's
+              Placement field below, never by where it sits in this list.
+            fields:
+              - label: Team Name
+                name: teamName
+                widget: string
+              - label: Placement
+                name: placement
+                widget: select
+                options: ["1st", "2nd", "3rd"]
+                hint: >-
+                  Decides the team's podium position, badge color, and
+                  (for 1st) the confetti burst — not this list's order.
+              - label: Year
+                name: year
+                widget: string
+              - label: Photo
+                name: photo
+                widget: image
+                media_folder: /assets/top-teams
+                public_folder: /assets/top-teams
+          - label: CTA Band Heading
+            name: ctaHeading
+            widget: string
+          - label: CTA Band Body
+            name: ctaBody
+            widget: markdown
+          - label: CTA Band Photo
+            name: ctaPhoto
+            widget: image
+            media_folder: /assets/cta
+            public_folder: /assets/cta
+          - label: CTA Band Button Label
+            name: ctaButtonLabel
+            widget: string
+            hint: >-
+              Button text only — it always links to the Get Involved page,
+              which can't be changed here.

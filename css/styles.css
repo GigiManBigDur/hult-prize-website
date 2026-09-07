@@ -1118,7 +1118,14 @@ button:focus-visible {
   font-size: clamp(1.5rem, 3vw, 2rem);
 }
 
-.story-intro p {
+/* Stage 2g: renamed from the tag selector `.story-intro p` to a class
+   selector on purpose — Our Story Body is now a markdown CMS field, and
+   marked.parse() always wraps its output in its own <p>; a <p> can't
+   legally contain a nested <p> (the browser would silently split them into
+   two unstyled siblings instead), so the container itself became a <div
+   class="story-intro-body"> (index.html) rather than a <p>. Same rule
+   otherwise, unchanged. */
+.story-intro-body {
   color: var(--text-secondary);
   font-size: 1.05rem;
   max-width: 50ch;
@@ -1332,7 +1339,10 @@ button:focus-visible {
   font-size: clamp(1.6rem, 3.4vw, 2.4rem);
 }
 
-.cta-inner p {
+/* Stage 2g: same rename-to-class-selector reasoning as .story-intro-body
+   above — CTA Band Body is now a markdown CMS field, so its container
+   became a <div class="cta-inner-body"> rather than a <p>. */
+.cta-inner-body {
   color: var(--text-secondary);
   font-size: 1.05rem;
   margin-bottom: 1.75rem;
@@ -5344,6 +5354,28 @@ button:focus-visible {
 .about-load-error {
   max-width: 68ch;
   margin: 0 auto 3rem;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ==========================================================================
+   Home page: Top Teams content-load error state (Stage 2g) — shown only if
+   content/home.json fails to fetch/parse, or its topTeams list doesn't
+   contain exactly one 1st/2nd/3rd placement; see initHomeContent/
+   renderTopTeamsPodium in js/script.js. Same treatment as
+   .faq-load-error/.leadership-load-error/.blog-load-error/
+   .timeline-load-error/.pitch-video-load-error/.gallery-load-error/
+   .about-load-error — centered like .pitch-video-load-error/.about-load-error
+   since the podium is a fixed 3-slot layout, not a grid of many items.
+   ========================================================================== */
+
+.top-teams-load-error {
+  max-width: 40rem;
+  margin: 0 auto;
   background: var(--charcoal-raised);
   border: 1px solid var(--line);
   border-radius: var(--radius);

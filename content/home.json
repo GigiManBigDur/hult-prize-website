@@ -1,0 +1,40 @@
+{
+  "heroHeadline": "UC Davis's first Hult Prize chapter, built from the ground up.",
+  "heroSubtext": "We recruit and train student teams to build for-profit ventures that take on real social and environmental challenges — then send our strongest teams to compete on the national stage.",
+  "heroCtaLabel": "Get Involved",
+  "explainerHeading": "What is the Hult Prize?",
+  "explainerBody": "The Hult Prize is a global student entrepreneurship competition. Teams of students design for-profit ventures that address social and environmental challenges aligned with the United Nations Sustainable Development Goals, then pitch their ideas and compete through a series of stages toward national and global competition. It turns classroom ideas into real ventures — judged by real entrepreneurs, academics, and industry professionals.",
+  "impactStat1Number": "20+",
+  "impactStat1Description": "student teams have competed through our chapter and its ENG 108 partnership",
+  "impactStat2Number": "2",
+  "impactStat2Description": "teams advanced from UC Davis to the Hult Prize National Competition",
+  "storyHeading": "Our story, in brief",
+  "storyBody": "Hult Prize @ UC Davis started as one student's idea. Here's how it became a lasting chapter.",
+  "storyPhoto": "assets/our-story/story-photo.jpg",
+  "storyLearnMoreLabel": "Learn more about our story",
+  "topTeamsSectionTitle": "Top Teams — 2025 Cohort",
+  "topTeams": [
+    {
+      "teamName": "DOZEY",
+      "placement": "1st",
+      "year": "2025",
+      "photo": "assets/top-teams/1st-place-dozey.jpg"
+    },
+    {
+      "teamName": "Sumeru Quantum Inc.",
+      "placement": "2nd",
+      "year": "2025",
+      "photo": "assets/top-teams/2nd-place-sumeru-quantum.jpg"
+    },
+    {
+      "teamName": "SQUELLET",
+      "placement": "3rd",
+      "year": "2025",
+      "photo": "assets/top-teams/3rd-place-squellet.jpg"
+    }
+  ],
+  "ctaHeading": "Ready to build something that matters?",
+  "ctaBody": "Join Hult Prize @ UC Davis and help build ventures that take on the world's biggest challenges — no business background required.",
+  "ctaPhoto": "assets/cta/cta-photo.jpg",
+  "ctaButtonLabel": "Get Involved"
+}

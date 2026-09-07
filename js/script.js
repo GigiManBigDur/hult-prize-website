@@ -3658,6 +3658,276 @@ function initPinSequence() {
     });
 }
 
+// Splits arbitrary CMS-authored headline text into the same per-word
+// overflow-hidden-mask spans (.reveal-word > .reveal-word-inner) the hero
+// markup used to hardcode one-per-word — including the inline `--i` custom
+// property each span needs, since (unlike every other page's word-reveal)
+// this one is driven by a plain CSS keyframe animation
+// (`animation-delay: calc(0.05s * var(--i, 0))`, see css/styles.css) rather
+// than a GSAP stagger, so the index has to travel with the markup itself.
+function renderHeroHeadline(h1El, text) {
+  const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return;
+  h1El.innerHTML = words
+    .map(
+      (word, i) =>
+        `<span class="reveal-word" style="--i:${i}"><span class="reveal-word-inner">${escapeHtml(word)}</span></span>`
+    )
+    .join(" ");
+}
+
+// "20+" -> { target: 20, suffix: "+" }; "2" -> { target: 2, suffix: "" }.
+// animateCounter (above) needs the two split apart on data-target/
+// data-suffix; the visually-hidden screen-reader text next to each counter
+// just gets the original raw string back, unparsed.
+function parseImpactStatNumber(raw) {
+  const str = String(raw || "").trim();
+  const match = str.match(/^(\d+)(.*)$/);
+  if (!match) return { target: 0, suffix: str };
+  return { target: parseInt(match[1], 10), suffix: match[2] };
+}
+
+// Updates one .impact-figure-primary/-secondary block in place: splits the
+// CMS's plain "20+"/"2"-style stat string into animateCounter's
+// data-target/data-suffix, refreshes the paired visually-hidden text (so
+// assistive tech reads the same number the animation counts up to), and
+// renders the markdown description into .impact-label. Never rebuilds the
+// figure itself — animateCounter/initPinSequence both already query these
+// exact elements by class/data-attribute, so overwriting them in place is
+// what lets those keep working unmodified.
+function renderImpactStat(figureEl, rawNumber, rawDescription) {
+  const counterEl = figureEl.querySelector(".counter");
+  const srEl = figureEl.querySelector(".visually-hidden");
+  const labelEl = figureEl.querySelector(".impact-label");
+  const { target, suffix } = parseImpactStatNumber(rawNumber);
+  if (counterEl) {
+    counterEl.dataset.target = target;
+    counterEl.dataset.suffix = suffix;
+    counterEl.textContent = "0";
+  }
+  if (srEl) srEl.textContent = String(rawNumber || "");
+  if (labelEl) {
+    labelEl.innerHTML =
+      typeof marked !== "undefined" ? marked.parse(escapeHtml(rawDescription || "")) : `<p>${escapeHtml(rawDescription || "")}</p>`;
+  }
+}
+
+// Rebuilds the "Learn more" link's contents while preserving its arrow
+// span — this is a plain text CMS field (only the label is editable; the
+// href stays fixed/programmatic per the brief), so the anchor element
+// itself is never replaced, just its inner markup.
+function renderLearnMoreLink(anchorEl, label) {
+  anchorEl.innerHTML = `${escapeHtml(label || "Learn more")} <span aria-hidden="true">→</span>`;
+}
+
+// Placement (never list position) decides which of the three fixed podium
+// slots — and which card class/badge accent — each CMS entry becomes, so a
+// reordered list, or a "1st" entry anywhere in it, still produces a
+// correct podium: initTopTeamsPinSequence/initTopTeamsSimpleReveal/
+// triggerConfetti all locate the winner via .team-card-first, which this
+// always assigns to whichever entry actually has Placement "1st".
+const TOP_TEAM_PLACEMENT_INFO = {
+  "1st": { cardClass: "team-card-first", badgeClass: "team-card-badge-gold" },
+  "2nd": { cardClass: "team-card-second", badgeClass: "team-card-badge-silver" },
+  "3rd": { cardClass: "team-card-third", badgeClass: "team-card-badge-bronze" },
+};
+const TOP_TEAM_PLACEMENT_ORDER = ["1st", "2nd", "3rd"];
+
+// Builds the exact markup the three podium <article>s used to hardcode
+// (same classes, same .team-card-glow on the winner only, same badge/name/
+// year/photo shape) — but looked up by Placement, and always written to
+// the DOM in 1st/2nd/3rd order regardless of the CMS list's own order, per
+// the existing "DOM order is placement order" comment on .podium in
+// css/styles.css (that order matters for tab/reading order; CSS `order`
+// handles the visual 2nd-1st-3rd rearrangement separately). Throws if the
+// three placements aren't each present exactly once — this section's
+// entire pinned/podium/confetti sequence assumes exactly one 1st, one 2nd,
+// and one 3rd, so a malformed list is treated as a content-load failure
+// rather than rendered into a broken or partial podium.
+function renderTopTeamsPodium(podiumEl, teams) {
+  const byPlacement = {};
+  teams.forEach((team) => {
+    byPlacement[team.placement] = team;
+  });
+
+  const missing = TOP_TEAM_PLACEMENT_ORDER.filter((placement) => !byPlacement[placement]);
+  if (missing.length) {
+    throw new Error("content/home.json's topTeams is missing placement(s): " + missing.join(", "));
+  }
+
+  podiumEl.innerHTML = TOP_TEAM_PLACEMENT_ORDER.map((placement) => {
+    const team = byPlacement[placement];
+    const info = TOP_TEAM_PLACEMENT_INFO[placement];
+    const glow = placement === "1st" ? '<div class="team-card-glow" aria-hidden="true"></div>' : "";
+    const altText = `${team.teamName || ""} accepting ${placement} place at the ${team.year || ""} Hult Prize @ UC Davis OnCampus competition.`;
+    return `
+      <article class="team-card ${info.cardClass}">
+        ${glow}
+        <figure class="team-card-photo">
+          <img src="${escapeHtml(team.photo || "")}" alt="${escapeHtml(altText)}" loading="lazy">
+        </figure>
+        <p class="team-card-badge ${info.badgeClass}">${escapeHtml(placement)} place</p>
+        <h3 class="team-card-name">${escapeHtml(team.teamName || "")}</h3>
+        <p class="team-card-year">${escapeHtml(team.year || "")}</p>
+      </article>`;
+  }).join("");
+}
+
+// ---------------------------------------------------------------------------
+// Home page data (Stage 2g, Admin CMS extension) — fetches content/
+// home.json (the single document the /admin CMS's Home Page collection
+// edits) and updates the hero/explainer/impact/story/top-teams/CTA markup
+// ALREADY in index.html, in place — unlike Gallery/Team/Blog/etc., this
+// does not rebuild those sections' DOM from a template. Home's behavior is
+// built on several interlocking pinned/scroll-scrubbed GSAP systems
+// (initPinSequence, initTopTeamsAnimation, initStoryEntranceFade,
+// initImpactCounters) that are all wired directly to specific existing
+// classes/ids/data-attributes; rebuilding those subtrees from scratch would
+// risk subtly breaking one of them. Every element this function touches
+// (other than the Top Teams podium, see below) already carries the site's
+// real current content as static fallback markup in index.html — exactly
+// mirroring content/home.json — so a fetch failure still shows correct,
+// real content, just not CMS-editable content.
+//
+// Top Teams is the one exception: like every other CMS *list* field on this
+// site, its podium starts EMPTY in index.html and is fully rendered from
+// this fetch (see renderTopTeamsPodium above) — showing a load-error
+// message on failure, the same pattern as Gallery/Team/Blog/etc.
+//
+// initImpactCounters, initPinSequence, initTopTeamsAnimation, and
+// initStoryEntranceFade — all previously called unconditionally at the
+// bottom of this file — are called from here instead, in a `.finally()` so
+// they still run even if this fetch fails (against the static fallback
+// content, or an empty/error-state podium, both of which every one of
+// those functions already handles safely via its own null/empty checks).
+// This guarantees none of them can ever run against half-updated
+// data-attributes or a podium mid-render. The relative order of the pin-
+// sequence calls is preserved exactly as it was: initStoryEntranceFade
+// measures #story's position, which is only correct once both pinned
+// sequences' ScrollTrigger spacers already exist above it on the page.
+// ---------------------------------------------------------------------------
+function initHomeContent() {
+  const sequence = document.getElementById("pin-sequence");
+  if (!sequence) return; // not the Home page
+
+  const renderMarkdown = (text) =>
+    typeof marked !== "undefined" ? marked.parse(escapeHtml(text || "")) : `<p>${escapeHtml(text || "")}</p>`;
+
+  const heroHeadingEl = document.getElementById("hero-heading");
+  const heroLedeEl = document.querySelector(".hero-lede");
+  const heroPrimaryBtnEl = document.getElementById("hero-primary-cta");
+  const explainerHeadingEl = document.getElementById("explainer-heading");
+  const explainerBodyEl = document.querySelector(".scene-explainer .scene-body");
+  const impactPrimaryEl = document.querySelector(".impact-figure-primary");
+  const impactSecondaryEl = document.querySelector(".impact-figure-secondary");
+  const storyHeadingEl = document.getElementById("story-heading");
+  const storyBodyEl = document.querySelector(".story-intro-body");
+  const storyPhotoImgEl = document.querySelector(".story-photo img");
+  const storyLearnMoreEl = document.getElementById("story-learn-more-link");
+  const topTeamsTitleEl = document.getElementById("top-teams-heading");
+  const podiumEl = document.querySelector(".podium");
+  const ctaHeadingEl = document.getElementById("cta-heading");
+  const ctaBodyEl = document.querySelector(".cta-inner-body");
+  const ctaPhotoImgEl = document.querySelector(".cta-photo");
+  const ctaBtnEl = document.getElementById("cta-band-button");
+
+  fetch("content/home.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/home.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const teams = Array.isArray(data.topTeams) ? data.topTeams : [];
+      if (!teams.length) throw new Error("content/home.json has no topTeams");
+
+      if (heroHeadingEl && data.heroHeadline) renderHeroHeadline(heroHeadingEl, data.heroHeadline);
+      if (heroLedeEl) heroLedeEl.innerHTML = renderMarkdown(data.heroSubtext);
+      if (heroPrimaryBtnEl && data.heroCtaLabel) heroPrimaryBtnEl.textContent = data.heroCtaLabel;
+
+      if (explainerHeadingEl && data.explainerHeading) explainerHeadingEl.textContent = data.explainerHeading;
+      if (explainerBodyEl) explainerBodyEl.innerHTML = renderMarkdown(data.explainerBody);
+
+      if (impactPrimaryEl) renderImpactStat(impactPrimaryEl, data.impactStat1Number, data.impactStat1Description);
+      if (impactSecondaryEl) renderImpactStat(impactSecondaryEl, data.impactStat2Number, data.impactStat2Description);
+
+      if (storyHeadingEl && data.storyHeading) storyHeadingEl.textContent = data.storyHeading;
+      if (storyBodyEl) storyBodyEl.innerHTML = renderMarkdown(data.storyBody);
+      if (storyPhotoImgEl && data.storyPhoto) storyPhotoImgEl.src = data.storyPhoto;
+      if (storyLearnMoreEl) renderLearnMoreLink(storyLearnMoreEl, data.storyLearnMoreLabel);
+
+      if (topTeamsTitleEl && data.topTeamsSectionTitle) topTeamsTitleEl.textContent = data.topTeamsSectionTitle;
+      if (podiumEl) renderTopTeamsPodium(podiumEl, teams);
+
+      if (ctaHeadingEl && data.ctaHeading) ctaHeadingEl.textContent = data.ctaHeading;
+      if (ctaBodyEl) ctaBodyEl.innerHTML = renderMarkdown(data.ctaBody);
+      if (ctaPhotoImgEl && data.ctaPhoto) ctaPhotoImgEl.src = data.ctaPhoto;
+      if (ctaBtnEl && data.ctaButtonLabel) ctaBtnEl.textContent = data.ctaButtonLabel;
+    })
+    .catch((err) => {
+      console.error("Home content failed to load:", err);
+      // Everything above (other than Top Teams) already carries the site's
+      // real current content as static fallback markup and needs no
+      // further handling here. Top Teams starts empty like every other CMS
+      // list on this site — show the same load-error treatment used there.
+      if (podiumEl && !podiumEl.children.length) {
+        podiumEl.innerHTML =
+          '<p class="top-teams-load-error">Something went wrong loading this year\'s Top Teams. Please refresh, or reach out directly at ' +
+          '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</p>';
+      }
+    })
+    .finally(() => {
+      initImpactCounters();
+      initPinSequence();
+      initTopTeamsAnimation();
+      initStoryEntranceFade();
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Site Settings (Stage 2g, Admin CMS extension) — a single shared CMS
+// document, content/site-settings.json, for the two values repeated in
+// multiple places across the site (the footer's email/Instagram links on
+// EVERY page, plus the Home hero's secondary "Follow us on Instagram"
+// button): editing either value here updates every place it appears,
+// instead of the same edit needing to be made separately in each spot.
+// Runs unconditionally on every page (like initHomeLogoReset) rather than
+// being gated to Home. Every link this touches already carries the site's
+// real current value as its href/text, so a fetch failure just leaves
+// those links exactly as they were — this is standing site-wide UI chrome,
+// not page content, so (unlike FAQ/Team/Blog/etc.) it fails silently
+// instead of showing a load-error message.
+// ---------------------------------------------------------------------------
+function initSiteSettings() {
+  const emailLink = document.querySelector(".footer-links a[href^='mailto:']");
+  const instagramLink = document.querySelector(".footer-links a[href*='instagram.com']");
+  const heroInstagramLink = document.querySelector(".hero-actions .btn-ghost[href*='instagram.com']");
+  if (!emailLink && !instagramLink && !heroInstagramLink) return;
+
+  fetch("content/site-settings.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/site-settings.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      if (data.contactEmail && emailLink) {
+        emailLink.href = "mailto:" + data.contactEmail;
+        emailLink.textContent = data.contactEmail;
+      }
+      if (data.instagramUrl) {
+        const handleMatch = String(data.instagramUrl).match(/instagram\.com\/([^/?#]+)/i);
+        const handle = handleMatch ? "@" + handleMatch[1] : data.instagramUrl;
+        if (instagramLink) {
+          instagramLink.href = data.instagramUrl;
+          instagramLink.textContent = handle;
+        }
+        if (heroInstagramLink) heroInstagramLink.href = data.instagramUrl;
+      }
+    })
+    .catch((err) => {
+      console.error("Site settings failed to load:", err);
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Site-wide Search (Stage 11a) — nav trigger, keyboard shortcuts (`/` and
 // Cmd/Ctrl+K), and the fuzzy-search overlay itself. Runs on every page: the
@@ -4075,7 +4345,7 @@ function initSearchResultHighlight() {
 }
 
 initHomeLogoReset();
-initImpactCounters();
+initSiteSettings();
 initScrollReveal();
 initTeamContent();
 initPitchVideoContent();
@@ -4095,14 +4365,15 @@ initInvolvedEntrance();
 initInvolvedReveal();
 initMagneticButtons();
 initCustomCursor();
-// Both pin sequences must run first: each adds a large ScrollTrigger
-// spacer that pushes everything after it (including #story) much further
-// down the page. initStoryEntranceFade measures #story's position when it
-// runs — creating it before those spacers exist would capture the wrong
-// (pre-pin) position and the fade would trigger at the wrong scroll point.
-initPinSequence();
-initTopTeamsAnimation();
-initStoryEntranceFade();
+// Stage 2g: initImpactCounters/initPinSequence/initTopTeamsAnimation/
+// initStoryEntranceFade used to be called unconditionally right here —
+// they now run from inside initHomeContent's fetch (in this exact relative
+// order, for the same reason: both pin sequences must run before
+// initStoryEntranceFade measures #story's position, which is only correct
+// once their ScrollTrigger spacers already exist above it on the page),
+// so none of them can ever run against stale data-attributes or an
+// empty/mid-render Top Teams podium.
+initHomeContent();
 initSiteSearch();
 // Last: may click a .faq-question button to expand it (if the incoming
 // #hash is a search result on this same page), which needs

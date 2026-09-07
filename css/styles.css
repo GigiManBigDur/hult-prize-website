@@ -1052,6 +1052,13 @@ button:focus-visible {
   .about-links .about-links-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  /* Get Involved (Stage 9a) — appended here rather than a separate
+     min-width: 760px block, same reasoning and same ancestor-scoping fix
+     as the About merge just above. */
+  .involved-links .involved-links-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -1142,6 +1149,18 @@ button:focus-visible {
     flex-shrink: 0;
     width: 15rem;
     transform: rotate(1.5deg);
+  }
+
+  /* Get Involved (Stage 9a) — appended here rather than a separate
+     min-width: 700px block, for the same duplicate-@media-condition
+     reason documented at the top of that page's CSS section. Scoped
+     with the parent .involved-paths section (rather than the bare
+     .involved-grid class) because this page's own base rule for that
+     same selector is declared near the end of the file, after this
+     block — same cascade-order fix as About's/Get Involved's own
+     min-width: 760px merges elsewhere in this file. */
+  .involved-paths .involved-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -1862,6 +1881,15 @@ button:focus-visible {
      left border), not just on hover. */
   .faq-item:hover {
     box-shadow: 0 14px 30px -20px var(--card-accent, var(--magenta));
+  }
+
+  /* Get Involved (Stage 9a) — appended here rather than a separate
+     (hover: hover) and (pointer: fine) block, same reasoning as the
+     merges above. */
+  .involved-card:hover,
+  .involved-link-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px -22px var(--card-accent, var(--magenta));
   }
 }
 
@@ -4193,4 +4221,242 @@ button:focus-visible {
 .faq-answer p.faq-answer-tbd {
   font-style: italic;
   color: var(--gold);
+}
+
+/* ==========================================================================
+   Get Involved page (Stage 9a)
+
+   A ninth full page, alongside Home, Leadership, Pitch Videos, Event
+   Timeline, Blog & Newsletter, the Photo Gallery, About, and FAQ — same
+   header/footer/color system, same one-time hero-entrance pattern as the
+   other pages' own hero sections (initInvolvedEntrance), and the same
+   ScrollTrigger.batch stagger reveal (initInvolvedReveal). A plain 3-card
+   grid and two simple lists — no multi-track-spanning tiles anywhere, so
+   none of the stylesheet-grid cascade risk documented elsewhere in this
+   file applies to anything below.
+   ========================================================================== */
+
+.involved-page {
+  position: relative;
+  background: var(--charcoal);
+  overflow: hidden;
+}
+
+.involved-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(750px circle at 88% 0%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.involved-hero,
+.involved-paths,
+.involved-signup,
+.involved-links {
+  position: relative;
+  z-index: 1;
+}
+
+.involved-hero {
+  padding-block: 5rem 2.5rem;
+  overflow: hidden;
+}
+
+.involved-hero-flourish {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg at 50% 30%,
+    var(--magenta),
+    var(--teal),
+    var(--sky),
+    var(--orange),
+    var(--gold),
+    var(--magenta)
+  );
+  filter: blur(70px);
+  mix-blend-mode: screen;
+}
+
+.involved-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.involved-hero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  max-width: 20ch;
+}
+
+.iv-reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.iv-reveal-word-inner {
+  display: inline-block;
+}
+
+.involved-hero-lede {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 62ch;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Three pathway cards
+   -------------------------------------------------------------------------- */
+
+.involved-paths {
+  padding-block: 1.5rem 4rem;
+}
+
+.involved-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.involved-card {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--card-accent, var(--magenta));
+  border-radius: var(--radius);
+  padding: 1.75rem 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .involved-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+}
+
+.involved-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  margin: 0 0 1rem;
+  color: var(--card-accent, var(--magenta));
+  background: color-mix(in srgb, var(--card-accent, var(--magenta)) 16%, transparent);
+}
+
+.involved-card-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.involved-card h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.involved-card p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.involved-card p + p {
+  margin-top: 0.75rem;
+}
+
+.involved-card-tbd {
+  font-style: italic;
+  color: var(--gold);
+  font-size: 0.85rem;
+}
+
+.involved-card-teal { --card-accent: var(--teal); }
+.involved-card-sky { --card-accent: var(--sky); }
+.involved-card-orange { --card-accent: var(--orange); }
+
+/* --------------------------------------------------------------------------
+   Sign Up / Compete CTA — the primary conversion moment on this page,
+   visually distinct from the pathway cards above: full-width magenta
+   band rather than a charcoal card with an accent border.
+   -------------------------------------------------------------------------- */
+
+.involved-signup {
+  padding-block: 1rem 4rem;
+}
+
+.involved-signup-band {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  background: linear-gradient(135deg, var(--magenta-darker), var(--magenta-dark));
+  border-radius: var(--radius);
+  padding: 3rem 2rem;
+}
+
+.involved-signup-band h2 {
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  margin: 0 0 0.75rem;
+}
+
+.involved-signup-band p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.05rem;
+  max-width: 46ch;
+  margin: 0 auto 1.75rem;
+}
+
+.involved-signup-btn {
+  font-size: 1.05rem;
+  padding-block: 0.9rem;
+  padding-inline: 2rem;
+}
+
+/* --------------------------------------------------------------------------
+   Cross-links
+   -------------------------------------------------------------------------- */
+
+.involved-links {
+  padding-block: 1rem 5.5rem;
+}
+
+.involved-links-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.involved-link-card {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .involved-link-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+}
+
+.involved-link-card h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.4rem;
+}
+
+.involved-link-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
 }

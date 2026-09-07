@@ -918,6 +918,549 @@ function initNewsletterSignup() {
 }
 
 // ---------------------------------------------------------------------------
+// Gallery page: one-time hero entrance (Stage 7a) — the same background-
+// flourish + staggered-title + staggered-content pattern as Pitch Videos'/
+// Blog's initPitchVideoEntrance/initBlogEntrance, reused rather than
+// inventing a new entry style. Independently named (.gl-reveal-word/-inner)
+// so this page's word-reveal spans can't collide with either of theirs.
+// ---------------------------------------------------------------------------
+function initGalleryEntrance() {
+  const hero = document.querySelector(".gallery-hero");
+  if (!hero) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+
+  const flourish = document.querySelector(".gallery-hero-flourish");
+  const words = document.querySelectorAll(".gallery-hero .gl-reveal-word-inner");
+  const lede = document.querySelector(".gallery-hero-lede");
+  const note = document.querySelector(".gallery-placeholder-note");
+  const fadeUpTargets = [lede, note].filter(Boolean);
+
+  if (flourish) gsap.set(flourish, { opacity: 0, scale: 0.85, rotate: -8 });
+  if (words.length) gsap.set(words, { yPercent: 115 });
+  if (fadeUpTargets.length) gsap.set(fadeUpTargets, { opacity: 0, y: 18 });
+
+  const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+  if (flourish) {
+    tl.to(flourish, { opacity: 0.4, scale: 1, rotate: 0, duration: 0.35 }, 0).to(
+      flourish,
+      { opacity: 0, duration: 0.35 },
+      0.35
+    );
+  }
+
+  if (words.length) {
+    tl.to(words, { yPercent: 0, duration: 0.45, stagger: 0.045, ease: "power3.out" }, 0.15);
+  }
+
+  if (fadeUpTargets.length) {
+    tl.to(fadeUpTargets, { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 }, 0.55);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Gallery page: bento masonry grid placement (Stage 7a) — grid-template-
+// columns and each tile's grid-column/grid-row are applied here as inline
+// styles rather than via a stylesheet rule, exactly like Blog's
+// initBlogGridLayout and for the identical reason: a stylesheet-based
+// version of this kind of grid (multi-track-spanning tiles in a
+// repeat()-column grid) was confirmed during that stage's testing to
+// collapse columns to 0px, while the identical placement applied inline
+// always sized correctly. Not gated by reduced-motion/GSAP: this is
+// layout correctness, not a motion effect.
+// ---------------------------------------------------------------------------
+function initGalleryLayout() {
+  const grid = document.getElementById("gallery-grid");
+  const tiles = document.querySelectorAll(".gallery-tile");
+  if (!grid || !tiles.length) return;
+
+  const desktopQuery = window.matchMedia("(min-width: 1000px)");
+  const tabletQuery = window.matchMedia("(min-width: 640px)");
+
+  // grid-auto-flow: dense (rather than named grid-template-areas, like
+  // Blog's fixed 6-tile bento) so the layout re-packs itself sensibly
+  // whichever tiles the active filter leaves visible, instead of assuming
+  // a fixed set of 12.
+  function spanFor(size, columns) {
+    switch (size) {
+      case "large":
+        return { col: Math.min(2, columns), row: 2 };
+      case "wide":
+        return { col: Math.min(2, columns), row: 1 };
+      case "tall":
+        return { col: 1, row: 2 };
+      default:
+        return { col: 1, row: 1 };
+    }
+  }
+
+  function apply() {
+    let columns = 1;
+    if (desktopQuery.matches) columns = 4;
+    else if (tabletQuery.matches) columns = 2;
+
+    if (columns === 1) {
+      grid.style.gridTemplateColumns = "";
+      grid.style.gridAutoFlow = "";
+      tiles.forEach((tile) => {
+        tile.style.gridColumn = "";
+        tile.style.gridRow = "";
+      });
+      return;
+    }
+
+    grid.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
+    grid.style.gridAutoFlow = "dense";
+    tiles.forEach((tile) => {
+      const { col, row } = spanFor(tile.dataset.size, columns);
+      tile.style.gridColumn = `span ${col}`;
+      tile.style.gridRow = `span ${row}`;
+    });
+  }
+
+  apply();
+  desktopQuery.addEventListener("change", apply);
+  tabletQuery.addEventListener("change", apply);
+}
+
+// ---------------------------------------------------------------------------
+// Gallery page: scroll-triggered stagger reveal (Stage 7a) — same
+// ScrollTrigger.batch approach as initLeadershipReveal/initBlogGridReveal.
+// ---------------------------------------------------------------------------
+function initGalleryReveal() {
+  const tiles = document.querySelectorAll(".gallery-tile");
+  if (!tiles.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(tiles, { opacity: 0, y: 36 });
+
+  ScrollTrigger.batch(tiles, {
+    start: "top 90%",
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Gallery page: category filter pills (Stage 7a). Every actual visibility
+// change ([hidden] on non-matching .gallery-tile elements) happens
+// unconditionally in plain JS; only the transition is gated behind GSAP/
+// Flip + !prefersReducedMotion, in which case filtering is an instant
+// swap instead — still fully correct, per the brief's fallback allowance.
+//
+// The animated case is three things happening together: tiles leaving the
+// filter fade out first (still in their grid slot); Flip then animates
+// every tile that stays visible in both the old and new filter sliding
+// into its newly-repacked (grid-auto-flow: dense) position, since hiding
+// some tiles changes where the rest land; and tiles newly entering the
+// filter fade in once that reflow lands. Flip can't itself animate an
+// element being hidden via [hidden] (display: none can't be transitioned
+// through), which is why the leaving tiles get a plain opacity/scale tween
+// first rather than being folded into the Flip call.
+// ---------------------------------------------------------------------------
+function initGalleryFilter() {
+  const buttons = document.querySelectorAll(".gallery-filter-btn");
+  const tiles = document.querySelectorAll(".gallery-tile");
+  if (!buttons.length || !tiles.length) return;
+
+  const canFlip = !prefersReducedMotion && typeof gsap !== "undefined" && typeof Flip !== "undefined";
+  if (canFlip) gsap.registerPlugin(Flip);
+
+  function applyFilter(value) {
+    const allTiles = Array.from(tiles);
+    const willShow = allTiles.filter((t) => value === "all" || t.dataset.category === value);
+    const currentlyVisible = allTiles.filter((t) => !t.hidden);
+
+    if (!canFlip) {
+      allTiles.forEach((t) => {
+        t.hidden = !willShow.includes(t);
+      });
+      return;
+    }
+
+    const leaving = currentlyVisible.filter((t) => !willShow.includes(t));
+    const staying = currentlyVisible.filter((t) => willShow.includes(t));
+    const entering = willShow.filter((t) => !currentlyVisible.includes(t));
+
+    const tl = gsap.timeline();
+    if (leaving.length) {
+      tl.to(leaving, { opacity: 0, scale: 0.85, duration: 0.22, ease: "power1.in", stagger: 0.02 });
+    }
+    tl.add(() => {
+      const state = Flip.getState(staying);
+      allTiles.forEach((t) => {
+        t.hidden = !willShow.includes(t);
+      });
+      // Reset leaving tiles' inline opacity/scale now that they're
+      // [hidden] — otherwise they'd reappear still faded out next time
+      // this same filter shows them again.
+      gsap.set(leaving, { opacity: 1, scale: 1 });
+      if (entering.length) gsap.set(entering, { opacity: 0, scale: 0.85 });
+
+      Flip.from(state, { duration: 0.5, ease: "power2.inOut", absolute: true });
+
+      if (entering.length) {
+        gsap.to(entering, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.4,
+          delay: 0.12,
+          stagger: 0.05,
+          ease: "power2.out",
+        });
+      }
+    });
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      buttons.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle("is-active", active);
+        b.setAttribute("aria-pressed", String(active));
+      });
+      applyFilter(btn.dataset.filter);
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Gallery page: Flip lightbox (Stage 7a) — reuses the exact "the clicked
+// element becomes the dialog" technique from the Event Timeline's
+// initEventDetailModal (same Flip-driven expand/collapse, same reparent-
+// to-<body> fix for the ScrollTrigger-reveal containing-block issue, same
+// focus-trap/ARIA approach), applied to .gallery-tile-button instead of
+// .timeline-card. See that function's own comments for the reasoning
+// behind each piece; only what's different for a photo lightbox is called
+// out below.
+// ---------------------------------------------------------------------------
+function initGalleryLightbox() {
+  const buttons = document.querySelectorAll(".gallery-tile-button");
+  const overlay = document.getElementById("gallery-lightbox-overlay");
+  if (!buttons.length || !overlay) return;
+
+  const canFlip = !prefersReducedMotion && typeof gsap !== "undefined" && typeof Flip !== "undefined";
+  if (canFlip) gsap.registerPlugin(Flip);
+
+  let activeButton = null;
+  let originalParent = null;
+  let originalNextSibling = null;
+  let scrollLockPaddingRight = "";
+  let wheelCooldown = false;
+  let touchStartX = null;
+  let touchStartY = null;
+
+  function lockBodyScroll() {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    scrollLockPaddingRight = document.body.style.paddingRight;
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = scrollbarWidth + "px";
+    }
+    document.body.style.overflow = "hidden";
+  }
+  function unlockBodyScroll() {
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = scrollLockPaddingRight;
+  }
+
+  function getFocusable(container) {
+    return Array.from(
+      container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter((el) => el.offsetParent !== null);
+  }
+
+  // Only the tiles the active filter currently leaves visible — prev/next
+  // steps within this set only, so a photo hidden by the filter is never
+  // landed on.
+  function visibleButtons() {
+    return Array.from(buttons).filter((btn) => {
+      // The active button is currently reparented to <body> (see
+      // expandToLightbox below), so it has no .gallery-tile ancestor to
+      // check — it's obviously "visible" regardless, being the one
+      // literally on screen right now.
+      if (btn === activeButton) return true;
+      const tile = btn.closest(".gallery-tile");
+      return tile && !tile.hidden;
+    });
+  }
+
+  // Moves `button` back into its original .gallery-tile <li>, reversing
+  // expandToLightbox below. Used by both closeTile (the final close) and
+  // step (moving off this photo to an adjacent one).
+  function restoreToGrid(button) {
+    const state = canFlip ? Flip.getState(button, { props: "borderRadius" }) : null;
+
+    button.classList.remove("is-lightbox-open");
+    button.setAttribute("role", "button");
+    button.removeAttribute("aria-modal");
+    button.removeAttribute("aria-describedby");
+    button.setAttribute("tabindex", "0");
+
+    if (originalParent) {
+      if (originalNextSibling && originalNextSibling.parentElement === originalParent) {
+        originalParent.insertBefore(button, originalNextSibling);
+      } else {
+        originalParent.appendChild(button);
+      }
+    }
+    originalParent = null;
+    originalNextSibling = null;
+
+    if (canFlip) {
+      button.style.transition = "none";
+      Flip.from(state, {
+        duration: 0.42,
+        ease: "power2.inOut",
+        absolute: true,
+        onComplete: () => {
+          button.style.transition = "";
+        },
+      });
+    }
+  }
+
+  // Moves `button` out to <body> and expands it into the lightbox. Used by
+  // both openTile (the initial open) and step (landing on an adjacent
+  // photo) — see initEventDetailModal's comment for why the move to
+  // <body> is necessary, not just tidy (a transformed ancestor left by
+  // initGalleryReveal would otherwise become the containing block for
+  // this button's position: fixed).
+  function expandToLightbox(button) {
+    const tile = button.closest(".gallery-tile");
+    const accent = getComputedStyle(tile).getPropertyValue("--card-accent");
+    if (accent) button.style.setProperty("--card-accent", accent.trim());
+
+    const state = canFlip ? Flip.getState(button, { props: "borderRadius" }) : null;
+
+    originalParent = button.parentElement;
+    originalNextSibling = button.nextElementSibling;
+    document.body.appendChild(button);
+
+    button.classList.add("is-lightbox-open");
+    button.setAttribute("role", "dialog");
+    button.setAttribute("aria-modal", "true");
+    const caption = button.querySelector(".gallery-lightbox-caption");
+    if (caption) button.setAttribute("aria-describedby", caption.id);
+    button.setAttribute("tabindex", "-1");
+
+    if (canFlip) {
+      button.style.transition = "none";
+      Flip.from(state, {
+        duration: 0.42,
+        ease: "power2.inOut",
+        absolute: true,
+        onComplete: () => {
+          button.style.transition = "";
+        },
+      });
+    }
+
+    const closeBtn = button.querySelector(".gallery-lightbox-close");
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function openTile(button) {
+    if (activeButton) return;
+    activeButton = button;
+
+    overlay.hidden = false;
+    lockBodyScroll();
+    expandToLightbox(button);
+
+    if (canFlip) {
+      gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power1.out" });
+    }
+
+    document.addEventListener("keydown", onKeydown, true);
+  }
+
+  function closeTile() {
+    const button = activeButton;
+    if (!button) return;
+    activeButton = null;
+
+    restoreToGrid(button);
+    unlockBodyScroll();
+    document.removeEventListener("keydown", onKeydown, true);
+
+    if (canFlip) {
+      gsap.to(overlay, {
+        opacity: 0,
+        duration: 0.25,
+        ease: "power1.in",
+        onComplete: () => {
+          overlay.hidden = true;
+        },
+      });
+    } else {
+      overlay.hidden = true;
+    }
+
+    button.focus();
+  }
+
+  // Prev/next: closes the current photo and opens the adjacent one via
+  // the exact same restoreToGrid/expandToLightbox pair used for the
+  // regular open/close, run back to back — deliberately not a separate
+  // cross-fade/carousel mechanism, per the brief's "reuse this existing
+  // pattern." The overlay, body scroll lock, and keydown trap are left
+  // untouched here since the lightbox never actually closes between
+  // photos, only which tile is expanded changes.
+  function step(direction) {
+    if (!activeButton) return;
+    const list = visibleButtons();
+    if (list.length < 2) return;
+    const currentIndex = list.indexOf(activeButton);
+    if (currentIndex === -1) return;
+    const nextIndex = (currentIndex + direction + list.length) % list.length;
+    const nextButton = list[nextIndex];
+    if (nextButton === activeButton) return;
+
+    const current = activeButton;
+    activeButton = nextButton;
+    restoreToGrid(current);
+    expandToLightbox(nextButton);
+  }
+
+  function onKeydown(e) {
+    if (!activeButton) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeTile();
+      return;
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      step(1);
+      return;
+    }
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      step(-1);
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const focusable = getFocusable(activeButton);
+    if (!focusable.length) {
+      e.preventDefault();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const outside = !activeButton.contains(document.activeElement);
+    if (e.shiftKey) {
+      if (outside || document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else if (outside || document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeTile();
+  });
+
+  // Trackpad horizontal swipe — same forceToAxis idea as the Pitch Videos
+  // carousel's Swiper mousewheel config (only act on wheel events whose
+  // horizontal delta dominates, so an ordinary vertical scroll gesture is
+  // never hijacked), reimplemented by hand here since there's no Swiper
+  // instance on this page. thresholdTime-style cooldown (400ms, matching
+  // that same config) collapses one continuous trackpad swipe into a
+  // single step rather than several.
+  document.addEventListener(
+    "wheel",
+    (e) => {
+      if (!activeButton) return;
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      if (wheelCooldown) return;
+      wheelCooldown = true;
+      step(e.deltaX > 0 ? 1 : -1);
+      setTimeout(() => {
+        wheelCooldown = false;
+      }, 400);
+    },
+    { passive: false }
+  );
+
+  // Touch swipe. Listeners live on document (rather than the lightbox
+  // button itself) since which element that is changes on every step.
+  document.addEventListener(
+    "touchstart",
+    (e) => {
+      if (!activeButton) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    "touchend",
+    (e) => {
+      if (!activeButton || touchStartX === null) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      touchStartX = null;
+      touchStartY = null;
+      if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) return;
+      step(dx < 0 ? 1 : -1);
+    },
+    { passive: true }
+  );
+
+  buttons.forEach((button, i) => {
+    const caption = button.querySelector(".gallery-lightbox-caption");
+    if (caption && !caption.id) caption.id = `gallery-caption-${i}`;
+
+    button.setAttribute("aria-haspopup", "dialog");
+
+    button.addEventListener("click", () => {
+      if (!button.classList.contains("is-lightbox-open")) openTile(button);
+    });
+    button.addEventListener("keydown", (e) => {
+      if (button.classList.contains("is-lightbox-open")) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openTile(button);
+      }
+    });
+
+    const closeBtn = button.querySelector(".gallery-lightbox-close");
+    const prevBtn = button.querySelector(".gallery-lightbox-prev");
+    const nextBtn = button.querySelector(".gallery-lightbox-next");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeTile();
+      });
+    }
+    if (prevBtn) {
+      prevBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        step(-1);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        step(1);
+      });
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
 // bridge). Story sits in plain normal document flow regardless of which
 // Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
@@ -1428,6 +1971,11 @@ initBlogGridLayout();
 initBlogGridReveal();
 initNewsletterReveal();
 initNewsletterSignup();
+initGalleryEntrance();
+initGalleryLayout();
+initGalleryReveal();
+initGalleryFilter();
+initGalleryLightbox();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

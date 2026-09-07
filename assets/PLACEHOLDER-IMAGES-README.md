@@ -84,6 +84,17 @@ same aspect ratios** listed below, and no code changes are needed:
   cards in blog.html's `.blog-grid`. Replace each post's headline, category,
   date, and excerpt in blog.html at the same time as swapping in its real
   photo.
+- `gallery/oncampus-1.jpg` … `oncampus-4.jpg`, `gallery/workshop-1.jpg` …
+  `workshop-4.jpg`, `gallery/team-1.jpg` … `team-4.jpg` — the 12 photos on
+  the Gallery page (Stage 7a), 4 per category. Sizes vary per tile
+  (800×800 square, 700×1000/1000×700 portrait/landscape, or 1000×1000)
+  since the page's bento masonry grid deliberately mixes tile shapes —
+  matching the same file's approximate aspect ratio keeps a replacement
+  looking right in its slot, but isn't required for the page to keep
+  working (object-fit: cover crops to whatever the grid gives it either
+  way). Real event photography is a straight swap here — no HTML/caption
+  changes needed, since gallery.html's captions are just the category name
+  and a photo number, not per-photo descriptions.
 
 Good real replacements: pitch presentations, teams collaborating, the
 OnCampus competition, judges/audience, campus recruiting events.

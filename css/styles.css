@@ -1792,6 +1792,19 @@ button:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 18px 36px -22px var(--magenta);
   }
+
+  /* Gallery (Stage 7a) — appended here rather than a separate (hover:
+     hover) and (pointer: fine) block, same reasoning as the merges above.
+     Tilt + zoom on the photo itself, accent glow on the tile. */
+  .gallery-tile:hover {
+    border-color: var(--card-accent, var(--magenta));
+    box-shadow: 0 0 0 2px var(--card-accent, var(--magenta)), 0 20px 40px -22px var(--card-accent, var(--magenta));
+  }
+
+  .gallery-tile:hover .gallery-tile-button img {
+    transform: scale(1.08) rotate(0.6deg);
+    filter: grayscale(0) saturate(1);
+  }
 }
 
 /* No hover gesture exists on touch/coarse-pointer devices — show the same
@@ -1819,6 +1832,18 @@ button:focus-visible {
      a photo filter since these cards have no photo to desaturate. */
   .blog-card {
     border-color: var(--card-accent, var(--magenta));
+  }
+
+  /* Gallery (Stage 7a) — appended here rather than a separate (hover:
+     none) block; same "always show the accented/full-color state"
+     reasoning as Leadership's touch equivalent above, applied to both the
+     tile border and the photo's own desaturation. */
+  .gallery-tile {
+    border-color: var(--card-accent, var(--magenta));
+  }
+
+  .gallery-tile-button img {
+    filter: grayscale(0) saturate(1);
   }
 }
 
@@ -2735,6 +2760,48 @@ button:focus-visible {
     top: 1.25rem;
     right: 1.25rem;
   }
+
+  /* Gallery (Stage 7a) — appended here rather than a separate max-width:
+     679px block, same reasoning as the Event Timeline section's opening
+     comment. Near-full-screen lightbox with the image filling most of the
+     height and the caption/close/prev/next overlaid on it, rather than a
+     smaller floating box.
+
+     Scoped with the extra "body" type selector (rather than the bare
+     .gallery-tile-button.is-lightbox-open used everywhere else) because
+     this page's own base rule for that same selector is declared near the
+     end of the file — AFTER this block — being the Gallery section's own
+     unconditional/desktop rule; at equal specificity the later declaration
+     wins the cascade regardless of which one's media query currently
+     matches, so without this the "always applies" desktop-centered rule
+     was confirmed (via getBoundingClientRect) to silently override this
+     mobile block's width/height/position at every viewport width. Adding
+     "body" raises specificity just enough to win regardless of source
+     order — the same fix this project has used before (Blog's newsletter
+     archive) for a base rule that has to stay positioned after an @media
+     block it's merged into. */
+  body .gallery-tile-button.is-lightbox-open {
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .gallery-tile-button.is-lightbox-open .gallery-lightbox-close {
+    top: 1.25rem;
+    right: 1.25rem;
+  }
+
+  .gallery-tile-button.is-lightbox-open .gallery-lightbox-prev {
+    left: 0.5rem;
+  }
+
+  .gallery-tile-button.is-lightbox-open .gallery-lightbox-next {
+    right: 0.5rem;
+  }
 }
 
 /* ==========================================================================
@@ -3148,4 +3215,357 @@ button:focus-visible {
     flex: 1;
     max-width: 28rem;
   }
+}
+
+/* ==========================================================================
+   Photo Gallery page (Stage 7a)
+
+   A sixth full page, alongside Home, Leadership, Pitch Videos, Event
+   Timeline, and Blog & Newsletter — same header/footer/color system, same
+   one-time hero-entrance pattern as Pitch Videos/Blog (initGalleryEntrance
+   mirrors initBlogEntrance), same scroll-triggered stagger reveal as
+   Leadership/Blog (initGalleryReveal), and the same Flip shared-element
+   modal technique as the Event Timeline's event detail view
+   (initGalleryLightbox mirrors initEventDetailModal). Tiles are plain,
+   fully-visible, normal-flow content by default; GSAP is layered on top,
+   never required to browse or open a photo.
+   ========================================================================== */
+
+.gallery-page {
+  position: relative;
+  background: var(--charcoal);
+  overflow: hidden;
+}
+
+.gallery-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(750px circle at 12% 0%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.gallery-hero,
+.gallery-section {
+  position: relative;
+  z-index: 1;
+}
+
+.gallery-hero {
+  padding-block: 5rem 2.5rem;
+  overflow: hidden;
+}
+
+.gallery-hero-flourish {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg at 50% 30%,
+    var(--magenta),
+    var(--orange),
+    var(--gold),
+    var(--teal),
+    var(--sky),
+    var(--magenta)
+  );
+  filter: blur(70px);
+  mix-blend-mode: screen;
+}
+
+.gallery-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.gallery-hero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  max-width: 20ch;
+}
+
+.gl-reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.gl-reveal-word-inner {
+  display: inline-block;
+}
+
+.gallery-hero-lede {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 62ch;
+  margin: 0;
+}
+
+.gallery-placeholder-note {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  margin: 1.25rem 0 0;
+}
+
+.gallery-section {
+  padding-block: 1.5rem 5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Filter pills
+   -------------------------------------------------------------------------- */
+
+.gallery-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 2rem;
+}
+
+.gallery-filter-btn {
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.55rem 1.15rem;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gallery-filter-btn {
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+.gallery-filter-btn:hover {
+  border-color: var(--magenta);
+  color: var(--white);
+}
+
+.gallery-filter-btn.is-active {
+  background: var(--magenta);
+  border-color: var(--magenta);
+  color: var(--white);
+}
+
+/* --------------------------------------------------------------------------
+   Bento masonry grid — grid-template-columns and each tile's grid-column/
+   grid-row are applied by initGalleryLayout (js/script.js) as inline
+   styles at min-width: 640px/1000px, not by a stylesheet rule here. See
+   that function's comment for why: a stylesheet-based version of this
+   exact kind of grid (multi-track-spanning tiles in a repeat()-column
+   grid) was confirmed, during Stage 6a's Blog page work, to collapse
+   columns to 0px, while the identical placement applied inline always
+   sized correctly. Below min-width: 640px this stays a plain
+   single-column stack (no spanning involved, so no risk there) — each
+   tile's own aspect-ratio (by data-size) is what gives that single column
+   its masonry-like varied rhythm.
+   -------------------------------------------------------------------------- */
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.gallery-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--charcoal-raised);
+  aspect-ratio: 4 / 3;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gallery-tile {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+}
+
+.gallery-tile[data-size="tall"] {
+  aspect-ratio: 3 / 4;
+}
+
+.gallery-tile[data-size="large"] {
+  aspect-ratio: 1 / 1;
+}
+
+.gallery-tile[data-size="wide"] {
+  aspect-ratio: 16 / 9;
+}
+
+.gallery-tile-teal { --card-accent: var(--teal); }
+.gallery-tile-sky { --card-accent: var(--sky); }
+.gallery-tile-orange { --card-accent: var(--orange); }
+.gallery-tile-gold { --card-accent: var(--gold); }
+
+/* --------------------------------------------------------------------------
+   Tile button / photo — a div[role="button"], not a real <button>, so it
+   can legally contain the real nested close/prev/next <button>s that only
+   ever appear once it becomes the lightbox (see the comment on this
+   markup in gallery.html).
+   -------------------------------------------------------------------------- */
+
+.gallery-tile-button {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.gallery-tile-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Same light desaturation as the Impact/Our Story photos (a brand
+     treatment, not a "these are placeholders" signal) — full color is
+     restored on hover (fine pointer) or always on touch, matching
+     Leadership's card photos. */
+  filter: grayscale(0.15) saturate(0.9);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gallery-tile-button img {
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+}
+
+/* Hidden until this tile becomes the lightbox (.is-lightbox-open below) —
+   base CSS never shows these, so a GSAP/Flip CDN failure just means
+   opening one is instant rather than Flip-morphed, never stuck
+   half-visible. */
+.gallery-lightbox-close,
+.gallery-lightbox-prev,
+.gallery-lightbox-next,
+.gallery-lightbox-caption {
+  display: none;
+}
+
+.gallery-tile-button.is-lightbox-open .gallery-lightbox-close,
+.gallery-tile-button.is-lightbox-open .gallery-lightbox-prev,
+.gallery-tile-button.is-lightbox-open .gallery-lightbox-next,
+.gallery-tile-button.is-lightbox-open .gallery-lightbox-caption {
+  display: flex;
+}
+
+.gallery-lightbox-close,
+.gallery-lightbox-prev,
+.gallery-lightbox-next {
+  position: absolute;
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--charcoal-deep);
+  color: var(--white);
+  cursor: pointer;
+}
+
+.gallery-lightbox-close svg,
+.gallery-lightbox-prev svg,
+.gallery-lightbox-next svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.gallery-lightbox-close {
+  top: 1rem;
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.gallery-lightbox-prev,
+.gallery-lightbox-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.gallery-lightbox-prev {
+  left: 1rem;
+}
+
+.gallery-lightbox-next {
+  right: 1rem;
+}
+
+.gallery-lightbox-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0.9rem 3.75rem;
+  font-family: var(--font-head);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--white);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  text-align: center;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* The expanded state: position: fixed and centered, well above the site
+   header's own z-index: 50 so the whole page sits behind the dimmed
+   backdrop. Redeclares border-color/box-shadow (properties the plain
+   hover state and the (hover: none) touch-equivalent rule earlier in this
+   file also set) and is placed after both, same equal-specificity-plus-
+   later-in-file technique used for the Event Timeline/Blog modals. */
+.gallery-tile-button.is-lightbox-open {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 56;
+  width: min(1100px, 92vw);
+  height: min(760px, 88vh);
+  cursor: default;
+  border-radius: 16px;
+  background: var(--charcoal-deep);
+  border-color: var(--card-accent, var(--magenta));
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--card-accent, var(--magenta));
+}
+
+.gallery-tile-button.is-lightbox-open img {
+  object-fit: contain;
+  filter: none;
+}
+
+/* --------------------------------------------------------------------------
+   Backdrop
+   -------------------------------------------------------------------------- */
+
+.gallery-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(8, 6, 10, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }

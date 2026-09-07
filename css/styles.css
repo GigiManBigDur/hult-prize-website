@@ -5331,3 +5331,23 @@ button:focus-visible {
   list-style: none;
   grid-column: 1 / -1;
 }
+
+/* ==========================================================================
+   About page: content-load error state (Stage 2f) — shown only if
+   content/about.json fails to fetch/parse; see initAboutContent in
+   js/script.js. Same treatment as .faq-load-error/.leadership-load-error/
+   .blog-load-error/.timeline-load-error/.pitch-video-load-error/
+   .gallery-load-error, just page-level (not per-item) since this page's
+   whole prose content comes from one CMS document rather than a list.
+   ========================================================================== */
+
+.about-load-error {
+  max-width: 68ch;
+  margin: 0 auto 3rem;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  text-align: center;
+}

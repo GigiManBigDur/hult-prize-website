@@ -2703,6 +2703,136 @@ function initAboutReveal() {
   }
 }
 
+// Position-based accent cycling for .about-value-card pillars (magenta,
+// teal, sky, orange, gold) — same reasoning as Team/Blog/Timeline/Pitch
+// Videos/Gallery's card accents: computed from the rendered array index at
+// render time, not stored as a CMS field.
+const ABOUT_VALUE_ACCENTS = ["magenta", "teal", "sky", "orange", "gold"];
+
+// Exactly the 5 icons this page has always used, in their original order —
+// lifted verbatim from the old hardcoded markup into a parallel array so
+// they keep cycling by rendered POSITION alongside ABOUT_VALUE_ACCENTS
+// (i % length, same convention as GALLERY_SIZES/TEAM_CARD_ACCENTS): adding,
+// removing, or reordering a value pillar in the CMS only ever asks for a
+// Name and a Description, never a layout/styling decision.
+const ABOUT_VALUE_ICONS = [
+  '<svg viewBox="0 0 24 24"><path d="M13 3s5 2 5 8-5 10-5 10-5-4-5-10 5-8 5-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="13" cy="10" r="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 16l-3 5M18 16l3 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  '<svg viewBox="0 0 24 24"><circle cx="12" cy="9.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 21h6M12 16v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 5.5v4l2.5 1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 6.5c-1.8 1.6-1.8 4 0 5.6 1.8-1.6 1.8-4 0-5.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  '<svg viewBox="0 0 24 24"><circle cx="8.5" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="9" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 13.3c2.6.4 4.5 2.6 4.5 5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+];
+
+// Splits arbitrary CMS-authored title text into the same per-word overflow-
+// hidden-mask spans (.ab-reveal-word > .ab-reveal-word-inner) the hero
+// markup used to hardcode one-per-word, so initAboutEntrance — which
+// queries ".about-hero .ab-reveal-word-inner" generically — keeps working
+// unchanged no matter what the title text actually is. Whitespace-split
+// only (no markdown/HTML), the same trust level as every other plain
+// "text" CMS field on this site.
+function renderAboutHeroTitle(h1El, title) {
+  const words = String(title || "").trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return;
+  h1El.innerHTML = words
+    .map(
+      (word) =>
+        `<span class="ab-reveal-word"><span class="ab-reveal-word-inner">${escapeHtml(word)}</span></span>`
+    )
+    .join(" ");
+}
+
+// Builds every .about-value-card <li> from the fetched values array — icon
+// and accent color both come from ABOUT_VALUE_ICONS/ABOUT_VALUE_ACCENTS
+// indexed by rendered position (i % length), never stored in the CMS (see
+// the comment on those two arrays above).
+function renderAboutValues(gridEl, values) {
+  gridEl.innerHTML = values
+    .map((value, i) => {
+      const accent = ABOUT_VALUE_ACCENTS[i % ABOUT_VALUE_ACCENTS.length];
+      const icon = ABOUT_VALUE_ICONS[i % ABOUT_VALUE_ICONS.length];
+      return `
+        <li class="about-value-card about-value-${accent}">
+          <span class="about-value-icon" aria-hidden="true">${icon}</span>
+          <h3>${escapeHtml(value.name || "")}</h3>
+          <p>${escapeHtml(value.description || "")}</p>
+        </li>`;
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
+// About page data (Stage 2f, Admin CMS extension) — fetches content/
+// about.json (the single document the /admin CMS's About Page collection
+// edits) and renders the header title, founding story, value pillars, ENG
+// 108 section, and Built to Last section from it. Unlike every other CMS
+// collection on this site (FAQ/Team/Blog/Timeline/Pitch Videos/Gallery —
+// all repeatable `list`s), About is a `files`-type single document: one
+// page, not many entries.
+//
+// initAboutEntrance is NOT gated behind this fetch: the hero flourish and
+// lede are fixed UI, not CMS content, and the H1 already carries this
+// page's real title as static fallback markup in about.html, so the
+// entrance animation plays immediately either way — renderAboutHeroTitle
+// only swaps in different text if/once the fetch succeeds. initAboutReveal
+// IS gated behind it, since the value-pillar cards it needs to animate
+// don't exist until renderAboutValues runs. On failure, the four
+// CMS-driven sections are hidden and replaced by one plain-text error
+// message with a mailto contact — the hero (title/lede) is left showing
+// its static fallback rather than also being hidden, since it never
+// depended on this fetch to begin with.
+// ---------------------------------------------------------------------------
+function initAboutContent() {
+  const hero = document.querySelector(".about-hero");
+  if (!hero) return; // not the About page
+
+  const titleEl = document.getElementById("about-hero-title");
+  const storyBody = document.getElementById("about-story-body");
+  const valuesGrid = document.getElementById("about-values-grid");
+  const partnershipBody = document.getElementById("about-partnership-body");
+  const legacyBody = document.getElementById("about-legacy-body");
+  const errorEl = document.getElementById("about-content-error");
+  const sections = document.querySelectorAll(".about-story, .about-values, .about-partnership, .about-legacy");
+
+  // Same escape-then-parse safety pattern as renderTeamMembers/
+  // renderBlogPost/renderTimelineEvents: raw markdown is HTML-escaped
+  // BEFORE marked ever sees it, so a literal "<" in a CMS field renders as
+  // inert text, never markup — the only real HTML that reaches the page is
+  // what marked itself generates from actual markdown syntax. Falls back
+  // to plain escaped text if the marked CDN failed to load.
+  const renderMarkdown = (text) =>
+    typeof marked !== "undefined" ? marked.parse(escapeHtml(text || "")) : `<p>${escapeHtml(text || "")}</p>`;
+
+  fetch("content/about.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/about.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const values = Array.isArray(data.values) ? data.values : [];
+      if (!values.length) throw new Error("content/about.json has no values");
+
+      if (titleEl && data.headerTitle) renderAboutHeroTitle(titleEl, data.headerTitle);
+      if (storyBody) storyBody.innerHTML = renderMarkdown(data.foundingStory);
+      if (valuesGrid) renderAboutValues(valuesGrid, values);
+      if (partnershipBody) partnershipBody.innerHTML = renderMarkdown(data.eng108Section);
+      if (legacyBody) legacyBody.innerHTML = renderMarkdown(data.legacySection);
+
+      initAboutReveal();
+    })
+    .catch((err) => {
+      console.error("About content failed to load:", err);
+      sections.forEach((section) => {
+        section.hidden = true;
+      });
+      if (errorEl) {
+        errorEl.hidden = false;
+        errorEl.innerHTML =
+          "Something went wrong loading this page's content. Please refresh, or reach out directly at " +
+          '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.';
+      }
+    });
+}
+
 // ---------------------------------------------------------------------------
 // FAQ page: one-time hero entrance (Stage 8b) — the same background-
 // flourish + staggered-title + staggered-content pattern as the other
@@ -3958,7 +4088,7 @@ initBlogPostContent();
 initGalleryEntrance();
 initGalleryContent();
 initAboutEntrance();
-initAboutReveal();
+initAboutContent();
 initFaqEntrance();
 initFaqContent();
 initInvolvedEntrance();

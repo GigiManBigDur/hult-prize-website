@@ -1,5 +1,6 @@
 # Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog) +
-# Stage 2c (Timeline) + Stage 2d (Pitch Videos) + Stage 2e (Gallery).
+# Stage 2c (Timeline) + Stage 2d (Pitch Videos) + Stage 2e (Gallery) +
+# Stage 2f (About Page).
 #
 # Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
 # -> edit -> commit -> deploy pipeline before migrating anything else.
@@ -19,8 +20,16 @@
 # each photo's bento shape is assigned automatically by rendered position
 # (see GALLERY_SIZES in js/script.js), since this collection is meant to
 # keep growing indefinitely, unlike the others' fixed rosters/sequences.
-# Every OTHER page (Home's own content besides the countdown widget,
-# About, Get Involved) is still untouched, plain HTML, not editable here.
+# Stage 2f adds About (about.html) — structurally different from every
+# collection above: it's a single document (Decap's `files` collection
+# type), not a repeatable `list`, since the page has one fixed set of prose
+# sections rather than a growing/reorderable roster. Each value pillar's
+# icon and accent color are still assigned automatically by position (see
+# ABOUT_VALUE_ICONS/ABOUT_VALUE_ACCENTS in js/script.js) — same reasoning as
+# Gallery's tile sizing — so adding/removing/reordering a value never needs
+# a layout decision here. Every OTHER page (Home's own content besides the
+# countdown widget, Get Involved) is still untouched, plain HTML, not
+# editable here.
 
 backend:
   name: github
@@ -308,3 +317,70 @@ collections:
                 widget: image
                 media_folder: /assets/gallery
                 public_folder: /assets/gallery
+
+  - name: about
+    label: About Page
+    description: >-
+      The single About page (about.html) — its header title, founding
+      story, mission/values pillars, ENG 108 partnership section, and
+      Built to Last section. This is the site's only single-document
+      collection: there's one About page, not a growing list, so editing
+      opens straight into its one entry rather than a list of entries.
+      Each value pillar's icon and accent color are assigned automatically
+      by its position in the list below — do not add icon/color fields;
+      reordering or adding/removing a pillar here is all that's needed.
+      IMPORTANT: this page covers the CHAPTER'S OWN HISTORY, not the Hult
+      Prize competition's current rules, dates, or prize amounts — do not
+      state any of those as fact here, since the competition's own current
+      terms can change independently of this chapter's story. The
+      Leadership/Impact/Get Involved links at the bottom of the page are
+      fixed navigation, not editable here.
+    files:
+      - name: about
+        label: About Page
+        file: content/about.json
+        format: json
+        fields:
+          - label: Header Title
+            name: headerTitle
+            widget: string
+            hint: >-
+              The page's big H1. Keep it short — it's split word-by-word
+              for the page's entrance animation.
+          - label: Founding Story
+            name: foundingStory
+            widget: markdown
+            hint: >-
+              How the chapter started. State only the chapter's own real
+              history here — nothing about the Hult Prize competition's
+              current rules, dates, or prize amounts as fact.
+          - label: Values
+            name: values
+            widget: list
+            summary: "{{fields.name}}"
+            hint: >-
+              One entry per mission/value pillar. Icon and accent color
+              are assigned automatically by each pillar's position in this
+              list (cycling through the site's palette/icon set) — reorder,
+              add, or remove entries freely; there's nothing else to set.
+            fields:
+              - label: Name
+                name: name
+                widget: string
+              - label: Description
+                name: description
+                widget: text
+          - label: ENG 108 Partnership Section
+            name: eng108Section
+            widget: markdown
+            hint: >-
+              The ENG 108 collaboration callout. Same rule as Founding
+              Story: the chapter's own real history only, not the
+              competition's current terms.
+          - label: Built to Last Section
+            name: legacySection
+            widget: markdown
+            hint: >-
+              The chapter's continuity/legacy story. Same rule as Founding
+              Story: the chapter's own real history only, not the
+              competition's current terms.

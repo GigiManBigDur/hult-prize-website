@@ -1461,6 +1461,85 @@ function initGalleryLightbox() {
 }
 
 // ---------------------------------------------------------------------------
+// About page: one-time hero entrance (Stage 8a) — the same background-
+// flourish + staggered-title + staggered-content pattern as Pitch Videos'/
+// Blog's/Gallery's own entrance functions, reused rather than inventing a
+// new entry style. Independently named (.ab-reveal-word/-inner) so this
+// page's word-reveal spans can't collide with the others'.
+// ---------------------------------------------------------------------------
+function initAboutEntrance() {
+  const hero = document.querySelector(".about-hero");
+  if (!hero) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+
+  const flourish = document.querySelector(".about-hero-flourish");
+  const words = document.querySelectorAll(".about-hero .ab-reveal-word-inner");
+  const lede = document.querySelector(".about-hero-lede");
+
+  if (flourish) gsap.set(flourish, { opacity: 0, scale: 0.85, rotate: -8 });
+  if (words.length) gsap.set(words, { yPercent: 115 });
+  if (lede) gsap.set(lede, { opacity: 0, y: 18 });
+
+  const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+  if (flourish) {
+    tl.to(flourish, { opacity: 0.4, scale: 1, rotate: 0, duration: 0.35 }, 0).to(
+      flourish,
+      { opacity: 0, duration: 0.35 },
+      0.35
+    );
+  }
+
+  if (words.length) {
+    tl.to(words, { yPercent: 0, duration: 0.45, stagger: 0.045, ease: "power3.out" }, 0.15);
+  }
+
+  if (lede) {
+    tl.to(lede, { opacity: 1, y: 0, duration: 0.4 }, 0.55);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// About page: scroll-triggered stagger reveal for the mission/values
+// pillars and the cross-link cards (Stage 8a) — same ScrollTrigger.batch
+// approach as initLeadershipReveal/initBlogGridReveal/initGalleryReveal,
+// run separately against each set since a visitor can scroll to either
+// independently.
+// ---------------------------------------------------------------------------
+function initAboutReveal() {
+  const values = document.querySelectorAll(".about-value-card");
+  const links = document.querySelectorAll(".about-link-card");
+  if (!values.length && !links.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (values.length) {
+    gsap.set(values, { opacity: 0, y: 32 });
+    ScrollTrigger.batch(values, {
+      start: "top 90%",
+      once: true,
+      onEnter: (batch) =>
+        gsap.to(batch, { opacity: 1, y: 0, duration: 0.55, stagger: 0.1, ease: "power2.out" }),
+    });
+  }
+
+  if (links.length) {
+    gsap.set(links, { opacity: 0, y: 24 });
+    ScrollTrigger.batch(links, {
+      start: "top 92%",
+      once: true,
+      onEnter: (batch) =>
+        gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }),
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Our Story's entrance fade (Stage 2g, half of the Top Teams -> Story
 // bridge). Story sits in plain normal document flow regardless of which
 // Top Teams tier ran before it, so this is a lightweight, non-pinned scrub
@@ -1976,6 +2055,8 @@ initGalleryLayout();
 initGalleryReveal();
 initGalleryFilter();
 initGalleryLightbox();
+initAboutEntrance();
+initAboutReveal();
 initMagneticButtons();
 initCustomCursor();
 // Both pin sequences must run first: each adds a large ScrollTrigger

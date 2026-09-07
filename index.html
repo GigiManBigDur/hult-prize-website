@@ -42,13 +42,12 @@
       <a class="wordmark" href="#top">Hult Prize <span>@ UC Davis</span></a>
       <nav aria-label="Primary">
         <ul>
-          <li class="nav-link-item"><a href="#story">Our Story</a></li>
-          <li class="nav-link-item"><a href="#impact" data-scene-link="impact">Impact</a></li>
-          <!-- Not .nav-link-item: that class is hidden below 640px because
-               Story/Impact stay reachable by scrolling this single page even
-               without a nav link. Team and Pitch Videos are separate pages —
-               scrolling can't substitute for them — so they stay visible at
-               every width. -->
+          <!-- Stage 8a: the "Our Story"/"Impact" same-page anchor links that
+               used to live here were removed from the nav (the sections
+               themselves are untouched — still fully in place below, reachable
+               by scrolling this single page exactly as before). "About" points
+               to the new About Us page instead. -->
+          <li><a href="about.html">About</a></li>
           <li><a href="team.html">Team</a></li>
           <li><a href="pitch-videos.html">Pitch Videos</a></li>
           <li><a href="timeline.html">Timeline</a></li>
@@ -348,8 +347,7 @@
             <p>The chapter kept growing even after its founder transferred away — proof it was built to be sustainable, not dependent on one person.</p>
           </li>
         </ol>
-        <!-- Placeholder link — point to the About page once it's built -->
-        <a class="text-link" href="#">Learn more about our story <span aria-hidden="true">→</span></a>
+        <a class="text-link" href="about.html">Learn more about our story <span aria-hidden="true">→</span></a>
       </div>
     </section>
 

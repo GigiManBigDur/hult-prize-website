@@ -1033,6 +1033,25 @@ button:focus-visible {
     order: 3;
     margin-top: 3rem;
   }
+
+  /* About (Stage 8a) — appended here rather than a separate min-width:
+     760px block, for the same duplicate-@media-condition reason
+     documented at the top of that page's CSS section. Scoped with the
+     parent .about-links section (rather than the bare .about-links-grid
+     class used everywhere else) because this page's own base rule for
+     that same selector is declared near the end of the file — AFTER this
+     block — being the About section's own unconditional/mobile rule; at
+     equal specificity the later declaration wins the cascade regardless
+     of which one's media query currently matches, so without this the
+     "always applies" single-column rule was confirmed (via
+     getComputedStyle) to override this 3-column rule at every viewport
+     width. The extra ancestor class raises specificity just enough to
+     win regardless of source order — the same fix already used for
+     Blog's newsletter archive and the Gallery lightbox's mobile
+     override. */
+  .about-links .about-links-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -1599,6 +1618,16 @@ button:focus-visible {
   .newsletter-card-featured {
     grid-column: 1 / -1;
   }
+
+  /* About (Stage 8a) — appended here rather than a separate min-width:
+     640px block, same reasoning as the merges above. Scoped with the
+     parent .about-values section for the same cascade-order reason
+     explained in full on the min-width: 760px merge above (this page's
+     own unconditional single-column rule is declared later in the file
+     and would otherwise win at every width). */
+  .about-values .about-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 1000px) {
@@ -1642,6 +1671,17 @@ button:focus-visible {
      placements. */
   .blog-card-featured .blog-card-thumb {
     aspect-ratio: 4 / 3;
+  }
+
+  /* About (Stage 8a) — appended here rather than a separate min-width:
+     1000px block, same reasoning as the merges above. Plain equal-width
+     tracks with no spanning tiles involved, unlike Blog's/Gallery's bento
+     grids, so none of the "collapses to 0px" risk documented in the
+     comment just above applies here — only the ordinary cascade-order
+     issue explained on the min-width: 760px merge does, hence the same
+     .about-values ancestor scoping. */
+  .about-values .about-values-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -1805,6 +1845,15 @@ button:focus-visible {
     transform: scale(1.08) rotate(0.6deg);
     filter: grayscale(0) saturate(1);
   }
+
+  /* About (Stage 8a) — appended here rather than a separate (hover:
+     hover) and (pointer: fine) block, same reasoning as the merges
+     above. */
+  .about-value-card:hover,
+  .about-link-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px -22px var(--card-accent, var(--magenta));
+  }
 }
 
 /* No hover gesture exists on touch/coarse-pointer devices — show the same
@@ -1844,6 +1893,13 @@ button:focus-visible {
 
   .gallery-tile-button img {
     filter: grayscale(0) saturate(1);
+  }
+
+  /* About (Stage 8a) — appended here rather than a separate (hover:
+     none) block; same "always show the accented state" reasoning as
+     Leadership's touch equivalent above. */
+  .about-value-card {
+    border-color: var(--card-accent, var(--magenta));
   }
 }
 
@@ -3568,4 +3624,296 @@ button:focus-visible {
   background: rgba(8, 6, 10, 0.78);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+
+/* ==========================================================================
+   About page (Stage 8a)
+
+   A seventh full page, alongside Home, Leadership, Pitch Videos, Event
+   Timeline, Blog & Newsletter, and the Photo Gallery — same header/footer/
+   color system, same one-time hero-entrance pattern as Pitch Videos/Blog/
+   Gallery (initAboutEntrance mirrors initGalleryEntrance), and the same
+   scroll-triggered stagger reveal as Leadership/Blog/Gallery
+   (initAboutReveal). Content is real chapter history, not mock/placeholder
+   like several of the other pages — see the comment on .about-story in
+   about.html.
+   ========================================================================== */
+
+.about-page {
+  position: relative;
+  background: var(--charcoal);
+  overflow: hidden;
+}
+
+.about-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(750px circle at 88% 0%, rgba(236, 32, 136, 0.16), transparent 60%),
+    var(--bg-network);
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 240px 240px;
+  opacity: 0.5;
+}
+
+.about-hero,
+.about-story,
+.about-values,
+.about-partnership,
+.about-legacy,
+.about-links {
+  position: relative;
+  z-index: 1;
+}
+
+.about-hero {
+  padding-block: 5rem 2.5rem;
+  overflow: hidden;
+}
+
+.about-hero-flourish {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(
+    from 0deg at 50% 30%,
+    var(--magenta),
+    var(--teal),
+    var(--sky),
+    var(--orange),
+    var(--gold),
+    var(--magenta)
+  );
+  filter: blur(70px);
+  mix-blend-mode: screen;
+}
+
+.about-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.about-hero h1 {
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  max-width: 24ch;
+}
+
+.ab-reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.ab-reveal-word-inner {
+  display: inline-block;
+}
+
+.about-hero-lede {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  max-width: 62ch;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Founding story
+   -------------------------------------------------------------------------- */
+
+.about-story {
+  padding-block: 1.5rem 4rem;
+}
+
+.about-story-copy {
+  max-width: 68ch;
+}
+
+.about-story-copy h2 {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  margin: 0 0 1.25rem;
+}
+
+.about-story-copy p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.about-story-copy p:last-child {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Mission & values
+   -------------------------------------------------------------------------- */
+
+.about-values {
+  padding-block: 3rem 4rem;
+}
+
+.about-values-lede {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 68ch;
+  margin: 0 0 2.5rem;
+}
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.about-value-card {
+  position: relative;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.75rem 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .about-value-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+}
+
+.about-value-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  margin: 0 0 1rem;
+  color: var(--card-accent, var(--magenta));
+  background: color-mix(in srgb, var(--card-accent, var(--magenta)) 16%, transparent);
+}
+
+.about-value-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.about-value-card h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.4rem;
+}
+
+.about-value-card p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.about-value-magenta { --card-accent: var(--magenta); }
+.about-value-teal { --card-accent: var(--teal); }
+.about-value-sky { --card-accent: var(--sky); }
+.about-value-orange { --card-accent: var(--orange); }
+.about-value-gold { --card-accent: var(--gold); }
+
+/* --------------------------------------------------------------------------
+   ENG 108 partnership callout
+   -------------------------------------------------------------------------- */
+
+.about-partnership {
+  padding-block: 1rem 4rem;
+}
+
+.about-partnership-band {
+  position: relative;
+  max-width: 72ch;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--sky);
+  border-radius: var(--radius);
+  padding: 2rem 2.25rem;
+}
+
+.about-partnership-eyebrow {
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sky);
+  margin: 0 0 0.5rem;
+}
+
+.about-partnership-band h2 {
+  font-size: clamp(1.3rem, 2.8vw, 1.6rem);
+  margin: 0 0 0.9rem;
+}
+
+.about-partnership-band p:last-child {
+  color: var(--text-secondary);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Built to Last
+   -------------------------------------------------------------------------- */
+
+.about-legacy {
+  padding-block: 1rem 4rem;
+}
+
+.about-legacy-copy {
+  max-width: 68ch;
+}
+
+.about-legacy-copy h2 {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  margin: 0 0 1.25rem;
+}
+
+.about-legacy-copy p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Cross-links
+   -------------------------------------------------------------------------- */
+
+.about-links {
+  padding-block: 1rem 5.5rem;
+}
+
+.about-links-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.about-link-card {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .about-link-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+}
+
+.about-link-card h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.4rem;
+}
+
+.about-link-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
 }

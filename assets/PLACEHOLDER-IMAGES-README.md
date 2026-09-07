@@ -31,16 +31,20 @@ are the Foundation's copyrighted photography.
   had briefly been here before this one.)
 
 **Also not Picsum photography:** `leadership/member-1.jpg` through
-`member-6.jpg` (used on the Team/Leadership page, Stage 3a) and
-`pitch-videos/*-thumbnail.jpg` (used on the Pitch Videos page, Stage 4a) are
-generated graphics, not stock photos — a solid color card matching each
-entry's accent plus a "PLACEHOLDER" label baked directly into the image (a
-silhouette icon for the leadership headshots, a play-triangle watermark for
-the video thumbnails). A stock photo of an actual stranger was deliberately
+`member-6.jpg` (used on the Team/Leadership page, Stage 3a),
+`pitch-videos/*-thumbnail.jpg` (used on the Pitch Videos page, Stage 4a),
+and `blog/post-1-oncampus-recap.jpg` through `post-6-kickoff.jpg` (used on
+the Blog page, Stage 6a) are generated graphics, not stock photos — a solid
+color card matching each entry's accent plus a "PLACEHOLDER" label baked
+directly into the image (a silhouette icon for the leadership headshots, a
+play-triangle watermark for the video thumbnails, a category icon —
+trophy/megaphone/gear/lightbulb — for the blog thumbnails). A stock photo
+of an actual stranger, or a generic stock news photo, was deliberately
 avoided here: unlike the general-tone photography above, these stand in for
-specific named/titled entries, so an unlabeled real face (or, for the
-thumbnails, what could look like a real video preview frame) would risk
-being mistaken for the real thing rather than reading as generic placeholder
+specific named/titled entries, so an unlabeled real face (or, for the video
+thumbnails, what could look like a real video preview frame, or for the
+blog thumbnails, what could look like a real event photo) would risk being
+mistaken for the real thing rather than reading as generic placeholder
 texture.
 
 **Pitch video thumbnails carry a stronger consent requirement than a name
@@ -75,6 +79,11 @@ same aspect ratios** listed below, and no code changes are needed:
   — 960×540 (16:9), the 3 generic slides on the same carousel. Replace the
   "[Team Placeholder]" copy and data-video-id in pitch-videos.html at the
   same time.
+- `blog/post-1-oncampus-recap.jpg` … `post-6-kickoff.jpg` — 960×540 (16:9),
+  the 6 mock post thumbnails on the Blog page, in the same order as the
+  cards in blog.html's `.blog-grid`. Replace each post's headline, category,
+  date, and excerpt in blog.html at the same time as swapping in its real
+  photo.
 
 Good real replacements: pitch presentations, teams collaborating, the
 OnCampus competition, judges/audience, campus recruiting events.

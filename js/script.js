@@ -2880,7 +2880,7 @@ function initSiteSearch() {
   trigger.setAttribute("aria-label", "Search the site");
   trigger.innerHTML =
     '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16.3" y1="16.3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
-    '<span class="search-trigger-hint" aria-hidden="true">/</span>';
+    '<span class="search-trigger-hint" aria-hidden="true">Search</span>';
   // Inserted right after the wordmark (before nav), not after nav: on a
   // narrow viewport the nav's own link row already has no collapse/wrap
   // behavior and can overflow past the right edge on its own (a

@@ -64,82 +64,30 @@
     <section class="leadership-grid-section" aria-labelledby="leadership-grid-heading">
       <div class="container">
         <h2 id="leadership-grid-heading" class="visually-hidden">Executive board members</h2>
-        <!-- Every entry below is mock content for this page's build — see
-             assets/PLACEHOLDER-IMAGES-README.md. Bracketed names and a
-             clearly-labeled placeholder photo (baked into the image itself,
-             not just alt text) so this can't be mistaken for real people. -->
+        <!-- Stage 2a (Admin CMS extension): the 6 <li> cards below used to
+             be hardcoded here by hand — they're now built at runtime by
+             initTeamContent (js/script.js), which fetches content/team.json
+             (the file the /admin CMS's Team collection actually edits) and
+             renders the exact same markup this comment used to describe:
+             same classes, same leadership-member-N id scheme, same
+             leadership-card-{color}/-featured/-wide size+accent classes.
+             Those size/accent classes are assigned by POSITION in the
+             fetched list (see initTeamContent), not stored in the JSON —
+             the masonry grid (css/styles.css, the min-width: 1000px
+             grid-template-areas rule keyed off :nth-child) and the color
+             rotation are both a designed-for-6-cards arrangement the page
+             owns, not something an editor picks per member. If JS never
+             runs (or content/team.json fails to load), this grid stays
+             empty rather than showing stale hardcoded people; initTeamContent
+             shows a plain-text fallback message with a mailto contact in
+             that case instead — see the matching comment/behavior on the
+             FAQ page (faq.html) from Stage 1. -->
         <p class="leadership-placeholder-note">
           Roster below is placeholder content — names, bios, and photos will be replaced
           with the real 2025–26 exec board before launch.
         </p>
 
-        <ul class="leadership-grid">
-          <li id="leadership-member-1" class="leadership-card leadership-card-teal leadership-card-featured">
-            <figure class="leadership-card-photo">
-              <img src="assets/leadership/member-1.jpg" alt="Placeholder photo for the Campus Director — real photo coming soon.">
-            </figure>
-            <div class="leadership-card-body">
-              <p class="leadership-card-role">Campus Director</p>
-              <h3 class="leadership-card-name">[Name Placeholder]</h3>
-              <p class="leadership-card-bio">Bio coming soon.</p>
-            </div>
-          </li>
-
-          <li id="leadership-member-2" class="leadership-card leadership-card-sky leadership-card-wide">
-            <figure class="leadership-card-photo">
-              <img src="assets/leadership/member-2.jpg" alt="Placeholder photo for the VP of Operations — real photo coming soon.">
-            </figure>
-            <div class="leadership-card-body">
-              <p class="leadership-card-role">VP of Operations</p>
-              <h3 class="leadership-card-name">[Name Placeholder]</h3>
-              <p class="leadership-card-bio">Bio coming soon.</p>
-            </div>
-          </li>
-
-          <li id="leadership-member-3" class="leadership-card leadership-card-orange">
-            <figure class="leadership-card-photo">
-              <img src="assets/leadership/member-3.jpg" alt="Placeholder photo for the VP of Marketing — real photo coming soon.">
-            </figure>
-            <div class="leadership-card-body">
-              <p class="leadership-card-role">VP of Marketing</p>
-              <h3 class="leadership-card-name">[Name Placeholder]</h3>
-              <p class="leadership-card-bio">Bio coming soon.</p>
-            </div>
-          </li>
-
-          <li id="leadership-member-4" class="leadership-card leadership-card-gold">
-            <figure class="leadership-card-photo">
-              <img src="assets/leadership/member-4.jpg" alt="Placeholder photo for the VP of Partnerships — real photo coming soon.">
-            </figure>
-            <div class="leadership-card-body">
-              <p class="leadership-card-role">VP of Partnerships</p>
-              <h3 class="leadership-card-name">[Name Placeholder]</h3>
-              <p class="leadership-card-bio">Bio coming soon.</p>
-            </div>
-          </li>
-
-          <li id="leadership-member-5" class="leadership-card leadership-card-teal leadership-card-wide">
-            <figure class="leadership-card-photo">
-              <img src="assets/leadership/member-5.jpg" alt="Placeholder photo for the Events Director — real photo coming soon.">
-            </figure>
-            <div class="leadership-card-body">
-              <p class="leadership-card-role">Events Director</p>
-              <h3 class="leadership-card-name">[Name Placeholder]</h3>
-              <p class="leadership-card-bio">Bio coming soon.</p>
-            </div>
-          </li>
-
-          <li id="leadership-member-6" class="leadership-card leadership-card-sky leadership-card-wide">
-            <figure class="leadership-card-photo">
-              <img src="assets/leadership/member-6.jpg" alt="Placeholder photo for the Treasurer — real photo coming soon.">
-            </figure>
-            <div class="leadership-card-body">
-              <p class="leadership-card-role">Treasurer</p>
-              <h3 class="leadership-card-name">[Name Placeholder]</h3>
-              <p class="leadership-card-bio">Bio coming soon.</p>
-            </div>
-          </li>
-        </ul>
+        <ul class="leadership-grid" id="leadership-grid"></ul>
       </div>
     </section>
   </main>
@@ -170,6 +118,16 @@
        (typeof Fuse checked before use), never a broken page.
   -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
+  <!-- Stage 2a (Admin CMS extension): renders each team member's bio,
+       fetched from content/team.json as markdown (the CMS's Bio field is
+       a markdown widget, not plain text — see admin/config.yml), into
+       HTML. initTeamContent (js/script.js) escapes the raw markdown
+       before handing it to marked.parse, so literal HTML in a bio can
+       never inject markup — only marked's OWN generated tags (from
+       **bold**/*italic*/[link](url) syntax) ever reach the page. A CDN
+       failure here just means initTeamContent falls back to plain-text
+       bios (typeof marked checked before use), never broken markup. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

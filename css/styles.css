@@ -1782,6 +1782,26 @@ button:focus-visible {
   margin: 0;
 }
 
+/* Stage 2a: the bio is now a <div> (initTeamContent, js/script.js), not a
+   bare <p> — it holds marked.js's rendered markdown output, which can be
+   more than one block-level element (multiple paragraphs), something a
+   single <p> can't validly contain. The browser's own default <p> margin
+   still applies to whatever's inside it though, so it's neutralized here
+   the same way .leadership-card-bio itself always was; a link (new as of
+   this stage — bios previously had no markdown, so no links) picks up the
+   same --card-accent convention already used for the role label above it. */
+.leadership-card-bio p {
+  margin: 0;
+}
+
+.leadership-card-bio p + p {
+  margin-top: 0.5em;
+}
+
+.leadership-card-bio a {
+  color: var(--card-accent, var(--magenta));
+}
+
 .leadership-card-featured .leadership-card-role {
   font-size: 0.85rem;
 }
@@ -5047,4 +5067,20 @@ button:focus-visible {
   padding: 1.5rem;
   color: var(--text-secondary);
   list-style: none;
+}
+
+/* ==========================================================================
+   Leadership page: content-load error state (Stage 2a) — shown only if
+   content/team.json fails to fetch/parse; see initTeamContent in
+   js/script.js. Same treatment as .faq-load-error (Stage 1).
+   ========================================================================== */
+
+.leadership-load-error {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  list-style: none;
+  grid-column: 1 / -1;
 }

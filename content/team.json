@@ -1,0 +1,40 @@
+{
+  "members": [
+    {
+      "name": "[Name Placeholder]",
+      "role": "Campus Director",
+      "bio": "Bio coming soon.",
+      "photo": "/assets/leadership/member-1.jpg"
+    },
+    {
+      "name": "[Name Placeholder]",
+      "role": "VP of Operations",
+      "bio": "Bio coming soon.",
+      "photo": "/assets/leadership/member-2.jpg"
+    },
+    {
+      "name": "[Name Placeholder]",
+      "role": "VP of Marketing",
+      "bio": "Bio coming soon.",
+      "photo": "/assets/leadership/member-3.jpg"
+    },
+    {
+      "name": "[Name Placeholder]",
+      "role": "VP of Partnerships",
+      "bio": "Bio coming soon.",
+      "photo": "/assets/leadership/member-4.jpg"
+    },
+    {
+      "name": "[Name Placeholder]",
+      "role": "Events Director",
+      "bio": "Bio coming soon.",
+      "photo": "/assets/leadership/member-5.jpg"
+    },
+    {
+      "name": "[Name Placeholder]",
+      "role": "Treasurer",
+      "bio": "Bio coming soon.",
+      "photo": "/assets/leadership/member-6.jpg"
+    }
+  ]
+}

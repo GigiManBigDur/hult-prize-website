@@ -428,6 +428,100 @@ function initScrollReveal() {
 }
 
 // ---------------------------------------------------------------------------
+// Leadership page: content (Stage 2a, Admin CMS extension). Fetches
+// content/team.json — the file the /admin CMS's Team collection actually
+// edits — and builds the exact same <li class="leadership-card">...</li>
+// markup that used to be hardcoded directly in team.html (same classes,
+// same leadership-member-N id scheme), same as initFaqContent did for FAQ
+// in Stage 1.
+//
+// Card size (featured/wide/plain) and accent color are assigned by
+// POSITION in the fetched list, not read from the JSON — the masonry grid
+// (css/styles.css, the min-width: 1000px grid-template-areas rule keyed
+// off :nth-child) and the teal/sky/orange/gold rotation are both a
+// designed-for-6-cards arrangement the page itself owns, matching exactly
+// what was hardcoded per-card before this stage. Reordering the list in
+// the CMS reorders the page and reassigns sizes/colors by the new
+// positions — there's no per-member "size" or "color" field to keep in
+// sync, deliberately: the brief's own field list was Name/Role/Bio/Photo
+// only, and a stray field the CMS doesn't manage risks being dropped on
+// save (see the same reasoning on isFaqAnswerTbd above).
+//
+// initLeadershipReveal, below, is only called from inside this fetch's
+// success handler (previously called unconditionally at the bottom of
+// this file) — same reasoning as Stage 1's initFaqContent.
+// ---------------------------------------------------------------------------
+function initTeamContent() {
+  const grid = document.getElementById("leadership-grid");
+  if (!grid) return; // not the Leadership page
+
+  fetch("content/team.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/team.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const members = Array.isArray(data.members) ? data.members : [];
+      if (!members.length) throw new Error("content/team.json has no members");
+      renderTeamMembers(grid, members);
+      initLeadershipReveal();
+      // See the matching comment in initFaqContent (Stage 1): the
+      // bottom-of-file initSearchResultHighlight() call already ran once,
+      // synchronously, before this fetch resolved — necessarily a no-op
+      // on this page since the .leadership-card it was looking for didn't
+      // exist yet. Retry now that the real content is in the DOM, for a
+      // visitor who arrived via a search result or any other
+      // #leadership-member-N deep link.
+      if (location.hash) highlightSearchTarget(location.hash.slice(1));
+    })
+    .catch((err) => {
+      console.error("Team content failed to load:", err);
+      grid.innerHTML =
+        '<li class="leadership-load-error">Something went wrong loading the team roster. Please refresh, or reach out directly at ' +
+        '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</li>';
+    });
+}
+
+// Tuned for exactly 6 cards, matching the CSS grid-template-areas rule
+// this page has always used (a/b/c/d/e/f, keyed off :nth-child) — a 7th
+// member falls back to the browser's own default grid auto-placement
+// (still functional, just not part of the designed arrangement); ACCENTS
+// cycles safely for any length so color never runs out.
+const TEAM_CARD_SIZE_BY_INDEX = ["featured", "wide", "", "", "wide", "wide"];
+const TEAM_CARD_ACCENTS = ["teal", "sky", "orange", "gold"];
+
+function renderTeamMembers(gridEl, members) {
+  gridEl.innerHTML = members
+    .map((member, i) => {
+      const n = i + 1;
+      const size = TEAM_CARD_SIZE_BY_INDEX[i] || "";
+      const accent = TEAM_CARD_ACCENTS[i % TEAM_CARD_ACCENTS.length];
+      const sizeClass = size ? ` leadership-card-${size}` : "";
+      // Raw markdown is HTML-escaped BEFORE marked ever sees it: any
+      // literal "<" a bio happens to contain renders as inert text, not
+      // markup — the only real HTML that ever reaches the page is what
+      // marked itself generates from actual markdown syntax (**bold**,
+      // [text](url), none of which use HTML-special characters). Falls
+      // back to plain escaped text (no formatting) if the marked CDN
+      // failed to load.
+      const bioHtml =
+        typeof marked !== "undefined" ? marked.parse(escapeHtml(member.bio || "")) : `<p>${escapeHtml(member.bio || "")}</p>`;
+      return `
+        <li id="leadership-member-${n}" class="leadership-card leadership-card-${accent}${sizeClass}">
+          <figure class="leadership-card-photo">
+            <img src="${escapeHtml(member.photo)}" alt="${escapeHtml(member.name)}, ${escapeHtml(member.role)}">
+          </figure>
+          <div class="leadership-card-body">
+            <p class="leadership-card-role">${escapeHtml(member.role)}</p>
+            <h3 class="leadership-card-name">${escapeHtml(member.name)}</h3>
+            <div class="leadership-card-bio">${bioHtml}</div>
+          </div>
+        </li>`;
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
 // Leadership page: cards animate in progressively as the grid scrolls into
 // view (Stage 3a). No-op on any page without a .leadership-card (i.e. every
 // page but team.html). Unlike the Home page's pinned sequences, this isn't
@@ -3345,7 +3439,7 @@ function initSearchResultHighlight() {
 initHomeLogoReset();
 initImpactCounters();
 initScrollReveal();
-initLeadershipReveal();
+initTeamContent();
 initPitchVideoCarousel();
 initPitchVideoPlayback();
 // Must run after initPitchVideoCarousel: it animates each slide's own

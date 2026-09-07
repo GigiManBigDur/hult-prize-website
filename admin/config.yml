@@ -1,10 +1,10 @@
-# Decap CMS config — Admin CMS Stage 1 Pilot.
+# Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team).
 #
-# Scope: this pilot wires up exactly ONE collection, FAQ, to prove the
-# whole login -> edit -> commit -> deploy pipeline before any other
-# page's content is migrated off plain hardcoded HTML. Every other page
-# (Home, About, Team, Pitch Videos, Timeline, Blog, Gallery, Get
-# Involved) is untouched and NOT editable here yet.
+# Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
+# -> edit -> commit -> deploy pipeline before migrating anything else.
+# Stage 2a adds a second: Team (the Leadership page's board members).
+# Every OTHER page (Home, About, Pitch Videos, Timeline, Blog, Gallery,
+# Get Involved) is still untouched, plain HTML, not editable here.
 
 backend:
   name: github
@@ -68,3 +68,48 @@ collections:
                   - { label: General, value: general }
                   - { label: Getting Started, value: getting-started }
                   - { label: Competition, value: competition }
+
+  - name: team
+    label: Team
+    description: >-
+      Executive board members shown on the Leadership page (team.html),
+      in the order they'll appear. Card size, accent color, and the
+      overall bento grid layout are assigned automatically by position
+      — nothing here controls them, so reordering this list also
+      reorders the page. That layout is specifically tuned for 6
+      members; adding a 7th or removing one still works, just without
+      the same designed arrangement for the extra/missing slot.
+    files:
+      - name: team
+        label: Team Members
+        file: content/team.json
+        format: json
+        fields:
+          - label: Members
+            name: members
+            widget: list
+            summary: "{{fields.name}} — {{fields.role}}"
+            fields:
+              - label: Name
+                name: name
+                widget: string
+              - label: Role
+                name: role
+                widget: string
+              - label: Bio
+                name: bio
+                widget: markdown
+                minimal: true
+                buttons: [bold, italic, link]
+                hint: >-
+                  Bold, italic, and links only — kept simple on
+                  purpose.
+              - label: Photo
+                name: photo
+                widget: image
+                media_folder: /assets/leadership
+                public_folder: /assets/leadership
+                hint: >-
+                  Any photo works — the card crops it to fit
+                  automatically (square on most cards, wide on a few),
+                  nothing is stretched or distorted.

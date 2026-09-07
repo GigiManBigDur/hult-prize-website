@@ -5033,3 +5033,18 @@ button:focus-visible {
     }
   }
 }
+
+/* ==========================================================================
+   FAQ page: content-load error state (Stage 12a) — shown only if
+   content/faq.json fails to fetch/parse; see initFaqContent in
+   js/script.js.
+   ========================================================================== */
+
+.faq-load-error {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  list-style: none;
+}

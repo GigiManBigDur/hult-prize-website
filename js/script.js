@@ -5,6 +5,15 @@ document.getElementById("year").textContent = new Date().getFullYear();
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+// Shared by initSiteSearch (result titles/subtitles) and initFaqContent
+// (question/answer text from content/faq.json) — anywhere plain-data
+// strings get written into innerHTML rather than assigned to
+// .textContent, so a stray &, <, or " in the source data can't break the
+// surrounding markup.
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
 // Shared with initImpactCounters below (see the comment there on why it
 // needs to know this ahead of time) — kept as a single source of truth so
 // the two never drift apart and silently disagree about which tier is
@@ -2133,6 +2142,92 @@ function initFaqEntrance() {
 }
 
 // ---------------------------------------------------------------------------
+// FAQ page: content (Stage 12a, Admin CMS pilot). Fetches content/faq.json
+// — the one file the /admin CMS pilot actually edits — and builds the
+// exact same <li class="faq-item">...</li> markup that used to be
+// hardcoded directly in faq.html (same classes, same faq-question-N/
+// faq-answer-N id scheme so nothing downstream needs to change: not
+// initFaqAccordion, not initFaqFilter, not the FAQ entries in
+// SEARCH_INDEX/highlightSearchTarget, all of which only ever cared about
+// the rendered DOM, never how it got there).
+//
+// initFaqReveal/initFaqAccordion/initFaqFilter (below) and, if this page
+// was reached via a #faq-question-N deep link, highlightSearchTarget are
+// only called from inside this fetch's success handler — the bottom-of-
+// file call list below calls initFaqContent() once instead of calling
+// those three directly, since before this stage they could assume
+// #faq-list's items already existed synchronously; now they can't.
+//
+// This is the one page on the site where content genuinely doesn't exist
+// without JS running (every other page's content is plain HTML, with
+// only animation gated behind JS/motion checks) — a deliberate, scoped
+// tradeoff of this pilot; see the final report.
+// ---------------------------------------------------------------------------
+function initFaqContent() {
+  const list = document.getElementById("faq-list");
+  if (!list) return; // not the FAQ page
+
+  fetch("content/faq.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/faq.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const items = Array.isArray(data.questions) ? data.questions : [];
+      if (!items.length) throw new Error("content/faq.json has no questions");
+      renderFaqItems(list, items);
+      initFaqReveal();
+      initFaqAccordion();
+      initFaqFilter();
+      // initSearchResultHighlight (bottom of this file) already ran once
+      // for every page, synchronously, before this fetch resolved — for
+      // this page specifically that was necessarily a no-op (the
+      // .faq-item it was looking for didn't exist yet). Retry now that
+      // the real content is in the DOM, for a visitor who arrived via a
+      // search result or any other #faq-question-N deep link.
+      if (location.hash) highlightSearchTarget(location.hash.slice(1));
+    })
+    .catch((err) => {
+      console.error("FAQ content failed to load:", err);
+      list.innerHTML =
+        '<li class="faq-load-error">Something went wrong loading these questions. Please refresh, or reach out directly at ' +
+        '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</li>';
+    });
+}
+
+// A TBD placeholder answer gets the same dimmed/italic .faq-answer-tbd
+// treatment it always has — detected from the text itself (content/
+// faq.json only carries question/answer/category, matching exactly what
+// the CMS pilot's config.yml exposes) rather than a 4th JSON field, since
+// a field the CMS doesn't know about risks being silently dropped the
+// next time a real edit is saved through it.
+function isFaqAnswerTbd(answer) {
+  const trimmed = answer.trim();
+  return trimmed.startsWith("[") && /TBD/i.test(trimmed);
+}
+
+function renderFaqItems(listEl, items) {
+  listEl.innerHTML = items
+    .map((item, i) => {
+      const n = i + 1;
+      const pClass = isFaqAnswerTbd(item.answer) ? ' class="faq-answer-tbd"' : "";
+      return `
+        <li class="faq-item faq-item-${escapeHtml(item.category)}" data-category="${escapeHtml(item.category)}">
+          <h3 class="faq-question-heading">
+            <button type="button" class="faq-question" aria-expanded="false" aria-controls="faq-answer-${n}" id="faq-question-${n}">
+              <span class="faq-question-text">${escapeHtml(item.question)}</span>
+              <span class="faq-toggle-icon" aria-hidden="true"><span></span><span></span></span>
+            </button>
+          </h3>
+          <div class="faq-answer" id="faq-answer-${n}" role="region" aria-labelledby="faq-question-${n}" aria-hidden="true">
+            <p${pClass}>${escapeHtml(item.answer)}</p>
+          </div>
+        </li>`;
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
 // FAQ page: scroll-triggered stagger reveal (Stage 8b) — same
 // ScrollTrigger.batch approach as initLeadershipReveal/initBlogGridReveal/
 // initGalleryReveal/initAboutReveal.
@@ -2958,10 +3053,6 @@ function initSiteSearch() {
     document.body.style.paddingRight = scrollLockPaddingRight;
   }
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  }
-
   function updateActiveDescendant() {
     const optionEls = resultsEl.querySelectorAll(".search-result");
     optionEls.forEach((el, i) => {
@@ -3278,9 +3369,7 @@ initGalleryLightbox();
 initAboutEntrance();
 initAboutReveal();
 initFaqEntrance();
-initFaqReveal();
-initFaqAccordion();
-initFaqFilter();
+initFaqContent();
 initInvolvedEntrance();
 initInvolvedReveal();
 initMagneticButtons();

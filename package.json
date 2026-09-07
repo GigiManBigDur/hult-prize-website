@@ -1,0 +1,9 @@
+{
+  "name": "hult-prize-website",
+  "private": true,
+  "description": "Static site for Hult Prize @ UC Davis, plus a small GitHub OAuth proxy (api/) for the /admin Decap CMS pilot.",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}

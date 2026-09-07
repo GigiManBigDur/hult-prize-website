@@ -1,0 +1,44 @@
+{
+  "questions": [
+    {
+      "question": "What is the Hult Prize?",
+      "answer": "The Hult Prize is a global student entrepreneurship competition. Teams of students design for-profit ventures that address major social and environmental challenges, then pitch and compete through a series of stages toward national and global competition.",
+      "category": "general"
+    },
+    {
+      "question": "Do I need a business background to participate?",
+      "answer": "No — no business background is required to participate.",
+      "category": "getting-started"
+    },
+    {
+      "question": "How does judging work?",
+      "answer": "Judges are recruited from academia and industry to evaluate teams at the chapter's OnCampus competition.",
+      "category": "competition"
+    },
+    {
+      "question": "How can I get involved?",
+      "answer": "You can join a team, apply for the executive board, or attend the OnCampus competition — see the Get Involved page for details.",
+      "category": "getting-started"
+    },
+    {
+      "question": "How can I stay updated on events and news?",
+      "answer": "Check the Event Timeline page for key dates, and the Blog & Newsletter page for announcements and recaps.",
+      "category": "general"
+    },
+    {
+      "question": "What are the competition stages?",
+      "answer": "Teams compete at the chapter's OnCampus level first, with top teams advancing toward the Hult Prize National Competition. Specific dates, prize amounts, and eligibility rules change from year to year, so check the official Hult Prize website (hultprize.org) for this year's current terms rather than relying on this page for them.",
+      "category": "competition"
+    },
+    {
+      "question": "Do I need a full team already, or can I join solo?",
+      "answer": "[Answer TBD — site owner to confirm]",
+      "category": "getting-started"
+    },
+    {
+      "question": "Is there a cost to participate?",
+      "answer": "[Answer TBD — site owner to confirm]",
+      "category": "general"
+    }
+  ]
+}

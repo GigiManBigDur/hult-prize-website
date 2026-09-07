@@ -1,0 +1,70 @@
+# Decap CMS config — Admin CMS Stage 1 Pilot.
+#
+# Scope: this pilot wires up exactly ONE collection, FAQ, to prove the
+# whole login -> edit -> commit -> deploy pipeline before any other
+# page's content is migrated off plain hardcoded HTML. Every other page
+# (Home, About, Team, Pitch Videos, Timeline, Blog, Gallery, Get
+# Involved) is untouched and NOT editable here yet.
+
+backend:
+  name: github
+  repo: GigiManBigDur/hult-prize-website
+  branch: main
+  # Points the github backend at this repo's own self-hosted OAuth proxy
+  # (api/auth.js + api/callback.js) instead of Decap's Netlify-hosted
+  # proxy, which only works for Netlify-deployed sites. base_url +
+  # auth_endpoint together must resolve to exactly this deployment's
+  # /api/auth route.
+  #
+  # TODO(site owner): replace with this project's real deployed domain,
+  # no trailing slash — e.g. https://hult-prize-website.vercel.app, or a
+  # custom domain if one is attached. Login will not work until this is
+  # a real, correct value.
+  base_url: https://YOUR-SITE-DOMAIN.example
+  auth_endpoint: api/auth
+
+# Lets `npx decap-server` (run locally, from the repo root) stand in for
+# the github backend above when this admin page is opened via
+# http://localhost — real local git commits, zero OAuth setup, useful
+# for testing collection/field config changes before touching the real
+# GitHub flow. Has no effect once this page is opened via its real
+# deployed domain: Decap only ever tries the local backend on localhost.
+local_backend: true
+
+media_folder: assets/uploads
+public_folder: /assets/uploads
+
+collections:
+  - name: faq
+    label: FAQ
+    description: >-
+      Questions shown on the FAQ page (faq.html), in the order they'll
+      appear on the page. This is the ONLY content type this pilot
+      manages — every other page on the site is still plain HTML.
+    files:
+      - name: faq
+        label: FAQ Questions
+        file: content/faq.json
+        format: json
+        fields:
+          - label: Questions
+            name: questions
+            widget: list
+            summary: "{{fields.question}}"
+            fields:
+              - label: Question
+                name: question
+                widget: string
+              - label: Answer
+                name: answer
+                widget: text
+                hint: >-
+                  Plain text only — links and formatting aren't
+                  supported by this pilot's FAQ editor.
+              - label: Category
+                name: category
+                widget: select
+                options:
+                  - { label: General, value: general }
+                  - { label: Getting Started, value: getting-started }
+                  - { label: Competition, value: competition }

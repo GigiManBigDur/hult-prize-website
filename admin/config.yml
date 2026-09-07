@@ -16,11 +16,11 @@ backend:
   # auth_endpoint together must resolve to exactly this deployment's
   # /api/auth route.
   #
-  # TODO(site owner): replace with this project's real deployed domain,
-  # no trailing slash — e.g. https://hult-prize-website.vercel.app, or a
-  # custom domain if one is attached. Login will not work until this is
-  # a real, correct value.
-  base_url: https://YOUR-SITE-DOMAIN.example
+  # This project's real Vercel domain (confirmed live — see the project
+  # connected via create_git_project in this session's history). If a
+  # custom domain is attached later, update this to match and re-register
+  # the GitHub OAuth App's callback URL to match too.
+  base_url: https://hult-prize-website.vercel.app
   auth_endpoint: api/auth
 
 # Lets `npx decap-server` (run locally, from the repo root) stand in for

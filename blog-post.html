@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- See the matching comment in index.html/team.html/blog.html/etc.:
+       opt out of the browser's default scroll-position restoration so a
+       reload or a pasted link starts at the top rather than wherever this
+       page was last scrolled to. -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post | Hult Prize @ UC Davis</title>
+  <meta name="description" content="A post from the Hult Prize @ UC Davis blog.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Same header markup/treatment as the rest of the site. -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="pitch-videos.html">Pitch Videos</a></li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li><a href="blog.html" aria-current="page">Blog</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a class="nav-cta" href="get-involved.html">Get Involved</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Stage 2b (Admin CMS extension) — a single template page for every
+       blog post, not one file per post: this is a static site with no
+       build step to generate individual pages at deploy time, so
+       initBlogPostContent (js/script.js) reads ?slug=... off this page's
+       own URL, fetches content/blog.json (the same file blog.html's
+       teaser grid reads), finds the matching post, and fills in
+       everything below at runtime — title, category, date, thumbnail,
+       and the full markdown Body rendered to HTML. Every element below
+       starts empty/hidden; if the slug doesn't match any post (or
+       content/blog.json fails to load), initBlogPostContent shows the
+       #blog-post-not-found state instead and leaves the rest of this
+       page hidden — see that function for exactly what it fills in and
+       how. -->
+  <main id="main" class="blog-post-page">
+    <article class="blog-post-article reveal-on-scroll" id="blog-post-article" hidden>
+      <div class="container">
+        <a class="text-link blog-post-back" href="blog.html">&larr; Back to Blog</a>
+
+        <p class="blog-post-category" id="blog-post-category"></p>
+        <h1 class="blog-post-title" id="blog-post-title"></h1>
+        <p class="blog-post-date" id="blog-post-date"></p>
+
+        <figure class="blog-post-thumb">
+          <img id="blog-post-thumb-img" src="" alt="">
+        </figure>
+
+        <div class="blog-post-body" id="blog-post-body"></div>
+      </div>
+    </article>
+
+    <section class="blog-post-not-found" id="blog-post-not-found" hidden>
+      <div class="container">
+        <h1>Post not found</h1>
+        <p>This post may have been moved, renamed, or removed.</p>
+        <a class="btn btn-primary" href="blog.html">Back to the Blog</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Same footer markup/treatment as the rest of the site. -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-name">Hult Prize <span>@ UC Davis</span></p>
+      <ul class="footer-links">
+        <!-- Placeholder contact details — replace with the chapter's real email and Instagram before launch -->
+        <li><a href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a></li>
+        <li><a href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">@hultprizeucdavis</a></li>
+      </ul>
+      <p class="footer-copyright">&copy; <span id="year"></span> Hult Prize @ UC Davis.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP: the one thing this page animates is the generic
+       .reveal-on-scroll fade + rise on the article itself
+       (initScrollReveal, already run unconditionally on every page) — a
+       CDN failure or reduced motion just means the article is fully
+       visible immediately instead, never hidden. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Site-wide Search (Stage 11a) — same as every other page. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
+  <!-- Renders this post's markdown Body to HTML — same setup/safety
+       notes as the Leadership page's bios (Stage 2a): initBlogPostContent
+       escapes the raw markdown before handing it to marked.parse, so
+       literal HTML in a post can never inject markup, only marked's own
+       generated tags from real markdown syntax do. A CDN failure falls
+       back to plain escaped text (typeof marked checked before use). -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

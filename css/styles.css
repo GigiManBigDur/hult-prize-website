@@ -3114,6 +3114,19 @@ button:focus-visible {
   flex: 1;
 }
 
+/* Stage 2b: makes the whole card a link to that post's own page
+   (blog-post.html), not just some "read more" text — an empty, visually
+   invisible anchor stretched over the card via .blog-card's own
+   position: relative. Its accessible name (aria-label, set when
+   initBlogContent builds it) is the post's title, so the thumbnail <img>
+   right below is deliberately alt="" rather than repeating that same
+   text a second time. */
+.blog-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
 .blog-card-category {
   font-family: var(--font-head);
   font-size: 0.75rem;
@@ -5083,4 +5096,140 @@ button:focus-visible {
   color: var(--text-secondary);
   list-style: none;
   grid-column: 1 / -1;
+}
+
+/* ==========================================================================
+   Blog page: content-load error state (Stage 2b) — shown only if
+   content/blog.json fails to fetch/parse; see initBlogContent in
+   js/script.js. Same treatment as .faq-load-error/.leadership-load-error.
+   ========================================================================== */
+
+.blog-load-error {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  list-style: none;
+  grid-column: 1 / -1;
+}
+
+/* ==========================================================================
+   Blog post page (blog-post.html, Stage 2b) — a single template for every
+   post; initBlogPostContent (js/script.js) fills it in from
+   content/blog.json at runtime. --card-accent is set inline by that same
+   function (the post's category color), same mechanism as every other
+   card/page section on the site that uses it.
+   ========================================================================== */
+
+.blog-post-article {
+  padding-block: 4rem 5rem;
+}
+
+/* Narrower than the site's usual 1200px .container: a comfortable reading
+   width for prose, scoped to this page only. */
+.blog-post-article .container {
+  max-width: 760px;
+}
+
+.blog-post-back {
+  margin-bottom: 2rem;
+}
+
+.blog-post-category {
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--card-accent, var(--magenta));
+  margin: 0 0 0.5rem;
+}
+
+.blog-post-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin: 0 0 0.6rem;
+}
+
+.blog-post-date {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 2rem;
+}
+
+.blog-post-thumb {
+  margin: 0 0 2.5rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+
+.blog-post-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blog-post-body {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.blog-post-body p {
+  margin: 0 0 1.25em;
+}
+
+.blog-post-body p:last-child {
+  margin-bottom: 0;
+}
+
+.blog-post-body strong {
+  color: var(--white);
+}
+
+.blog-post-body a {
+  color: var(--card-accent, var(--magenta));
+}
+
+.blog-post-body ul,
+.blog-post-body ol {
+  /* list-style: revert here (not on li below) is deliberate: list-style-
+     type is inherited, and the site-wide ul/ol reset near the top of this
+     file sets it to none directly ON the ul/ol element. Reverting on li
+     only undoes an author rule targeting the li itself — the inherited
+     "none" from this ul/ol still wins regardless, leaving bullets/numbers
+     invisible. Reverting here, on the exact element the reset rule
+     targets, is what actually restores the browser's default disc/
+     decimal marker (confirmed live: the li-only revert rendered plain,
+     marker-less indented lines). */
+  list-style: revert;
+  margin: 0 0 1.25em;
+  padding-left: 1.4em;
+}
+
+.blog-post-body li {
+  margin-bottom: 0.4em;
+}
+
+.blog-post-body h2,
+.blog-post-body h3 {
+  color: var(--white);
+  margin: 1.75em 0 0.75em;
+}
+
+.blog-post-not-found {
+  padding-block: 6rem;
+  text-align: center;
+}
+
+.blog-post-not-found h1 {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  margin: 0 0 0.75rem;
+}
+
+.blog-post-not-found p {
+  color: var(--text-secondary);
+  margin: 0 0 2rem;
 }

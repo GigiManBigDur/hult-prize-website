@@ -14,6 +14,22 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+// Shared by initBlogContent (building each teaser card's link) and
+// initBlogPostContent (blog-post.html, matching its ?slug= against every
+// post) — Stage 2b. Deliberately not a stored field: a slug computed from
+// the title can never drift out of sync with it the way a hand-entered
+// one could. Tradeoff, not a bug: editing a published post's title
+// changes its URL. Two posts that slugify to the exact same string would
+// only make the first one reachable by link — acceptable for a chapter
+// blog's post volume.
+function slugify(text) {
+  return String(text)
+    .toLowerCase()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 // Shared with initImpactCounters below (see the comment there on why it
 // needs to know this ahead of time) — kept as a single source of truth so
 // the two never drift apart and silently disagree about which tier is
@@ -1424,6 +1440,172 @@ function initBlogEntrance() {
   }
 }
 
+// Category -> accent color (Stage 6a's own established taxonomy — see the
+// matching --card-accent CSS comment). Shared by initBlogContent (grid)
+// and initBlogPostContent (the post's own page) so both read the same
+// mapping.
+const BLOG_CATEGORY_ACCENT = {
+  Recap: "teal",
+  Announcement: "sky",
+  "Behind the Scenes": "orange",
+  Tips: "gold",
+};
+
+// ---------------------------------------------------------------------------
+// Blog page: content (Stage 2b, Admin CMS extension). Fetches
+// content/blog.json — the file the /admin CMS's Blog collection edits —
+// and builds the exact same <li class="blog-card">...</li> markup that
+// used to be hardcoded directly in blog.html (same classes, same
+// blog-post-N id scheme, same category -> accent mapping), same pattern
+// as initFaqContent/initTeamContent in Stages 1/2a.
+//
+// Card 1 gets .blog-card-featured and card 6 gets .blog-card-banner by
+// POSITION in the fetched list (matching exactly what was hardcoded
+// before this stage), not read from the JSON — same reasoning as the
+// Leadership page's Stage 2a masonry sizing: the bento shape is a fixed-
+// for-6-posts arrangement the page itself owns.
+//
+// initBlogGridLayout/initBlogGridReveal (below) are only called from
+// inside this fetch's success handler — before this stage they could
+// assume .blog-grid's cards already existed synchronously; now they
+// can't. initBlogEntrance (the hero) and the Newsletter section's own
+// init calls are untouched and still run unconditionally at the bottom
+// of this file, same as always — this stage doesn't touch the
+// Newsletter at all.
+// ---------------------------------------------------------------------------
+function initBlogContent() {
+  const grid = document.getElementById("blog-grid");
+  if (!grid) return; // not the Blog page
+
+  fetch("content/blog.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/blog.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const posts = Array.isArray(data.posts) ? data.posts : [];
+      if (!posts.length) throw new Error("content/blog.json has no posts");
+      renderBlogCards(grid, posts);
+      initBlogGridLayout();
+      initBlogGridReveal();
+      // See the matching comment in initFaqContent/initTeamContent
+      // (Stages 1/2a): the bottom-of-file initSearchResultHighlight()
+      // call already ran once, synchronously, before this fetch
+      // resolved — necessarily a no-op on this page since the
+      // .blog-card it was looking for didn't exist yet. Retry now that
+      // the real content is in the DOM, for a visitor who arrived via a
+      // search result or any other #blog-post-N deep link.
+      if (location.hash) highlightSearchTarget(location.hash.slice(1));
+    })
+    .catch((err) => {
+      console.error("Blog content failed to load:", err);
+      grid.innerHTML =
+        '<li class="blog-load-error">Something went wrong loading these posts. Please refresh, or reach out directly at ' +
+        '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</li>';
+    });
+}
+
+function renderBlogCards(gridEl, posts) {
+  gridEl.innerHTML = posts
+    .map((post, i) => {
+      const n = i + 1;
+      const accent = BLOG_CATEGORY_ACCENT[post.category] || "teal";
+      const sizeClass = i === 0 ? " blog-card-featured" : i === posts.length - 1 ? " blog-card-banner" : "";
+      const dateLabel = formatIsoDateLong(post.date);
+      const href = `blog-post.html?slug=${encodeURIComponent(slugify(post.title))}`;
+      return `
+        <li id="blog-post-${n}" class="blog-card blog-card-${accent}${sizeClass}">
+          <a class="blog-card-link" href="${escapeHtml(href)}" aria-label="Read: ${escapeHtml(post.title)}"></a>
+          <figure class="blog-card-thumb">
+            <img src="${escapeHtml(post.thumbnail)}" alt="" loading="lazy">
+          </figure>
+          <div class="blog-card-body">
+            <p class="blog-card-category">${escapeHtml(post.category)}</p>
+            <h3 class="blog-card-title">${escapeHtml(post.title)}</h3>
+            <p class="blog-card-date">${escapeHtml(dateLabel)}</p>
+            <p class="blog-card-excerpt">${escapeHtml(post.excerpt)}</p>
+          </div>
+        </li>`;
+    })
+    .join("");
+}
+
+// "YYYY-MM-DD" (Decap's date widget format, admin/config.yml) -> "March 2,
+// 2025". Reuses parseHultEventDate's exact same local-midnight parsing
+// (the Timeline's own date field is in this same format) rather than a
+// second copy of the same UTC-shift fix.
+function formatIsoDateLong(iso) {
+  return parseHultEventDate(iso).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+}
+
+// ---------------------------------------------------------------------------
+// Blog post page (Stage 2b, Admin CMS extension): blog-post.html is a
+// single template for every post, not one file per post — a static site
+// with no build step can't generate individual pages at deploy time.
+// This reads ?slug=... off the page's own URL, fetches content/blog.json
+// (the same file the Blog page's teaser grid reads — initBlogContent
+// above), finds the post whose slugified title matches, and fills in the
+// #blog-post-article template. No match (a bad/stale link, or the fetch
+// itself failing) shows #blog-post-not-found instead, with a link back
+// to the Blog page rather than a blank page.
+// ---------------------------------------------------------------------------
+function initBlogPostContent() {
+  const article = document.getElementById("blog-post-article");
+  const notFound = document.getElementById("blog-post-not-found");
+  if (!article || !notFound) return; // not the blog post page
+
+  function showNotFound() {
+    notFound.hidden = false;
+  }
+
+  const slug = new URLSearchParams(location.search).get("slug");
+  if (!slug) {
+    showNotFound();
+    return;
+  }
+
+  fetch("content/blog.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/blog.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const posts = Array.isArray(data.posts) ? data.posts : [];
+      const post = posts.find((p) => slugify(p.title) === slug);
+      if (!post) {
+        showNotFound();
+        return;
+      }
+
+      const accent = BLOG_CATEGORY_ACCENT[post.category] || "teal";
+      article.style.setProperty("--card-accent", `var(--${accent})`);
+
+      document.title = `${post.title} | Hult Prize @ UC Davis`;
+      const descriptionMeta = document.querySelector('meta[name="description"]');
+      if (descriptionMeta) descriptionMeta.setAttribute("content", post.excerpt);
+
+      document.getElementById("blog-post-category").textContent = post.category;
+      document.getElementById("blog-post-title").textContent = post.title;
+      document.getElementById("blog-post-date").textContent = formatIsoDateLong(post.date);
+
+      const thumbImg = document.getElementById("blog-post-thumb-img");
+      thumbImg.src = post.thumbnail;
+      thumbImg.alt = post.title;
+
+      const bodyEl = document.getElementById("blog-post-body");
+      // Same escape-before-marked safety as the Leadership page's bios
+      // (Stage 2a) — see that function's comment for why.
+      bodyEl.innerHTML =
+        typeof marked !== "undefined" ? marked.parse(escapeHtml(post.body || "")) : `<p>${escapeHtml(post.body || "")}</p>`;
+
+      article.hidden = false;
+    })
+    .catch((err) => {
+      console.error("Blog post content failed to load:", err);
+      showNotFound();
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Blog page: desktop bento grid placement (Stage 6a) — the four-column,
 // 2x2-featured-tile layout is applied here via inline styles rather than a
@@ -1444,14 +1626,20 @@ function initBlogEntrance() {
 function initBlogGridLayout() {
   const grid = document.querySelector(".blog-grid");
   const cards = document.querySelectorAll(".blog-card");
-  if (!grid || cards.length < 6) return;
+  if (!grid || !cards.length) return;
 
   const desktopQuery = window.matchMedia("(min-width: 1000px)");
   // One featured tile spanning the first two columns and both rows, four
   // regular tiles filling the rest of that 2x2 block's neighboring cells,
   // and a full-width banner tile along the bottom — see the blog-grid-
   // section comment in blog.html for why this shape (rather than
-  // Leadership's own bento) was chosen.
+  // Leadership's own bento) was chosen. This fixed 6-slot arrangement only
+  // maps cleanly onto exactly 6 cards; since Stage 2b made post count
+  // CMS-editable (an editor can add or remove posts from /admin), a count
+  // other than 6 falls back to the plain stylesheet-driven layout below
+  // instead of indexing past the end of this array — confirmed live: an
+  // unguarded placements[i] on a 7th card threw and broke the entire
+  // teaser grid's render, not just its layout.
   const placements = [
     { col: "1 / 3", row: "1 / 3" },
     { col: "3 / 4", row: "1 / 2" },
@@ -1462,7 +1650,7 @@ function initBlogGridLayout() {
   ];
 
   function apply() {
-    if (desktopQuery.matches) {
+    if (desktopQuery.matches && cards.length === placements.length) {
       grid.style.gridTemplateColumns = "repeat(4, minmax(0, 1fr))";
       cards.forEach((card, i) => {
         card.style.gridColumn = placements[i].col;
@@ -3451,10 +3639,10 @@ initEventTimelineReveal();
 initEventDetailModal();
 initCountdownWidget();
 initBlogEntrance();
-initBlogGridLayout();
-initBlogGridReveal();
+initBlogContent();
 initNewsletterReveal();
 initNewsletterSignup();
+initBlogPostContent();
 initGalleryEntrance();
 initGalleryLayout();
 initGalleryReveal();

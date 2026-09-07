@@ -1,10 +1,13 @@
-# Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team).
+# Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog).
 #
 # Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
 # -> edit -> commit -> deploy pipeline before migrating anything else.
-# Stage 2a adds a second: Team (the Leadership page's board members).
-# Every OTHER page (Home, About, Pitch Videos, Timeline, Blog, Gallery,
-# Get Involved) is still untouched, plain HTML, not editable here.
+# Stage 2a added Team (the Leadership page's board members). Stage 2b
+# adds Blog (blog.html's post grid + each post's own page, blog-post.html
+# — NOT the newsletter section on that same page, which stays exactly as
+# it was: hardcoded, non-functional signup, untouched by this collection).
+# Every OTHER page (Home, About, Pitch Videos, Timeline, Gallery, Get
+# Involved) is still untouched, plain HTML, not editable here.
 
 backend:
   name: github
@@ -113,3 +116,56 @@ collections:
                   Any photo works — the card crops it to fit
                   automatically (square on most cards, wide on a few),
                   nothing is stretched or distorted.
+
+  - name: blog
+    label: Blog
+    description: >-
+      Posts shown on the Blog page's teaser grid (blog.html) and each
+      post's own full page (blog-post.html), in the order they'll
+      appear. The Newsletter section on that same page is a SEPARATE,
+      still-hardcoded piece — nothing here touches it.
+    files:
+      - name: blog
+        label: Blog Posts
+        file: content/blog.json
+        format: json
+        fields:
+          - label: Posts
+            name: posts
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - label: Title
+                name: title
+                widget: string
+              - label: Category
+                name: category
+                widget: select
+                options: [Recap, Announcement, "Behind the Scenes", Tips]
+                hint: >-
+                  Drives the post's accent color — every post in a
+                  category shares the same color, site-wide.
+              - label: Date
+                name: date
+                # widget: date was removed in Decap CMS 3.x ("No control
+                # for widget 'date'" — caught live, testing this stage's
+                # config locally before ever touching the real site).
+                # datetime + time_format: false is the documented
+                # replacement for a date-only field:
+                # https://decapcms.org/docs/widgets/datetime/
+                widget: datetime
+                format: "YYYY-MM-DD"
+                time_format: false
+              - label: Excerpt
+                name: excerpt
+                widget: text
+                hint: Short summary shown on the teaser card.
+              - label: Body
+                name: body
+                widget: markdown
+                hint: The full article — shown only on the post's own page.
+              - label: Thumbnail
+                name: thumbnail
+                widget: image
+                media_folder: /assets/blog
+                public_folder: /assets/blog

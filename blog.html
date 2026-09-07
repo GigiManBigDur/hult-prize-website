@@ -91,91 +91,31 @@
       <div class="container">
         <h2 id="blog-grid-heading" class="section-heading">Latest Posts</h2>
 
-        <!-- Bento grid (Stage 6a) — a featured tile plus a full-width
-             banner tile bookending four regular tiles, the same "vary tile
-             size rather than a uniform grid" idea as Leadership's 6-card
-             bento (.leadership-card-featured/-wide), independently shaped
-             here (see the min-width: 1000px merge in styles.css) rather
-             than reusing that exact layout. Each accent color is assigned
-             by CATEGORY, not per-card at random — every "Recap" post
-             shares --teal, every "Announcement" shares --sky, "Behind the
-             Scenes" --orange, "Tips" --gold — so the coloring reads as a
-             taxonomy a visitor can learn, the same idea as the timeline
-             event colors, applied to categories instead of chronological
-             position. -->
-        <ul class="blog-grid">
-          <li id="blog-post-1" class="blog-card blog-card-teal blog-card-featured">
-            <figure class="blog-card-thumb">
-              <img src="assets/blog/post-1-oncampus-recap.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
-            </figure>
-            <div class="blog-card-body">
-              <p class="blog-card-category">Recap</p>
-              <h3 class="blog-card-title">OnCampus 2025 Recap: DOZEY Takes First Place</h3>
-              <p class="blog-card-date">March 2, 2025</p>
-              <p class="blog-card-excerpt">DOZEY took first place at this year's OnCampus Competition, with Sumeru Quantum Inc. and SQUELLET rounding out the podium. Here's a look back at the day's pitches and the moment the winner was announced.</p>
-            </div>
-          </li>
+        <!-- Stage 2b (Admin CMS extension): the 6 <li> cards below used to
+             be hardcoded here by hand — they're now built at runtime by
+             initBlogContent (js/script.js), which fetches content/blog.json
+             (the file the /admin CMS's Blog collection edits) and renders
+             the exact same markup this comment used to describe: same
+             classes, same blog-post-N id scheme (so search's deep-link/
+             highlight behavior needs no changes), same category ->
+             --card-accent mapping (Recap/teal, Announcement/sky, Behind
+             the Scenes/orange, Tips/gold). Card 1 still gets
+             .blog-card-featured and card 6 still gets .blog-card-banner —
+             assigned by POSITION in the rendered list (matching exactly
+             what was hardcoded per-card before this stage), not stored in
+             the JSON, same reasoning as the Leadership page's Stage 2a
+             masonry sizing. initBlogGridLayout's desktop bento placement
+             (below) only runs once this fetch resolves.
 
-          <li id="blog-post-2" class="blog-card blog-card-sky">
-            <figure class="blog-card-thumb">
-              <img src="assets/blog/post-2-exec-board.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
-            </figure>
-            <div class="blog-card-body">
-              <p class="blog-card-category">Announcement</p>
-              <h3 class="blog-card-title">Meet Our Executive Board</h3>
-              <p class="blog-card-date">August 20, 2026</p>
-              <p class="blog-card-excerpt">Meet the students leading Hult Prize @ UC Davis this year — from recruiting new teams to running workshops and organizing OnCampus.</p>
-            </div>
-          </li>
-
-          <li id="blog-post-3" class="blog-card blog-card-orange">
-            <figure class="blog-card-thumb">
-              <img src="assets/blog/post-3-eng108-partnership.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
-            </figure>
-            <div class="blog-card-body">
-              <p class="blog-card-category">Behind the Scenes</p>
-              <h3 class="blog-card-title">Why We Partnered with ENG 108</h3>
-              <p class="blog-card-date">September 25, 2026</p>
-              <p class="blog-card-excerpt">We're bringing structured ideation techniques to our teams this year through a new partnership with ENG 108. Here's how it came together and what it means for participants.</p>
-            </div>
-          </li>
-
-          <li id="blog-post-4" class="blog-card blog-card-gold">
-            <figure class="blog-card-thumb">
-              <img src="assets/blog/post-4-pitch-tips.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
-            </figure>
-            <div class="blog-card-body">
-              <p class="blog-card-category">Tips</p>
-              <h3 class="blog-card-title">5 Tips for Your Hult Prize Pitch</h3>
-              <p class="blog-card-date">October 15, 2026</p>
-              <p class="blog-card-excerpt">Preparing to pitch? Here are five practical tips from past judges and mentors to help your team stand out on competition day.</p>
-            </div>
-          </li>
-
-          <li id="blog-post-5" class="blog-card blog-card-teal">
-            <figure class="blog-card-thumb">
-              <img src="assets/blog/post-5-nationals.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
-            </figure>
-            <div class="blog-card-body">
-              <p class="blog-card-category">Recap</p>
-              <h3 class="blog-card-title">Two Teams Advance to Nationals</h3>
-              <p class="blog-card-date">March 10, 2025</p>
-              <p class="blog-card-excerpt">Two teams have officially advanced to the Hult Prize National Competition after strong showings at OnCampus. Meet the teams heading to Nationals.</p>
-            </div>
-          </li>
-
-          <li id="blog-post-6" class="blog-card blog-card-sky blog-card-banner">
-            <figure class="blog-card-thumb">
-              <img src="assets/blog/post-6-kickoff.jpg" alt="Placeholder thumbnail for this article — real photo coming soon." loading="lazy">
-            </figure>
-            <div class="blog-card-body">
-              <p class="blog-card-category">Announcement</p>
-              <h3 class="blog-card-title">Chapter Kickoff: What to Expect This Year</h3>
-              <p class="blog-card-date">August 28, 2026</p>
-              <p class="blog-card-excerpt">A new chapter cycle kicks off soon — here's what to expect, from the info session to team formation, plus the key dates worth having on your calendar.</p>
-            </div>
-          </li>
-        </ul>
+             New this stage: each card is also a full-card link (a
+             transparent .blog-card-link covering it) to that post's own
+             page, blog-post.html?slug=<slugified-title> — clicking
+             anywhere on the card (not just some "read more" text) opens
+             the full post. If content/blog.json fails to load, this list
+             stays empty rather than showing stale hardcoded posts;
+             initBlogContent shows a plain-text fallback message with a
+             mailto contact instead — same pattern as the FAQ/Team pages. -->
+        <ul class="blog-grid" id="blog-grid"></ul>
       </div>
     </section>
 

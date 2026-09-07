@@ -99,208 +99,34 @@
           <button type="button" class="gallery-filter-btn" data-filter="team" aria-pressed="false">Team Life</button>
         </div>
 
-        <!-- Bento masonry grid (Stage 7a) — tile sizing (data-size) is
-             read by initGalleryLayout (js/script.js) and applied as
-             inline grid-column/grid-row styles at each breakpoint rather
-             than via a stylesheet rule; see that function's comment for
-             why (a stylesheet-based version of this exact kind of grid —
-             multi-track-spanning tiles in a repeat()-column grid — was
-             confirmed to collapse columns to 0px during Stage 6a's Blog
-             page work, while the identical placement applied inline
-             always sized correctly). Each tile's accent color cycles
-             through the site's secondary palette (teal/sky/orange/gold)
-             by position, same idea as the Timeline events. -->
-        <!-- Each .gallery-tile-button below is NOT a real <button> element
-             (it's a div with role="button") specifically so it can contain
-             the real, nested <button> controls (close/prev/next) that only
-             appear once it becomes the lightbox — a genuine <button> can't
-             legally contain other interactive controls, the same reason
-             the Event Timeline's .timeline-card is an <article
-             role="button"> rather than a <button>. -->
-        <ul class="gallery-grid" id="gallery-grid">
-          <li class="gallery-tile gallery-tile-teal" data-category="oncampus" data-size="large">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: OnCampus 2025, photo 1 of 4">
-              <img src="assets/gallery/oncampus-1.jpg" alt="Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">OnCampus 2025 — Photo 1 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-sky" data-category="oncampus" data-size="regular">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: OnCampus 2025, photo 2 of 4">
-              <img src="assets/gallery/oncampus-2.jpg" alt="Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">OnCampus 2025 — Photo 2 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-orange" data-category="oncampus" data-size="tall">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: OnCampus 2025, photo 3 of 4">
-              <img src="assets/gallery/oncampus-3.jpg" alt="Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">OnCampus 2025 — Photo 3 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-gold" data-category="oncampus" data-size="regular">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: OnCampus 2025, photo 4 of 4">
-              <img src="assets/gallery/oncampus-4.jpg" alt="Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">OnCampus 2025 — Photo 4 of 4</p>
-            </div>
-          </li>
-
-          <li class="gallery-tile gallery-tile-teal" data-category="workshops" data-size="wide">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Workshops, photo 1 of 4">
-              <img src="assets/gallery/workshop-1.jpg" alt="Placeholder photo for the Workshops gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Workshops — Photo 1 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-sky" data-category="workshops" data-size="regular">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Workshops, photo 2 of 4">
-              <img src="assets/gallery/workshop-2.jpg" alt="Placeholder photo for the Workshops gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Workshops — Photo 2 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-orange" data-category="workshops" data-size="regular">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Workshops, photo 3 of 4">
-              <img src="assets/gallery/workshop-3.jpg" alt="Placeholder photo for the Workshops gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Workshops — Photo 3 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-gold" data-category="workshops" data-size="tall">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Workshops, photo 4 of 4">
-              <img src="assets/gallery/workshop-4.jpg" alt="Placeholder photo for the Workshops gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Workshops — Photo 4 of 4</p>
-            </div>
-          </li>
-
-          <li class="gallery-tile gallery-tile-teal" data-category="team" data-size="regular">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Team Life, photo 1 of 4">
-              <img src="assets/gallery/team-1.jpg" alt="Placeholder photo for the Team Life gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Team Life — Photo 1 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-sky" data-category="team" data-size="wide">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Team Life, photo 2 of 4">
-              <img src="assets/gallery/team-2.jpg" alt="Placeholder photo for the Team Life gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Team Life — Photo 2 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-orange" data-category="team" data-size="regular">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Team Life, photo 3 of 4">
-              <img src="assets/gallery/team-3.jpg" alt="Placeholder photo for the Team Life gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Team Life — Photo 3 of 4</p>
-            </div>
-          </li>
-          <li class="gallery-tile gallery-tile-gold" data-category="team" data-size="large">
-            <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: Team Life, photo 4 of 4">
-              <img src="assets/gallery/team-4.jpg" alt="Placeholder photo for the Team Life gallery — real event photo coming soon." loading="lazy">
-              <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="gallery-lightbox-caption">Team Life — Photo 4 of 4</p>
-            </div>
-          </li>
-        </ul>
+        <!-- Stage 2e (Admin CMS extension): the 12 <li> tiles below used
+             to be hand-authored here — they're now built at runtime by
+             initGalleryContent/renderGalleryTiles (js/script.js), which
+             fetches content/gallery.json (the file the /admin CMS's
+             Gallery collection edits) and renders the exact same markup
+             this comment used to describe: same classes, same close/prev/
+             next lightbox button chrome on every tile, same teal/sky/
+             orange/gold accent cycle and same large/regular/wide/regular/
+             tall/regular tile-size cycle — both assigned by rendered
+             POSITION, not stored in the JSON (this is the whole point of
+             the "no size field" requirement: the grid stays visually
+             varied automatically, for any number of photos, not just the
+             original 12). initGalleryLayout/initGalleryReveal/
+             initGalleryFilter/initGalleryLightbox only run once this
+             fetch resolves. If content/gallery.json fails to load, this
+             grid stays empty rather than showing stale hardcoded photos;
+             initGalleryContent shows a plain-text fallback message with a
+             mailto contact instead — same pattern as every other
+             CMS-backed page. -->
+        <!-- Each .gallery-tile-button rendered into the grid below is NOT
+             a real <button> element (it's a div with role="button")
+             specifically so it can contain the real, nested <button>
+             controls (close/prev/next) that only appear once it becomes
+             the lightbox — a genuine <button> can't legally contain
+             other interactive controls, the same reason the Event
+             Timeline's .timeline-card is an <article role="button">
+             rather than a <button>. -->
+        <ul class="gallery-grid" id="gallery-grid"></ul>
       </div>
     </section>
   </main>

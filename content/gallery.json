@@ -1,0 +1,64 @@
+{
+  "photos": [
+    {
+      "caption": "Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon.",
+      "category": "oncampus",
+      "photo": "assets/gallery/oncampus-1.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon.",
+      "category": "oncampus",
+      "photo": "assets/gallery/oncampus-2.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon.",
+      "category": "oncampus",
+      "photo": "assets/gallery/oncampus-3.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the OnCampus 2025 gallery — real event photo coming soon.",
+      "category": "oncampus",
+      "photo": "assets/gallery/oncampus-4.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Workshops gallery — real event photo coming soon.",
+      "category": "workshops",
+      "photo": "assets/gallery/workshop-1.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Workshops gallery — real event photo coming soon.",
+      "category": "workshops",
+      "photo": "assets/gallery/workshop-2.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Workshops gallery — real event photo coming soon.",
+      "category": "workshops",
+      "photo": "assets/gallery/workshop-3.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Workshops gallery — real event photo coming soon.",
+      "category": "workshops",
+      "photo": "assets/gallery/workshop-4.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Team Life gallery — real event photo coming soon.",
+      "category": "team",
+      "photo": "assets/gallery/team-1.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Team Life gallery — real event photo coming soon.",
+      "category": "team",
+      "photo": "assets/gallery/team-2.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Team Life gallery — real event photo coming soon.",
+      "category": "team",
+      "photo": "assets/gallery/team-3.jpg"
+    },
+    {
+      "caption": "Placeholder photo for the Team Life gallery — real event photo coming soon.",
+      "category": "team",
+      "photo": "assets/gallery/team-4.jpg"
+    }
+  ]
+}

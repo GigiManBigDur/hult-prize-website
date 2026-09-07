@@ -2003,6 +2003,102 @@ function initGalleryEntrance() {
   }
 }
 
+// Position-based accent cycling for .gallery-tile cards (teal, sky,
+// orange, gold, repeating) — same reasoning as Team/Blog/Timeline/Pitch
+// Videos' card accents: computed from the rendered array index at render
+// time, not stored as a CMS field.
+const GALLERY_ACCENTS = ["teal", "sky", "orange", "gold"];
+
+// Position-based tile SIZE cycling (Stage 2e) — the whole point of this
+// stage's "no size field" requirement: a repeating 6-slot pattern
+// (large, regular, wide, regular, tall, regular) assigns each tile's
+// bento shape purely from its rendered index, so the grid stays visually
+// varied — one large, one wide, one tall spread out among three
+// regular-sized tiles every 6 photos — no matter how many photos exist
+// or what order they were added in. This exact 1:1:1:3 ratio matches the
+// original 12 hardcoded tiles' overall size distribution (2 large/2 wide/
+// 2 tall/6 regular), just computed continuously instead of once per
+// hardcoded category block, so the grid keeps the same visual density as
+// more photos are added rather than trending toward "all regular."
+const GALLERY_SIZES = ["large", "regular", "wide", "regular", "tall", "regular"];
+
+// Builds every .gallery-tile <li> from the fetched photos array (CMS
+// entry order IS grid order, same as Pitch Videos — there's nothing to
+// sort by) — the exact same markup that used to be hand-authored once
+// per photo directly in gallery.html, including the close/prev/next
+// lightbox button chrome every tile carries regardless of whether it's
+// currently the open lightbox (initGalleryLightbox, called right after
+// this from initGalleryContent, wires up and toggles that). Caption
+// doubles as both the <img> alt text and the lightbox's visible caption
+// — per the brief, it exists primarily for accessibility, not as a
+// prominently-styled headline, so one plain string serves both.
+function renderGalleryTiles(gridEl, photos) {
+  gridEl.innerHTML = photos
+    .map((photo, i) => {
+      const accent = GALLERY_ACCENTS[i % GALLERY_ACCENTS.length];
+      const size = GALLERY_SIZES[i % GALLERY_SIZES.length];
+      const caption = photo.caption || "";
+      return `
+        <li class="gallery-tile gallery-tile-${accent}" data-category="${escapeHtml(photo.category)}" data-size="${size}">
+          <div class="gallery-tile-button" tabindex="0" role="button" aria-label="View photo: ${escapeHtml(caption)}">
+            <img src="${escapeHtml(photo.photo || "")}" alt="${escapeHtml(caption)}" loading="lazy">
+            <button type="button" class="gallery-lightbox-close" aria-label="Close photo viewer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </button>
+            <button type="button" class="gallery-lightbox-prev" aria-label="Previous photo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="gallery-lightbox-next" aria-label="Next photo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <p class="gallery-lightbox-caption">${escapeHtml(caption)}</p>
+          </div>
+        </li>`;
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
+// Gallery data (Stage 2e, Admin CMS extension) — fetches content/
+// gallery.json (the file the /admin CMS's Gallery collection edits),
+// renders the bento grid's tiles from it, and only then wires up the
+// layout/reveal/filter/lightbox behaviors below — all four need the real
+// rendered .gallery-tile DOM to work against (initGalleryLayout measures
+// and positions actual tiles; initGalleryReveal/initGalleryFilter/
+// initGalleryLightbox all query .gallery-tile/.gallery-tile-button at
+// call time), so none of them can safely run before this fetch resolves.
+// Unlike Timeline, entry order here IS grid order before size/accent
+// cycling is applied — there's nothing to sort by, same as Pitch Videos.
+// Deliberately no upper bound anywhere in this pipeline on how many
+// photos it renders: this collection is meant to keep growing, and nothing
+// here (or in the four functions it calls) assumes a fixed count of 12.
+// ---------------------------------------------------------------------------
+function initGalleryContent() {
+  const grid = document.getElementById("gallery-grid");
+  if (!grid) return; // not the Gallery page
+
+  fetch("content/gallery.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/gallery.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const photos = Array.isArray(data.photos) ? data.photos : [];
+      if (!photos.length) throw new Error("content/gallery.json has no photos");
+      renderGalleryTiles(grid, photos);
+      initGalleryLayout();
+      initGalleryReveal();
+      initGalleryFilter();
+      initGalleryLightbox();
+    })
+    .catch((err) => {
+      console.error("Gallery content failed to load:", err);
+      grid.innerHTML =
+        '<li class="gallery-load-error">Something went wrong loading these photos. Please refresh, or reach out directly at ' +
+        '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</li>';
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Gallery page: bento masonry grid placement (Stage 7a) — grid-template-
 // columns and each tile's grid-column/grid-row are applied here as inline
@@ -2013,6 +2109,9 @@ function initGalleryEntrance() {
 // collapse columns to 0px, while the identical placement applied inline
 // always sized correctly. Not gated by reduced-motion/GSAP: this is
 // layout correctness, not a motion effect.
+//
+// Only ever called from initGalleryContent (Stage 2e), once the real
+// tiles have been rendered from content/gallery.json.
 // ---------------------------------------------------------------------------
 function initGalleryLayout() {
   const grid = document.getElementById("gallery-grid");
@@ -3857,10 +3956,7 @@ initNewsletterReveal();
 initNewsletterSignup();
 initBlogPostContent();
 initGalleryEntrance();
-initGalleryLayout();
-initGalleryReveal();
-initGalleryFilter();
-initGalleryLightbox();
+initGalleryContent();
 initAboutEntrance();
 initAboutReveal();
 initFaqEntrance();

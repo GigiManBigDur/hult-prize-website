@@ -5314,3 +5314,20 @@ button:focus-visible {
   margin: 0;
   text-align: center;
 }
+
+/* ==========================================================================
+   Gallery page: content-load error state (Stage 2e) — shown only if
+   content/gallery.json fails to fetch/parse; see initGalleryContent in
+   js/script.js. Same treatment as .faq-load-error/.leadership-load-error/
+   .blog-load-error/.timeline-load-error/.pitch-video-load-error.
+   ========================================================================== */
+
+.gallery-load-error {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  list-style: none;
+  grid-column: 1 / -1;
+}

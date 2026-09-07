@@ -1,5 +1,5 @@
 # Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog) +
-# Stage 2c (Timeline) + Stage 2d (Pitch Videos).
+# Stage 2c (Timeline) + Stage 2d (Pitch Videos) + Stage 2e (Gallery).
 #
 # Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
 # -> edit -> commit -> deploy pipeline before migrating anything else.
@@ -10,13 +10,17 @@
 # Stage 2c added Timeline (timeline.html's event track AND the Countdown
 # widget on both timeline.html and index.html, which reads the same
 # underlying data so the two can never fall out of sync — see
-# initTimelineContent in js/script.js). Stage 2d adds Pitch Videos
+# initTimelineContent in js/script.js). Stage 2d added Pitch Videos
 # (pitch-videos.html's coverflow carousel) — its video field's `hint`
 # carries the real-video-consent warning that used to live only as a
 # code comment, since exec board members editing here need to see it in
-# THIS interface, not in source they'll never open. Every OTHER page
-# (Home's own content besides the countdown widget, About, Gallery, Get
-# Involved) is still untouched, plain HTML, not editable here.
+# THIS interface, not in source they'll never open. Stage 2e adds Gallery
+# (gallery.html's bento photo grid) — deliberately no tile-size field:
+# each photo's bento shape is assigned automatically by rendered position
+# (see GALLERY_SIZES in js/script.js), since this collection is meant to
+# keep growing indefinitely, unlike the others' fixed rosters/sequences.
+# Every OTHER page (Home's own content besides the countdown widget,
+# About, Get Involved) is still untouched, plain HTML, not editable here.
 
 backend:
   name: github
@@ -263,3 +267,44 @@ collections:
                 widget: image
                 media_folder: /assets/pitch-videos
                 public_folder: /assets/pitch-videos
+
+  - name: gallery
+    label: Gallery
+    description: >-
+      Photos in the Gallery page's grid (gallery.html), in the order
+      they'll appear. This collection is meant to keep growing — add a
+      new photo any time, in any order; its tile size and accent color
+      are both assigned automatically so the grid stays visually varied
+      without any design decision needed here.
+    files:
+      - name: gallery
+        label: Gallery Photos
+        file: content/gallery.json
+        format: json
+        fields:
+          - label: Photos
+            name: photos
+            widget: list
+            summary: "{{fields.category}} — {{fields.caption}}"
+            fields:
+              - label: Caption
+                name: caption
+                widget: text
+                hint: >-
+                  Used for accessibility (alt text and the photo viewer's
+                  caption) — doesn't need to be a headline.
+              - label: Category
+                name: category
+                widget: select
+                options:
+                  - { label: "OnCampus 2025", value: oncampus }
+                  - { label: Workshops, value: workshops }
+                  - { label: Team Life, value: team }
+                hint: >-
+                  Drives which filter pill(s) this photo appears under —
+                  keep to these three so the filters stay meaningful.
+              - label: Photo
+                name: photo
+                widget: image
+                media_folder: /assets/gallery
+                public_folder: /assets/gallery

@@ -1,12 +1,17 @@
-# Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog).
+# Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog) +
+# Stage 2c (Timeline).
 #
 # Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
 # -> edit -> commit -> deploy pipeline before migrating anything else.
 # Stage 2a added Team (the Leadership page's board members). Stage 2b
-# adds Blog (blog.html's post grid + each post's own page, blog-post.html
+# added Blog (blog.html's post grid + each post's own page, blog-post.html
 # — NOT the newsletter section on that same page, which stays exactly as
 # it was: hardcoded, non-functional signup, untouched by this collection).
-# Every OTHER page (Home, About, Pitch Videos, Timeline, Gallery, Get
+# Stage 2c adds Timeline (timeline.html's event track AND the Countdown
+# widget on both timeline.html and index.html, which reads the same
+# underlying data so the two can never fall out of sync — see
+# initTimelineContent in js/script.js). Every OTHER page (Home's own
+# content besides the countdown widget, About, Pitch Videos, Gallery, Get
 # Involved) is still untouched, plain HTML, not editable here.
 
 backend:
@@ -169,3 +174,48 @@ collections:
                 widget: image
                 media_folder: /assets/blog
                 public_folder: /assets/blog
+
+  - name: timeline
+    label: Timeline
+    description: >-
+      Key dates shown on the Timeline page's event track (timeline.html)
+      and reflected in the Countdown widget on both that page and the
+      Home page — the widget always targets whichever event here is
+      soonest, so there's nothing to keep in sync separately. Events are
+      sorted by date automatically when the pages render: add a new one
+      anywhere in this list, in any order — you do NOT need to insert it
+      "in the right place."
+    files:
+      - name: timeline
+        label: Timeline Events
+        file: content/timeline.json
+        format: json
+        fields:
+          - label: Events
+            name: events
+            widget: list
+            summary: "{{fields.date}} — {{fields.title}}"
+            fields:
+              - label: Title
+                name: title
+                widget: string
+              - label: Date
+                name: date
+                # widget: date was removed in Decap CMS 3.x — see the
+                # identical note on Blog's Date field above.
+                widget: datetime
+                format: "YYYY-MM-DD"
+                time_format: false
+              - label: Time
+                name: time
+                widget: string
+                hint: 'Free text, e.g. "6:00 PM" — shown when a card is opened.'
+              - label: Location
+                name: location
+                widget: string
+              - label: Description
+                name: description
+                widget: markdown
+                hint: >-
+                  Shown in the event's detail view when its card is
+                  opened.

@@ -356,8 +356,12 @@
          currently "Next Up" in the shared HULT_EVENTS array
          (js/script.js), the exact same data and "next up" logic the
          Timeline page itself uses, so this never needs a separate
-         hardcoded date: change a date in HULT_EVENTS and both this widget
-         and the Timeline stay in sync. initCountdownWidget (js/script.js)
+         hardcoded date: change a date in the /admin Timeline collection
+         and both this widget and the Timeline page stay in sync (Stage
+         2c: HULT_EVENTS is now populated from CMS-managed
+         content/timeline.json by initTimelineContent, js/script.js, which
+         this page runs even though it has no .timeline-events list of its
+         own — only this widget). initCountdownWidget (js/script.js)
          drives the split-flap digit flips, the radial progress ring +
          milestone markers, the background pulse, the mouse-parallax tilt,
          and the "It's happening now!" celebration state — every one of

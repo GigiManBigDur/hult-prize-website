@@ -1,0 +1,60 @@
+{
+  "events": [
+    {
+      "title": "Kickoff / Info Session",
+      "date": "2026-09-01",
+      "time": "6:00 PM",
+      "location": "[Placeholder Room], Hutchison Hall",
+      "description": "An open info session introducing the Hult Prize @ UC Davis chapter, this cycle's challenge theme, and how team formation and judging will work. Free food, no commitment required — just show up to learn what the season looks like."
+    },
+    {
+      "title": "Team Formation Deadline",
+      "date": "2026-09-20",
+      "time": "11:59 PM",
+      "location": "Online — team roster form",
+      "description": "Deadline for participants to lock in a team roster of 2–5 members for this cycle. Haven't found a team yet? Solo participants who submit the interest form by this date will be matched with others looking for teammates."
+    },
+    {
+      "title": "Ideation Workshop (ENG 108 partnership)",
+      "date": "2026-10-10",
+      "time": "5:30 PM",
+      "location": "[Placeholder Room], ENG 108 building",
+      "description": "A hands-on ideation workshop run in partnership with ENG 108, walking teams through structured brainstorming and problem-framing techniques for early-stage social impact ventures. Come with an open mind, even if you don't have an idea yet."
+    },
+    {
+      "title": "Venture Development Workshops",
+      "date": "2026-11-05",
+      "time": "5:30 PM",
+      "location": "[Placeholder Room], UC Davis",
+      "description": "A series of workshops covering venture fundamentals — market sizing, customer discovery, and a lean business model canvas — to help teams sharpen their concept ahead of the pitch submission deadline."
+    },
+    {
+      "title": "Pitch Submission Deadline",
+      "date": "2027-01-15",
+      "time": "11:59 PM",
+      "location": "Online — pitch deck submission portal",
+      "description": "Final deadline for teams to submit their written pitch deck and supporting materials for review ahead of the OnCampus Competition. Late submissions cannot be scored, so build in buffer time before the cutoff."
+    },
+    {
+      "title": "OnCampus Competition Day",
+      "date": "2027-02-20",
+      "time": "12:00 PM",
+      "location": "[Placeholder Venue], UC Davis",
+      "description": "The chapter's flagship pitch competition, where teams present live in front of a judging panel for a chance to advance to the Hult Prize Regional round. Open to the campus community to attend and watch."
+    },
+    {
+      "title": "Results Announcement",
+      "date": "2027-03-01",
+      "time": "7:00 PM",
+      "location": "[Placeholder Room], UC Davis",
+      "description": "Winners of the OnCampus Competition are announced, along with which team(s) will advance to represent UC Davis at the next stage of the Hult Prize competition."
+    },
+    {
+      "title": "National Competition (for advancing teams)",
+      "date": "2027-04-15",
+      "time": "10:00 AM",
+      "location": "[Placeholder City / Venue] (set by the Hult Prize Foundation)",
+      "description": "The advancing team(s) compete against other university chapters nationally, with top performers moving on toward the global Hult Prize accelerator and summit."
+    }
+  ]
+}

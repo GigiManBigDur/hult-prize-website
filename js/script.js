@@ -46,30 +46,25 @@ function canRunPinSequence() {
 }
 
 // ---------------------------------------------------------------------------
-// Canonical chapter event data (Stage 10a) — the single source of truth for
-// every key date in this cycle. Previously each date lived only as a
-// data-event-date attribute on timeline.html's own markup; it now lives
-// here instead, with timeline.html's .timeline-event elements carrying a
-// matching data-event-id, so that initEventTimelinePositions below (the
-// Timeline page's day-count/completed/"Next Up" state) and
-// initCountdownWidget (the Home + Timeline countdown widget, Stage 10a)
-// both read the exact same array rather than each needing their own copy
-// of the target date. Change a date once, here, and both stay in sync.
-//
-// All dates are illustrative PLACEHOLDERS (see the matching comment in
-// timeline.html) — replace them here, in this one place, with the real
-// confirmed dates before launch.
+// Canonical chapter event data — the single source of truth for every key
+// date in this cycle. Through Stage 10a this was a hardcoded array right
+// here; Stage 2b (Admin CMS extension) moved it into CMS-managed
+// content/timeline.json instead, fetched once by initTimelineContent
+// (below) and sorted there by date before being assigned here — so this
+// starts empty and is only ever populated (never re-declared) once that
+// fetch resolves. initEventTimelinePositions (the Timeline page's day-
+// count/completed/"Next Up" state) and initCountdownWidget (the Home +
+// Timeline countdown widget) both still read this exact same array, so a
+// date changed once in the CMS stays in sync everywhere it's used — this
+// stage changes WHERE the array is populated from, not that guarantee
+// itself. No `id` field is needed any more: previously each
+// timeline.html .timeline-event carried a data-event-id to match itself
+// back to its entry here, because the two were authored separately; now
+// initTimelineContent renders every .timeline-event FROM this exact
+// (sorted) array in the same pass, so DOM order and array order are
+// guaranteed identical and can just be zipped by index.
 // ---------------------------------------------------------------------------
-const HULT_EVENTS = [
-  { id: "kickoff", date: "2026-09-01", title: "Kickoff / Info Session" },
-  { id: "team-formation", date: "2026-09-20", title: "Team Formation Deadline" },
-  { id: "ideation-workshop", date: "2026-10-10", title: "Ideation Workshop" },
-  { id: "venture-workshops", date: "2026-11-05", title: "Venture Development Workshops" },
-  { id: "pitch-submission", date: "2027-01-15", title: "Pitch Submission Deadline" },
-  { id: "oncampus-competition", date: "2027-02-20", title: "OnCampus Competition Day" },
-  { id: "results-announcement", date: "2027-03-01", title: "Results Announcement" },
-  { id: "national-competition", date: "2027-04-15", title: "National Competition" },
-];
+let HULT_EVENTS = [];
 
 // "YYYY-MM-DD" -> local Date at midnight. Explicit numeric Date() args, not
 // new Date("YYYY-MM-DD") (which parses as UTC midnight and shifts a day
@@ -735,6 +730,126 @@ function initPitchVideoEntrance() {
   }
 }
 
+// Position-based accent cycling for .timeline-event cards (teal, sky,
+// orange, gold, repeating) — same reasoning as Team's card accents and
+// Blog's category-independent featured/banner slots: computed from the
+// rendered array INDEX at render time rather than stored as a CMS field,
+// so the schema stays exactly Title/Date/Time/Location/Description and a
+// re-sort (adding an event that lands earlier than existing ones) can
+// never leave a stored color assignment stale.
+const TIMELINE_ACCENTS = ["teal", "sky", "orange", "gold"];
+
+// Builds every .timeline-event <li> from a (already date-sorted) events
+// array — the exact same markup that used to be hand-authored once per
+// event directly in timeline.html (Stage 5a/5c), including the completed-
+// icon/next-up-badge/close-button chrome every card carries regardless of
+// its current state (initEventTimelinePositions and initEventDetailModal,
+// both called right after this from initTimelineContent, toggle their
+// visibility/behavior — this function only ever builds the static shell).
+// Description is rendered as markdown via marked, escaped first exactly
+// like Team's bios and Blog's post bodies, so literal HTML in a
+// CMS-authored description can never inject markup — only marked's own
+// generated tags from real markdown syntax reach the page.
+function renderTimelineEvents(listEl, events) {
+  listEl.innerHTML = events
+    .map((event, i) => {
+      const accent = TIMELINE_ACCENTS[i % TIMELINE_ACCENTS.length];
+      const dateLabel = formatIsoDateLong(event.date);
+      const descriptionHtml =
+        typeof marked !== "undefined"
+          ? marked.parse(escapeHtml(event.description || ""))
+          : `<p>${escapeHtml(event.description || "")}</p>`;
+      return `
+        <li class="timeline-event timeline-event-${accent}">
+          <div class="timeline-node" aria-hidden="true"></div>
+          <article class="timeline-card" tabindex="0" role="button">
+            <span class="timeline-card-completed-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="timeline-next-up-badge">Next Up</span>
+            <button class="timeline-card-close" type="button" aria-label="Close event details">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </button>
+            <p class="timeline-card-date">${escapeHtml(dateLabel)}</p>
+            <h3 class="timeline-card-name">${escapeHtml(event.title)}</h3>
+            <p class="timeline-card-status"></p>
+            <div class="timeline-card-detail">
+              <p class="timeline-card-detail-meta">
+                <span class="timeline-card-detail-time"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ${escapeHtml(event.time)}</span>
+                <span class="timeline-card-detail-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="2"/></svg> ${escapeHtml(event.location)}</span>
+              </p>
+              <div class="timeline-card-detail-description">${descriptionHtml}</div>
+            </div>
+          </article>
+        </li>`;
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
+// Timeline data (Stage 2c, Admin CMS extension) — fetches content/
+// timeline.json (the file the /admin CMS's Timeline collection edits),
+// sorts it by date, and only THEN populates HULT_EVENTS and renders the
+// Timeline page's event list (if present on this page) — so an editor can
+// add a new event anywhere in the CMS list, in any order, and it still
+// lands in the correct chronological slot everywhere: the rendered cards,
+// the "You Are Here" marker math, the "Next Up" highlight, and the
+// Countdown widget on both this page and the Home page (which has no
+// .timeline-events list at all, only the widget — this function still
+// needs to run there, just skipping the render step).
+//
+// Called unconditionally from the bottom-of-file init list, same as every
+// other fetch-driven content page — internally a no-op if neither a
+// .timeline-events list nor a countdown widget exists on the current page.
+// ---------------------------------------------------------------------------
+function initTimelineContent() {
+  const list = document.querySelector(".timeline-events");
+  const countdownWidgets = document.querySelectorAll("[data-countdown-widget]");
+  if (!list && !countdownWidgets.length) return; // neither this page's track nor a countdown widget
+
+  fetch("content/timeline.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/timeline.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const events = Array.isArray(data.events) ? data.events : [];
+      if (!events.length) throw new Error("content/timeline.json has no events");
+
+      // The sort this whole stage exists for: entry order in the CMS list
+      // must never matter. Every downstream consumer (the rendered cards
+      // below, initEventTimelinePositions, initCountdownWidget) assumes
+      // HULT_EVENTS is already in chronological order and does no sorting
+      // of its own.
+      events.sort((a, b) => parseHultEventDate(a.date).getTime() - parseHultEventDate(b.date).getTime());
+      HULT_EVENTS = events;
+
+      if (list) {
+        renderTimelineEvents(list, events);
+        initEventTimelinePositions();
+        initEventTimelineReveal();
+        initEventDetailModal();
+      }
+      initCountdownWidget();
+    })
+    .catch((err) => {
+      console.error("Timeline content failed to load:", err);
+      if (list) {
+        list.innerHTML =
+          '<li class="timeline-load-error">Something went wrong loading these events. Please refresh, or reach out directly at ' +
+          '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</li>';
+      }
+      countdownWidgets.forEach((widget) => {
+        const inner = widget.querySelector(".countdown-inner");
+        if (inner) {
+          inner.innerHTML =
+            '<p class="countdown-load-error">Something went wrong loading the countdown. Please refresh, or reach out directly at ' +
+            '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</p>';
+        }
+      });
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Timeline page: the "You Are Here" marker position and every event's day-
 // count/completed/next-up state (Stage 5a). Deliberately NOT gated by
@@ -750,30 +865,18 @@ function initEventTimelinePositions() {
   const items = document.querySelectorAll(".timeline-event");
   if (!track || !items.length) return;
 
-  // Stage 10a: each event's date used to live only as a data-event-date
-  // attribute right here in the DOM; it now comes from the shared
-  // HULT_EVENTS array instead (matched by each .timeline-event's
-  // data-event-id), so this page and the Countdown widget can never drift
-  // apart over what "Next Up" means. The visible .timeline-card-date text
-  // is still separately authored per card (same as the event's time/
-  // location/description) — ALL of it, including HULT_EVENTS' own dates,
-  // is illustrative PLACEHOLDER content for this build; the site owner
-  // must replace HULT_EVENTS' dates (js/script.js) and every card's visible
-  // date/time/location/description text with real confirmed values before
-  // launch. parseHultEventDate (js/script.js) parses via explicit numeric
-  // new Date(year, monthIndex, day) args, never new Date("YYYY-MM-DD") —
-  // the string form parses as UTC midnight, which shifts to the previous
-  // day once displayed/compared in any timezone west of UTC (i.e. most of
-  // North America); using the numeric constructor for both this and
-  // "today" below keeps both sides of every subtraction in the same
-  // (local) time reference, which is what actually avoids the off-by-one
-  // bug rather than any particular rounding choice.
-  const events = Array.from(items)
-    .map((el) => {
-      const match = HULT_EVENTS.find((e) => e.id === el.dataset.eventId);
-      return match ? { el, date: parseHultEventDate(match.date) } : null;
-    })
-    .filter(Boolean);
+  // This function only ever runs (from initTimelineContent, below) after
+  // that same fetch has already rendered these exact `items` FROM
+  // HULT_EVENTS in the same (sorted-by-date) order, so zipping by index is
+  // safe — no per-element matching needed. parseHultEventDate (js/script.js)
+  // parses via explicit numeric new Date(year, monthIndex, day) args, never
+  // new Date("YYYY-MM-DD") — the string form parses as UTC midnight, which
+  // shifts to the previous day once displayed/compared in any timezone west
+  // of UTC (i.e. most of North America); using the numeric constructor for
+  // both this and "today" below keeps both sides of every subtraction in
+  // the same (local) time reference, which is what actually avoids the
+  // off-by-one bug rather than any particular rounding choice.
+  const events = Array.from(items).map((el, i) => ({ el, date: parseHultEventDate(HULT_EVENTS[i].date) }));
   if (!events.length) return;
 
   const today = new Date();
@@ -896,7 +999,10 @@ function initEventTimelineReveal() {
 // Live Countdown widget (Stage 10a) — Home + Timeline. Targets whichever
 // HULT_EVENTS entry getNextUpHultEvent() (above) currently calls "Next Up,"
 // so the target date is never a second hardcoded value that could drift
-// from the Timeline page's own "Next Up" badge.
+// from the Timeline page's own "Next Up" badge. Only ever called from
+// initTimelineContent (Stage 2c), once HULT_EVENTS is populated from
+// content/timeline.json — this widget has no data source of its own, by
+// design, on either page it appears on.
 //
 // Split-flap digits and the radial ring are driven with plain CSS
 // transitions/classes rather than GSAP: this is a self-contained ticking
@@ -3634,10 +3740,7 @@ initPitchVideoPlayback();
 // .pitch-slide-card, which needs Swiper to have already applied its
 // coverflow positioning to the parent .swiper-slide first.
 initPitchVideoEntrance();
-initEventTimelinePositions();
-initEventTimelineReveal();
-initEventDetailModal();
-initCountdownWidget();
+initTimelineContent();
 initBlogEntrance();
 initBlogContent();
 initNewsletterReveal();

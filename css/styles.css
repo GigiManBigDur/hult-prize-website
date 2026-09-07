@@ -2819,6 +2819,41 @@ button:focus-visible {
   color: var(--text-secondary);
 }
 
+/* Stage 2c: this is now a <div> holding marked's rendered HTML (previously
+   a single <p> of plain text), so it needs the same child-element prose
+   rules as .blog-post-body — including the ul/ol fix from that stage:
+   list-style: revert belongs on the ul/ol itself, not the li, since
+   list-style-type is inherited and the site-wide `ul, ol { list-style:
+   none }` reset (near the top of this file) sets it directly on that
+   element — reverting on the li only undoes an (absent) author rule on
+   the li, not the inherited value from its parent. */
+.timeline-card-detail-description p {
+  margin: 0 0 1em;
+}
+
+.timeline-card-detail-description p:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-card-detail-description strong {
+  color: var(--white);
+}
+
+.timeline-card-detail-description a {
+  color: var(--card-accent, var(--magenta));
+}
+
+.timeline-card-detail-description ul,
+.timeline-card-detail-description ol {
+  list-style: revert;
+  margin: 0 0 1em;
+  padding-left: 1.4em;
+}
+
+.timeline-card-detail-description li {
+  margin-bottom: 0.3em;
+}
+
 /* The expanded state: position: fixed and centered, larger and scrollable,
    well above the site header's own z-index: 50 so the whole page —
    including the header — sits behind the dimmed backdrop. Deliberately
@@ -5232,4 +5267,33 @@ button:focus-visible {
 .blog-post-not-found p {
   color: var(--text-secondary);
   margin: 0 0 2rem;
+}
+
+/* ==========================================================================
+   Timeline page: content-load error state (Stage 2c) — shown only if
+   content/timeline.json fails to fetch/parse; see initTimelineContent in
+   js/script.js. Same treatment as .faq-load-error/.leadership-load-error/
+   .blog-load-error.
+   ========================================================================== */
+
+.timeline-load-error {
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  list-style: none;
+}
+
+/* Countdown widget: content-load error state (Stage 2c) — shown only if
+   content/timeline.json fails to fetch/parse, on whichever page(s) the
+   widget appears (Home, Timeline). Swapped in for the widget's normal
+   .countdown-inner contents by initTimelineContent's catch(), so this
+   only ever needs to read reasonably inside that card, not match its
+   normal flap/ring layout. */
+.countdown-load-error {
+  margin: 0;
+  padding: 1.5rem;
+  color: var(--text-secondary);
+  text-align: center;
 }

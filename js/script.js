@@ -21,6 +21,42 @@ function canRunPinSequence() {
 }
 
 // ---------------------------------------------------------------------------
+// Site-wide: the nav wordmark ("Hult Prize @ UC Davis") doubles as a Home
+// button that always does a genuine full page reload — never a manual
+// reset of hero-entrance/pin-sequence/ScrollTrigger state, which would be
+// fragile and easy to leave something out of. A real reload naturally
+// resets scroll position and re-runs every script from scratch, which is
+// what actually guarantees "everything resets," not custom logic.
+//
+// From any OTHER page, the wordmark's plain index.html#top href already
+// forces a real cross-page navigation on click — no JS needed, that's just
+// how browsers handle a link to a different document. The one case that
+// needs help is clicking it while already ON the Home page: index.html's
+// own copy of this link is a bare #top same-page anchor, which browsers
+// only scroll to (and, if already sitting at that hash, may not even do
+// that) rather than reload. This detects that case specifically and forces
+// location.reload() instead — clearing any other in-page hash first (e.g.
+// left over from an earlier click on "Our Story") so the reload can't land
+// somewhere other than the top.
+// ---------------------------------------------------------------------------
+function initHomeLogoReset() {
+  const logo = document.querySelector(".wordmark");
+  if (!logo) return;
+
+  const path = location.pathname.split("/").pop();
+  const onHomePage = path === "" || path === "index.html";
+  if (!onHomePage) return;
+
+  logo.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (location.hash) {
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+    location.reload();
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Animated impact counters (count up once, when scrolled into view)
 // ---------------------------------------------------------------------------
 // Exposed at module scope (not nested in initImpactCounters) because
@@ -1374,6 +1410,7 @@ function initPinSequence() {
     });
 }
 
+initHomeLogoReset();
 initImpactCounters();
 initScrollReveal();
 initLeadershipReveal();

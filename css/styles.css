@@ -4460,3 +4460,268 @@ button:focus-visible {
   color: var(--text-secondary);
   margin: 0 0 1rem;
 }
+
+/* ==========================================================================
+   Live Countdown widget (Stage 10a) — Home + Timeline
+   ========================================================================== */
+
+.countdown-section {
+  padding-block: 1rem 3.5rem;
+}
+
+.countdown-widget {
+  position: relative;
+  background: var(--charcoal-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 2.5rem 1.5rem 2.75rem;
+  text-align: center;
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+/* Ambient background glow — a static, subtle presence at rest (including
+   under reduced motion); initCountdownWidget only ever adds .is-pulsing
+   (and only ever sets the --cd-pulse-* custom properties it reads) when
+   motion is allowed, so reduced-motion users see this fixed low glow and
+   nothing that moves. */
+.countdown-glow {
+  position: absolute;
+  inset: -15%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(236, 32, 136, 0.32), rgba(236, 32, 136, 0) 68%);
+  filter: blur(48px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .countdown-glow.is-pulsing {
+    animation: countdown-pulse var(--cd-pulse-duration, 3.2s) ease-in-out infinite;
+  }
+
+  @keyframes countdown-pulse {
+    0%,
+    100% {
+      opacity: var(--cd-pulse-min, 0.2);
+      transform: scale(1);
+    }
+    50% {
+      opacity: var(--cd-pulse-max, 0.45);
+      transform: scale(1.07);
+    }
+  }
+}
+
+.countdown-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.countdown-label {
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  margin: 0 0 0.25rem;
+}
+
+.countdown-event-name {
+  color: var(--magenta);
+}
+
+/* Ring + split-flap cluster: a square stage so the ring reads as a true
+   circle wrapped around the digits regardless of viewport width, with the
+   flap grid sized down from it so the ring shows as a halo around (rather
+   than tight against) the digits. */
+.countdown-display {
+  position: relative;
+  width: clamp(230px, 52vw, 320px);
+  aspect-ratio: 1;
+  margin: 1.85rem auto 0;
+}
+
+.countdown-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.countdown-ring-track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 6;
+  transform-origin: 50% 50%;
+  transform: rotate(-90deg);
+}
+
+.countdown-ring-progress {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transform-origin: 50% 50%;
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Smooths the once-a-second jump between values; under reduced motion
+     this rule doesn't apply at all, so JS's per-tick strokeDashoffset
+     writes land instantly, per the brief's "ring updates without
+     animated transition" requirement. */
+  .countdown-ring-progress {
+    transition: stroke-dashoffset 0.6s linear;
+  }
+}
+
+.countdown-ring-milestone {
+  fill: var(--charcoal-deep);
+  stroke: var(--text-secondary);
+  stroke-width: 2;
+}
+
+.countdown-ring-milestone.is-reached {
+  fill: var(--gold);
+  stroke: var(--gold);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .countdown-ring-milestone {
+    transition: fill 0.4s ease, stroke 0.4s ease;
+  }
+}
+
+.countdown-flaps {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 1rem 1.2rem;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
+}
+
+/* [hidden] bug (established elsewhere on this site — see .newsletter-form
+   in css/styles.css): an authored `display` value beats the browser's own
+   [hidden]{display:none} at equal specificity, so both toggle targets need
+   an explicit override. */
+.countdown-flaps[hidden],
+.countdown-complete[hidden] {
+  display: none;
+}
+
+.cd-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(1.3rem, 4.8vw, 1.9rem);
+}
+
+.cd-group-label {
+  margin-top: 0.5rem;
+  font-family: var(--font-head);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.cd-digits {
+  display: flex;
+  gap: 0.15em;
+}
+
+.cd-digit {
+  position: relative;
+  width: 0.85em;
+  height: 1.2em;
+  background: var(--charcoal-deep);
+  border: 1px solid var(--line);
+  border-radius: 0.14em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  perspective: 6em;
+}
+
+/* The physical "split flap" seam. */
+.cd-digit::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.55);
+  transform: translateY(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cd-digit-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.62em;
+  color: var(--white);
+  transform-origin: 50% 50%;
+}
+
+/* Flip animation — only ever triggered by JS (initCountdownWidget) when a
+   digit's value actually changes AND prefers-reduced-motion is off; under
+   reduced motion these classes are never added, so the digit's textContent
+   just updates in place with no rotation, per the brief's fallback
+   requirement. rotateX(-90deg) then instantly rotateX(90deg) (no
+   transition) then back to 0 simulates a single flap swinging down through
+   its own edge — the two-stage swap happens once the leaf is edge-on
+   (heavily foreshortened + opacity-dimmed), which is what hides the
+   mid-flip text substitution. */
+.cd-digit.is-animating .cd-digit-inner {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 1, 1), opacity 0.15s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.cd-digit.is-out .cd-digit-inner {
+  transform: rotateX(-90deg);
+  opacity: 0.35;
+}
+
+.cd-digit.is-in-start .cd-digit-inner {
+  transition: none;
+  transform: rotateX(90deg);
+  opacity: 0.35;
+}
+
+.countdown-complete {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.countdown-complete-message {
+  margin: 0;
+  padding-inline: 1rem;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 3.4vw, 1.5rem);
+  color: var(--gold);
+}
+
+@media (max-width: 420px) {
+  .countdown-widget {
+    padding: 2rem 1rem 2.25rem;
+  }
+
+  .countdown-flaps {
+    gap: 0.7rem 0.85rem;
+  }
+}

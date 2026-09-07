@@ -55,16 +55,80 @@
           The key dates in this cycle's Hult Prize @ UC Davis competition — from kickoff through
           the National Competition.
         </p>
-        <!-- All dates below are illustrative PLACEHOLDERS for building this
-             page's design (Stage 5a) — see the matching comment by
+        <!-- All dates are illustrative PLACEHOLDERS for building this page's
+             design (Stage 5a). Since Stage 10a they live in the shared
+             HULT_EVENTS array (js/script.js) rather than in this markup —
+             each .timeline-event below only carries a data-event-id
+             matching an entry in that array; see the comment by
              initEventTimelinePositions in js/script.js. None are confirmed;
-             the site owner must replace every data-event-date (and the
-             matching visible date text) with real confirmed dates before
-             launch. -->
+             the site owner must replace HULT_EVENTS' dates (and each
+             card's matching visible date text) with real confirmed dates
+             before launch. -->
         <p class="timeline-placeholder-note">
           Dates shown are placeholders for this page's design — real confirmed dates will
           replace them before launch.
         </p>
+      </div>
+    </section>
+
+    <!-- Live Countdown widget (Stage 10a) — same widget as the Home page,
+         targeting whichever event is currently "Next Up" in the shared
+         HULT_EVENTS array (js/script.js) below, i.e. the same event this
+         page's own .timeline-next-up-badge highlights further down the
+         track. See the matching comment on the Home page's copy of this
+         markup (index.html) and initCountdownWidget (js/script.js) for how
+         it's driven. -->
+    <section class="countdown-section" aria-labelledby="countdown-heading">
+      <div class="container">
+        <div class="countdown-widget reveal-on-scroll" data-countdown-widget>
+          <div class="countdown-glow" aria-hidden="true"></div>
+          <div class="countdown-inner">
+            <h2 id="countdown-heading" class="countdown-label">Countdown to <span class="countdown-event-name">the next event</span></h2>
+
+            <div class="countdown-display">
+              <svg class="countdown-ring" viewBox="0 0 240 240" aria-hidden="true">
+                <defs>
+                  <linearGradient id="countdown-ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#EC2088"/>
+                    <stop offset="35%" stop-color="#F2994A"/>
+                    <stop offset="65%" stop-color="#FFBF00"/>
+                    <stop offset="100%" stop-color="#3AA9E0"/>
+                  </linearGradient>
+                </defs>
+                <circle class="countdown-ring-track" cx="120" cy="120" r="104"></circle>
+                <circle class="countdown-ring-progress" cx="120" cy="120" r="104" stroke="url(#countdown-ring-gradient)"></circle>
+                <circle class="countdown-ring-milestone" data-milestone="75"></circle>
+                <circle class="countdown-ring-milestone" data-milestone="50"></circle>
+                <circle class="countdown-ring-milestone" data-milestone="25"></circle>
+              </svg>
+
+              <div class="countdown-flaps">
+                <div class="cd-group" data-unit="days">
+                  <div class="cd-digits" data-digit-count="3"></div>
+                  <span class="cd-group-label">Days</span>
+                </div>
+                <div class="cd-group" data-unit="hours">
+                  <div class="cd-digits" data-digit-count="2"></div>
+                  <span class="cd-group-label">Hours</span>
+                </div>
+                <div class="cd-group" data-unit="minutes">
+                  <div class="cd-digits" data-digit-count="2"></div>
+                  <span class="cd-group-label">Minutes</span>
+                </div>
+                <div class="cd-group" data-unit="seconds">
+                  <div class="cd-digits" data-digit-count="2"></div>
+                  <span class="cd-group-label">Seconds</span>
+                </div>
+              </div>
+
+              <div class="countdown-complete" hidden>
+                <p class="countdown-complete-message">It's happening now!</p>
+              </div>
+            </div>
+
+            <p class="countdown-sr-text visually-hidden" aria-live="polite"></p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -99,7 +163,7 @@
                are only ever revealed by initEventDetailModal (js/script.js)
                when that specific card's modal is open. -->
           <ol class="timeline-events">
-            <li class="timeline-event timeline-event-teal" data-event-date="2026-09-01">
+            <li class="timeline-event timeline-event-teal" data-event-id="kickoff">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -122,7 +186,7 @@
               </article>
             </li>
 
-            <li class="timeline-event timeline-event-sky" data-event-date="2026-09-20">
+            <li class="timeline-event timeline-event-sky" data-event-id="team-formation">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -145,7 +209,7 @@
               </article>
             </li>
 
-            <li class="timeline-event timeline-event-orange" data-event-date="2026-10-10">
+            <li class="timeline-event timeline-event-orange" data-event-id="ideation-workshop">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -168,7 +232,7 @@
               </article>
             </li>
 
-            <li class="timeline-event timeline-event-gold" data-event-date="2026-11-05">
+            <li class="timeline-event timeline-event-gold" data-event-id="venture-workshops">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -191,7 +255,7 @@
               </article>
             </li>
 
-            <li class="timeline-event timeline-event-teal" data-event-date="2027-01-15">
+            <li class="timeline-event timeline-event-teal" data-event-id="pitch-submission">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -214,7 +278,7 @@
               </article>
             </li>
 
-            <li class="timeline-event timeline-event-sky" data-event-date="2027-02-20">
+            <li class="timeline-event timeline-event-sky" data-event-id="oncampus-competition">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -237,7 +301,7 @@
               </article>
             </li>
 
-            <li class="timeline-event timeline-event-orange" data-event-date="2027-03-01">
+            <li class="timeline-event timeline-event-orange" data-event-id="results-announcement">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -260,7 +324,7 @@
               </article>
             </li>
 
-            <li class="timeline-event timeline-event-gold" data-event-date="2027-04-15">
+            <li class="timeline-event timeline-event-gold" data-event-id="national-competition">
               <div class="timeline-node" aria-hidden="true"></div>
               <article class="timeline-card" tabindex="0" role="button">
                 <span class="timeline-card-completed-icon" aria-hidden="true">
@@ -323,6 +387,12 @@
        closes instantly instead of morphing, never that it fails to work;
        see initEventDetailModal in js/script.js. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+  <!-- Stage 10a: powers only the Countdown widget's one-shot confetti burst
+       when its target event arrives — same library/setup as the Home
+       page's Top Teams section (initCountdownWidget/triggerConfetti both
+       check typeof confetti first, so a CDN failure just means no
+       confetti, never a broken page). -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

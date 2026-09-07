@@ -21,6 +21,57 @@ function canRunPinSequence() {
 }
 
 // ---------------------------------------------------------------------------
+// Canonical chapter event data (Stage 10a) — the single source of truth for
+// every key date in this cycle. Previously each date lived only as a
+// data-event-date attribute on timeline.html's own markup; it now lives
+// here instead, with timeline.html's .timeline-event elements carrying a
+// matching data-event-id, so that initEventTimelinePositions below (the
+// Timeline page's day-count/completed/"Next Up" state) and
+// initCountdownWidget (the Home + Timeline countdown widget, Stage 10a)
+// both read the exact same array rather than each needing their own copy
+// of the target date. Change a date once, here, and both stay in sync.
+//
+// All dates are illustrative PLACEHOLDERS (see the matching comment in
+// timeline.html) — replace them here, in this one place, with the real
+// confirmed dates before launch.
+// ---------------------------------------------------------------------------
+const HULT_EVENTS = [
+  { id: "kickoff", date: "2026-09-01", title: "Kickoff / Info Session" },
+  { id: "team-formation", date: "2026-09-20", title: "Team Formation Deadline" },
+  { id: "ideation-workshop", date: "2026-10-10", title: "Ideation Workshop" },
+  { id: "venture-workshops", date: "2026-11-05", title: "Venture Development Workshops" },
+  { id: "pitch-submission", date: "2027-01-15", title: "Pitch Submission Deadline" },
+  { id: "oncampus-competition", date: "2027-02-20", title: "OnCampus Competition Day" },
+  { id: "results-announcement", date: "2027-03-01", title: "Results Announcement" },
+  { id: "national-competition", date: "2027-04-15", title: "National Competition" },
+];
+
+// "YYYY-MM-DD" -> local Date at midnight. Explicit numeric Date() args, not
+// new Date("YYYY-MM-DD") (which parses as UTC midnight and shifts a day
+// early anywhere west of UTC) — same fix already established for the
+// Timeline's own date math.
+function parseHultEventDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+// Returns { event, date, index } for the first HULT_EVENTS entry whose date
+// is today or later, or null if every event has already passed. `today`
+// must already be normalized to local midnight. Shared by
+// initEventTimelinePositions (which day-count-labels every event, "Next
+// Up" included) and initCountdownWidget, so "which event is next" is
+// computed exactly once, in exactly one place.
+function getNextUpHultEvent(today) {
+  for (let i = 0; i < HULT_EVENTS.length; i++) {
+    const date = parseHultEventDate(HULT_EVENTS[i].date);
+    if (date.getTime() >= today.getTime()) {
+      return { event: HULT_EVENTS[i], date, index: i };
+    }
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Site-wide: the nav wordmark ("Hult Prize @ UC Davis") doubles as a Home
 // button that always does a genuine full page reload — never a manual
 // reset of hero-entrance/pin-sequence/ScrollTrigger state, which would be
@@ -362,29 +413,31 @@ function initEventTimelinePositions() {
   const items = document.querySelectorAll(".timeline-event");
   if (!track || !items.length) return;
 
-  // Every date below comes from each .timeline-event's data-event-date
-  // ("YYYY-MM-DD") in timeline.html — ALL of them are illustrative
-  // PLACEHOLDERS for this page's build (Stage 5a), not confirmed real
-  // dates; the site owner must replace both the attribute and the visible
-  // .timeline-card-date text for each event before launch.
-  //
-  // Parsed via new Date(year, monthIndex, day) — explicit numeric args,
-  // never new Date("YYYY-MM-DD") — because the string form parses as UTC
-  // midnight, which shifts to the previous day once displayed/compared in
-  // any timezone west of UTC (i.e. most of North America). Using the
-  // numeric constructor for both this and "today" below keeps both sides
-  // of every subtraction in the same (local) time reference, which is what
-  // actually avoids the off-by-one bug rather than any particular rounding
-  // choice.
-  function parseLocalDate(iso) {
-    const [y, m, d] = iso.split("-").map(Number);
-    return new Date(y, m - 1, d);
-  }
-
-  const events = Array.from(items).map((el) => ({
-    el,
-    date: parseLocalDate(el.dataset.eventDate),
-  }));
+  // Stage 10a: each event's date used to live only as a data-event-date
+  // attribute right here in the DOM; it now comes from the shared
+  // HULT_EVENTS array instead (matched by each .timeline-event's
+  // data-event-id), so this page and the Countdown widget can never drift
+  // apart over what "Next Up" means. The visible .timeline-card-date text
+  // is still separately authored per card (same as the event's time/
+  // location/description) — ALL of it, including HULT_EVENTS' own dates,
+  // is illustrative PLACEHOLDER content for this build; the site owner
+  // must replace HULT_EVENTS' dates (js/script.js) and every card's visible
+  // date/time/location/description text with real confirmed values before
+  // launch. parseHultEventDate (js/script.js) parses via explicit numeric
+  // new Date(year, monthIndex, day) args, never new Date("YYYY-MM-DD") —
+  // the string form parses as UTC midnight, which shifts to the previous
+  // day once displayed/compared in any timezone west of UTC (i.e. most of
+  // North America); using the numeric constructor for both this and
+  // "today" below keeps both sides of every subtraction in the same
+  // (local) time reference, which is what actually avoids the off-by-one
+  // bug rather than any particular rounding choice.
+  const events = Array.from(items)
+    .map((el) => {
+      const match = HULT_EVENTS.find((e) => e.id === el.dataset.eventId);
+      return match ? { el, date: parseHultEventDate(match.date) } : null;
+    })
+    .filter(Boolean);
+  if (!events.length) return;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -500,6 +553,267 @@ function initEventTimelineReveal() {
       },
     });
   });
+}
+
+// ---------------------------------------------------------------------------
+// Live Countdown widget (Stage 10a) — Home + Timeline. Targets whichever
+// HULT_EVENTS entry getNextUpHultEvent() (above) currently calls "Next Up,"
+// so the target date is never a second hardcoded value that could drift
+// from the Timeline page's own "Next Up" badge.
+//
+// Split-flap digits and the radial ring are driven with plain CSS
+// transitions/classes rather than GSAP: this is a self-contained ticking
+// clock (one setInterval, not a scroll-driven or one-shot effect), so a
+// tween library buys nothing here that a CSS transition doesn't already
+// do more cheaply. GSAP's role on this page is unchanged (the track's
+// scroll-reveal); the widget card itself gets its entrance for free by
+// reusing the site's existing generic .reveal-on-scroll fade + rise
+// (initScrollReveal) rather than inventing a new one.
+//
+// Progressive enhancement, same tiering as every other effect on the
+// site: every DOM/text update below (which digits show, the ring's
+// dashoffset, the milestone markers' lit state, the aria-live sentence,
+// the "It's happening now!" swap) happens unconditionally on every tick,
+// regardless of motion preference. Only the flip transition itself, the
+// ring's dashoffset transition, the background pulse, and the mouse
+// parallax are skipped under prefers-reduced-motion — see the
+// `animate` flag threaded through below.
+// ---------------------------------------------------------------------------
+function initCountdownWidget() {
+  const widgets = document.querySelectorAll("[data-countdown-widget]");
+  if (!widgets.length) return;
+
+  const animate = !prefersReducedMotion;
+
+  // "Next Up" is computed exactly the way initEventTimelinePositions
+  // computes it for the Timeline's own badge: the first HULT_EVENTS entry
+  // whose date is today (local midnight) or later. If every event has
+  // already passed, fall back to the last one — already in the past, so
+  // the widget below immediately renders its "happening now" state rather
+  // than a negative countdown, per the brief's edge-case requirement.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const nextUp = getNextUpHultEvent(today);
+  const targetIndex = nextUp ? nextUp.index : HULT_EVENTS.length - 1;
+  const targetEvent = HULT_EVENTS[targetIndex];
+  const targetDate = nextUp ? nextUp.date : parseHultEventDate(targetEvent.date);
+  const targetTime = targetDate.getTime();
+
+  // Progress-ring reference point: the previous event on the calendar (the
+  // last milestone the chapter actually cleared), so the ring reads as
+  // "how far through the gap to the next date are we." With no previous
+  // event (the very first event is still Next Up), fall back to the
+  // moment the widget loaded — the ring simply starts full and counts
+  // down normally rather than needing an arbitrary hardcoded window.
+  const previousEvent = targetIndex > 0 ? HULT_EVENTS[targetIndex - 1] : null;
+  const startTime = previousEvent ? parseHultEventDate(previousEvent.date).getTime() : Date.now();
+  const totalSpan = Math.max(targetTime - startTime, 1); // guard against /0
+
+  widgets.forEach((widget) => initOneCountdownWidget(widget, targetEvent, targetTime, startTime, totalSpan, animate));
+}
+
+function initOneCountdownWidget(widget, targetEvent, targetTime, startTime, totalSpan, animate) {
+  const nameEl = widget.querySelector(".countdown-event-name");
+  const flapsEl = widget.querySelector(".countdown-flaps");
+  const completeEl = widget.querySelector(".countdown-complete");
+  const srTextEl = widget.querySelector(".countdown-sr-text");
+  const glowEl = widget.querySelector(".countdown-glow");
+  const displayEl = widget.querySelector(".countdown-display");
+  const trackCircle = widget.querySelector(".countdown-ring-track");
+  const progressCircle = widget.querySelector(".countdown-ring-progress");
+  const milestoneEls = widget.querySelectorAll(".countdown-ring-milestone");
+  if (!flapsEl || !completeEl || !trackCircle || !progressCircle) return;
+
+  if (nameEl) nameEl.textContent = targetEvent.title;
+
+  // Build each unit's digit cells once, up front — see the brief's "only
+  // re-flip the other digit groups when their value actually changes"
+  // requirement: every tick below diffs against each individual digit
+  // cell's current character and leaves untouched cells alone entirely,
+  // never rebuilding or re-rendering a whole group.
+  const UNITS = [
+    { key: "days", digits: 3 },
+    { key: "hours", digits: 2 },
+    { key: "minutes", digits: 2 },
+    { key: "seconds", digits: 2 },
+  ];
+  const digitCells = {}; // key -> array of { cellEl, innerEl } per position
+  UNITS.forEach(({ key, digits }) => {
+    const container = flapsEl.querySelector(`.cd-group[data-unit="${key}"] .cd-digits`);
+    if (!container) return;
+    const cells = [];
+    for (let i = 0; i < digits; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cd-digit";
+      const inner = document.createElement("span");
+      inner.className = "cd-digit-inner";
+      inner.textContent = "0";
+      cell.appendChild(inner);
+      container.appendChild(cell);
+      cells.push({ cellEl: cell, innerEl: inner });
+    }
+    digitCells[key] = cells;
+  });
+
+  function setDigitCell(cell, char) {
+    if (cell.innerEl.textContent === char) return; // unchanged: no flip, no re-render
+    if (!animate) {
+      cell.innerEl.textContent = char;
+      return;
+    }
+    cell.cellEl.classList.add("is-animating", "is-out");
+    window.setTimeout(() => {
+      cell.innerEl.textContent = char;
+      cell.cellEl.classList.remove("is-out");
+      cell.cellEl.classList.add("is-in-start");
+      requestAnimationFrame(() => {
+        cell.cellEl.classList.remove("is-in-start");
+      });
+      window.setTimeout(() => {
+        cell.cellEl.classList.remove("is-animating");
+      }, 170);
+    }, 150);
+  }
+
+  function setUnit(key, value, digits) {
+    const cells = digitCells[key];
+    if (!cells) return;
+    const padded = String(Math.max(0, value)).padStart(digits, "0").slice(-digits);
+    for (let i = 0; i < digits; i++) {
+      setDigitCell(cells[i], padded[i]);
+    }
+  }
+
+  // Ring geometry, read from the track circle's own SVG attributes rather
+  // than duplicating its radius/center as separate magic numbers here.
+  const RING_R = trackCircle.r.baseVal.value;
+  const RING_CX = trackCircle.cx.baseVal.value;
+  const RING_CY = trackCircle.cy.baseVal.value;
+  const CIRCUMFERENCE = 2 * Math.PI * RING_R;
+  [trackCircle, progressCircle].forEach((c) => {
+    c.style.strokeDasharray = `${CIRCUMFERENCE} ${CIRCUMFERENCE}`;
+  });
+  progressCircle.style.strokeDashoffset = "0";
+
+  // Milestone markers sit at fixed angles around the ring — the point
+  // where the drawn/undrawn boundary will be exactly when that fraction
+  // of time remains — computed once from the same geometry, not
+  // hand-placed. 0deg is 12 o'clock, increasing clockwise, matching the
+  // progress circle's own -90deg CSS rotation (see css/styles.css).
+  const MILESTONE_R = 5;
+  milestoneEls.forEach((m) => {
+    const threshold = Number(m.dataset.milestone) / 100;
+    const angle = threshold * Math.PI * 2;
+    m.setAttribute("cx", RING_CX + RING_R * Math.sin(angle));
+    m.setAttribute("cy", RING_CY - RING_R * Math.cos(angle));
+    m.setAttribute("r", MILESTONE_R);
+  });
+
+  let confettiFired = false;
+  let completeShown = false;
+  let lastAnnouncedMinute = null; // throttles the aria-live text (see below)
+  let intervalId = null;
+
+  function renderComplete() {
+    if (completeShown) return;
+    completeShown = true;
+    flapsEl.hidden = true;
+    completeEl.hidden = false;
+    if (progressCircle) progressCircle.style.strokeDashoffset = String(CIRCUMFERENCE);
+    milestoneEls.forEach((m) => m.classList.add("is-reached"));
+    if (srTextEl) srTextEl.textContent = `${targetEvent.title} is happening now!`;
+    if (glowEl) glowEl.classList.remove("is-pulsing");
+    if (!confettiFired) {
+      confettiFired = true;
+      triggerConfetti(completeEl);
+    }
+    if (intervalId) {
+      window.clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
+  function tick() {
+    const now = Date.now();
+    const remainingMs = targetTime - now;
+
+    if (remainingMs <= 0) {
+      renderComplete();
+      return;
+    }
+
+    const totalSeconds = Math.floor(remainingMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    setUnit("days", days, 3);
+    setUnit("hours", hours, 2);
+    setUnit("minutes", minutes, 2);
+    setUnit("seconds", seconds, 2);
+
+    // Radial ring: fraction of the [previous event -> target] span still
+    // remaining, clamped in case an unusual clock skew ever pushes it
+    // outside [0, 1].
+    const fractionRemaining = Math.max(0, Math.min(1, (targetTime - now) / totalSpan));
+    progressCircle.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - fractionRemaining));
+    milestoneEls.forEach((m) => {
+      const threshold = Number(m.dataset.milestone) / 100;
+      m.classList.toggle("is-reached", fractionRemaining <= threshold);
+    });
+
+    // Background pulse intensifies/speeds up as the target nears — driven
+    // entirely by CSS custom properties so the actual animation stays in
+    // CSS; skipped outright under reduced motion (no properties to read,
+    // no .is-pulsing class ever added).
+    if (animate && glowEl) {
+      const urgency = 1 - fractionRemaining; // 0 far away -> 1 imminent
+      glowEl.classList.add("is-pulsing");
+      glowEl.style.setProperty("--cd-pulse-duration", `${(3.2 - urgency * 2.2).toFixed(2)}s`);
+      glowEl.style.setProperty("--cd-pulse-min", String((0.18 + urgency * 0.12).toFixed(2)));
+      glowEl.style.setProperty("--cd-pulse-max", String((0.4 + urgency * 0.35).toFixed(2)));
+    }
+
+    // Screen readers get a full plain-text sentence, but only re-announced
+    // once a minute (on the seconds rollover) rather than every second —
+    // the visual digits already update every second for sighted users,
+    // and re-announcing on every tick would make the live region
+    // unusable noise for assistive tech.
+    if (srTextEl && minutes !== lastAnnouncedMinute) {
+      lastAnnouncedMinute = minutes;
+      const parts = [];
+      if (days > 0) parts.push(`${days} day${days === 1 ? "" : "s"}`);
+      if (days > 0 || hours > 0) parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+      parts.push(`${minutes} minute${minutes === 1 ? "" : "s"}`);
+      srTextEl.textContent = `${parts.join(", ")} remaining until ${targetEvent.title}.`;
+    }
+  }
+
+  tick();
+  intervalId = window.setInterval(tick, 1000);
+
+  // Subtle mouse-parallax tilt on the ring/digit cluster, desktop only —
+  // same inline-transform + transition-on-leave pattern as
+  // initMagneticButtons above, just applied to the countdown's own
+  // display rather than a button.
+  if (animate && supportsFinePointer && displayEl) {
+    const maxOffset = 8;
+    widget.addEventListener("mousemove", (e) => {
+      const rect = widget.getBoundingClientRect();
+      const relX = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+      const relY = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
+      const x = Math.max(-maxOffset, Math.min(maxOffset, relX * maxOffset));
+      const y = Math.max(-maxOffset, Math.min(maxOffset, relY * maxOffset));
+      displayEl.style.transition = "transform 0.08s linear";
+      displayEl.style.transform = `translate(${x}px, ${y}px) rotateX(${-y * 0.6}deg) rotateY(${x * 0.6}deg)`;
+    });
+    widget.addEventListener("mouseleave", () => {
+      displayEl.style.transition = "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
+      displayEl.style.transform = "translate(0, 0) rotateX(0) rotateY(0)";
+    });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -2312,6 +2626,7 @@ initPitchVideoEntrance();
 initEventTimelinePositions();
 initEventTimelineReveal();
 initEventDetailModal();
+initCountdownWidget();
 initBlogEntrance();
 initBlogGridLayout();
 initBlogGridReveal();

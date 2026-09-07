@@ -352,6 +352,82 @@
       </div>
     </section>
 
+    <!-- Live Countdown widget (Stage 10a) — targets whichever event is
+         currently "Next Up" in the shared HULT_EVENTS array
+         (js/script.js), the exact same data and "next up" logic the
+         Timeline page itself uses, so this never needs a separate
+         hardcoded date: change a date in HULT_EVENTS and both this widget
+         and the Timeline stay in sync. initCountdownWidget (js/script.js)
+         drives the split-flap digit flips, the radial progress ring +
+         milestone markers, the background pulse, the mouse-parallax tilt,
+         and the "It's happening now!" celebration state — every one of
+         those is a decoration layer on top of numbers/labels that are
+         already correct without it; see the reduced-motion fallback notes
+         there. .reveal-on-scroll reuses the site's existing generic fade
+         + rise entrance (initScrollReveal) rather than a new one. -->
+    <section class="countdown-section" aria-labelledby="countdown-heading">
+      <div class="container">
+        <div class="countdown-widget reveal-on-scroll" data-countdown-widget>
+          <div class="countdown-glow" aria-hidden="true"></div>
+          <div class="countdown-inner">
+            <h2 id="countdown-heading" class="countdown-label">Countdown to <span class="countdown-event-name">the next event</span></h2>
+
+            <div class="countdown-display">
+              <svg class="countdown-ring" viewBox="0 0 240 240" aria-hidden="true">
+                <defs>
+                  <linearGradient id="countdown-ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#EC2088"/>
+                    <stop offset="35%" stop-color="#F2994A"/>
+                    <stop offset="65%" stop-color="#FFBF00"/>
+                    <stop offset="100%" stop-color="#3AA9E0"/>
+                  </linearGradient>
+                </defs>
+                <circle class="countdown-ring-track" cx="120" cy="120" r="104"></circle>
+                <circle class="countdown-ring-progress" cx="120" cy="120" r="104" stroke="url(#countdown-ring-gradient)"></circle>
+                <circle class="countdown-ring-milestone" data-milestone="75"></circle>
+                <circle class="countdown-ring-milestone" data-milestone="50"></circle>
+                <circle class="countdown-ring-milestone" data-milestone="25"></circle>
+              </svg>
+
+              <div class="countdown-flaps">
+                <div class="cd-group" data-unit="days">
+                  <div class="cd-digits" data-digit-count="3"></div>
+                  <span class="cd-group-label">Days</span>
+                </div>
+                <div class="cd-group" data-unit="hours">
+                  <div class="cd-digits" data-digit-count="2"></div>
+                  <span class="cd-group-label">Hours</span>
+                </div>
+                <div class="cd-group" data-unit="minutes">
+                  <div class="cd-digits" data-digit-count="2"></div>
+                  <span class="cd-group-label">Minutes</span>
+                </div>
+                <div class="cd-group" data-unit="seconds">
+                  <div class="cd-digits" data-digit-count="2"></div>
+                  <span class="cd-group-label">Seconds</span>
+                </div>
+              </div>
+
+              <!-- Celebration state (Stage 10a) — swapped in by
+                   initCountdownWidget once the target date arrives; see the
+                   .countdown-flaps[hidden]/.countdown-complete[hidden] CSS
+                   overrides (css/styles.css) for why they're needed at all
+                   (an authored display value on both would otherwise beat
+                   the browser's own [hidden] rule). -->
+              <div class="countdown-complete" hidden>
+                <p class="countdown-complete-message">It's happening now!</p>
+              </div>
+            </div>
+
+            <!-- The flip/ring animation conveys no information to assistive
+                 tech on its own; this plain-text equivalent is kept current
+                 by the same tick that drives the visual digits. -->
+            <p class="countdown-sr-text visually-hidden" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Get Involved CTA band -->
     <section class="cta-band" id="get-involved" aria-labelledby="cta-heading">
       <img class="cta-photo reveal-on-scroll" src="assets/cta-photo.jpg" alt="" loading="lazy" aria-hidden="true">

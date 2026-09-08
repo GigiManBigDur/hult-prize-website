@@ -1,0 +1,81 @@
+{
+  "introText": "The Hult Prize is the world's largest student startup competition — a year-long journey that takes a team from a single idea to a shot at $1,000,000 USD in seed funding. Every venture has to be for-profit and has to support at least one UN Sustainable Development Goal. This year's theme, \"Unlimited,\" means teams can build toward any SDG they choose, rather than a single assigned theme.\n\nBelow is the real path a team follows from our own OnCampus competition all the way to the Global Finals, how judges actually score teams at each stage, and the Sustainable Development Goals a venture can be built around.",
+  "stages": [
+    {
+      "name": "Qualifiers",
+      "dateRange": "September – February",
+      "description": "Teams compete through their campus's own Hult Prize OnCampus program — like the one our chapter runs — or, if no local competition is available to them, through Hult Prize's Open Application process instead."
+    },
+    {
+      "name": "Nationals",
+      "dateRange": "Spring",
+      "description": "Teams that qualify move on to national or regional competition events, or an equivalent online selection process, where they compete against qualifiers from other campuses."
+    },
+    {
+      "name": "Digital Incubator",
+      "dateRange": "June – July",
+      "description": "Selected teams enter a structured mentorship program: refining the core idea, validating real product-market fit, and building an actual minimum viable product."
+    },
+    {
+      "name": "Global Accelerator",
+      "dateRange": "August",
+      "description": "An intensive, in-person program at Ashridge House in London — compressing months of normal startup development into a few high-pressure weeks alongside teams from around the world."
+    },
+    {
+      "name": "Global Finals",
+      "dateRange": "September",
+      "description": "The remaining teams pitch live for the $1,000,000 USD prize in front of judges, marking the end of the yearly competition cycle."
+    }
+  ],
+  "eligibility": [
+    "Teams of 2–4 students",
+    "Every team member must be at least 18 years old",
+    "Every team member must be enrolled in any degree-granting program (undergraduate or graduate)",
+    "The venture must be for-profit, not a nonprofit or charity",
+    "The venture must support at least one UN Sustainable Development Goal — this year's theme, \"Unlimited,\" means any SDG qualifies, not one assigned theme"
+  ],
+  "evaluationCriteria": [
+    {
+      "name": "Innovation & Impact",
+      "description": "How original the idea is, and how much real-world scale and impact it could realistically reach if it worked."
+    },
+    {
+      "name": "Business Model Viability",
+      "description": "Whether the venture can actually sustain itself financially — real revenue thinking, not just a good cause."
+    },
+    {
+      "name": "Execution & Traction",
+      "description": "Real, demonstrated progress: working prototypes, actual user engagement, evidence the team has already started building, not just planning."
+    },
+    {
+      "name": "Team Strength & Leadership",
+      "description": "How committed and organized the team is, and how well its members' skills and backgrounds complement each other."
+    }
+  ],
+  "sdgs": [
+    { "number": 1, "name": "No Poverty", "description": "Ending poverty in all its forms, everywhere.", "example": "" },
+    { "number": 2, "name": "Zero Hunger", "description": "Ending hunger, achieving food security, and promoting sustainable agriculture.", "example": "Illustrative example only — not a real venture: a platform connecting surplus restaurant and grocery food to local food banks." },
+    { "number": 3, "name": "Good Health and Well-being", "description": "Ensuring healthy lives and promoting well-being for people at every age.", "example": "" },
+    { "number": 4, "name": "Quality Education", "description": "Ensuring inclusive, equitable, quality education and lifelong learning opportunities for all.", "example": "" },
+    { "number": 5, "name": "Gender Equality", "description": "Achieving gender equality and empowering all women and girls.", "example": "" },
+    { "number": 6, "name": "Clean Water and Sanitation", "description": "Ensuring availability and sustainable management of water and sanitation for all.", "example": "Illustrative example only — not a real venture: a low-cost, community-maintained water filtration system for underserved regions." },
+    { "number": 7, "name": "Affordable and Clean Energy", "description": "Ensuring access to affordable, reliable, sustainable, and modern energy for all.", "example": "Illustrative example only — not a real venture: pay-as-you-go solar charging kiosks for off-grid communities." },
+    { "number": 8, "name": "Decent Work and Economic Growth", "description": "Promoting sustained, inclusive economic growth and decent work for all.", "example": "Illustrative example only — not a real venture: a micro-lending platform for informal-sector workers." },
+    { "number": 9, "name": "Industry, Innovation and Infrastructure", "description": "Building resilient infrastructure and fostering innovation.", "example": "" },
+    { "number": 10, "name": "Reduced Inequalities", "description": "Reducing inequality within and among countries.", "example": "" },
+    { "number": 11, "name": "Sustainable Cities and Communities", "description": "Making cities and human settlements inclusive, safe, resilient, and sustainable.", "example": "" },
+    { "number": 12, "name": "Responsible Consumption and Production", "description": "Ensuring sustainable consumption and production patterns.", "example": "Illustrative example only — not a real venture: a marketplace for upcycled and refurbished electronics." },
+    { "number": 13, "name": "Climate Action", "description": "Taking urgent action to combat climate change and its impacts.", "example": "Illustrative example only — not a real venture: a carbon-footprint tracking subscription for small businesses." },
+    { "number": 14, "name": "Life Below Water", "description": "Conserving and sustainably using the oceans, seas, and marine resources.", "example": "" },
+    { "number": 15, "name": "Life on Land", "description": "Protecting, restoring, and promoting sustainable use of terrestrial ecosystems.", "example": "" },
+    { "number": 16, "name": "Peace, Justice and Strong Institutions", "description": "Promoting peaceful, inclusive societies and building effective, accountable institutions.", "example": "" },
+    { "number": 17, "name": "Partnerships for the Goals", "description": "Strengthening global partnerships to support and achieve all of the goals together.", "example": "" }
+  ],
+  "resourceLinks": [
+    { "label": "Official Hult Prize \"How It Works\"", "url": "https://www.hultprize.org/how-it-works" },
+    { "label": "Official Selection Process & Criteria", "url": "https://www.hultprize.org/how-it-works/selection-process-criteria" },
+    { "label": "Official UN Sustainable Development Goals", "url": "https://sdgs.un.org/goals" },
+    { "label": "Official Registration", "url": "https://www.hultprize.org/register/" },
+    { "label": "Competitor Guide Book", "url": "" }
+  ]
+}

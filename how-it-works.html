@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- See the matching comment in index.html/team.html/pitch-videos.html/
+       timeline.html/blog.html/gallery.html/about.html/faq.html/
+       get-involved.html: opt out of the browser's default scroll-position
+       restoration so a reload or a pasted link starts at the top rather
+       than wherever this page was last scrolled to (an explicit #hash
+       deep link is still honored). -->
+  <script>
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How It Works | Hult Prize @ UC Davis</title>
+  <meta name="description" content="How the Hult Prize competition actually works: the 5-stage journey, eligibility, how teams are judged, and the UN Sustainable Development Goals a venture can address.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Same header markup/treatment as the rest of the site. -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="pitch-videos.html">Pitch Videos</a></li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="how-it-works.html" aria-current="page">How It Works</a></li>
+          <li><a class="nav-cta" href="get-involved.html">Get Involved</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="hiw-page">
+    <section class="hiw-hero">
+      <!-- Same one-time entry flourish + per-word reveal pattern as every
+           other page's own hero section, reused here via
+           initHowItWorksEntrance (js/script.js) rather than inventing a
+           new entry style — independently named (.hiw-hero-flourish/
+           .hiw-reveal-word/-inner) so this page's word-reveal spans can't
+           collide with the others'. Title and lede are fixed UI copy, not
+           CMS content — the CMS-editable overview lives in the Intro
+           section just below. -->
+      <div class="hiw-hero-flourish" aria-hidden="true"></div>
+      <div class="container">
+        <h1>
+          <span class="hiw-reveal-word"><span class="hiw-reveal-word-inner">How</span></span>
+          <span class="hiw-reveal-word"><span class="hiw-reveal-word-inner">the</span></span>
+          <span class="hiw-reveal-word"><span class="hiw-reveal-word-inner">Hult</span></span>
+          <span class="hiw-reveal-word"><span class="hiw-reveal-word-inner">Prize</span></span>
+          <span class="hiw-reveal-word"><span class="hiw-reveal-word-inner">Works</span></span>
+        </h1>
+        <p class="hiw-hero-lede">
+          From your campus's own OnCampus competition to a $1,000,000 USD pitch in London — the
+          real path a team follows, how judges actually score it, and the causes a venture can
+          take on.
+        </p>
+      </div>
+    </section>
+
+    <!-- Intro (CMS-managed) — Intro Text is a markdown field
+         (content/how-it-works.json). Real current copy kept as static
+         fallback. -->
+    <section class="hiw-intro" aria-labelledby="hiw-intro-heading">
+      <div class="container">
+        <h2 id="hiw-intro-heading" class="visually-hidden">Overview</h2>
+        <div class="hiw-intro-body">
+          <p>The Hult Prize is the world's largest student startup competition — a year-long journey that takes a team from a single idea to a shot at $1,000,000 USD in seed funding. Every venture has to be for-profit and has to support at least one UN Sustainable Development Goal. This year's theme, "Unlimited," means teams can build toward any SDG they choose, rather than a single assigned theme.</p>
+          <p>Below is the real path a team follows from our own OnCampus competition all the way to the Global Finals, how judges actually score teams at each stage, and the Sustainable Development Goals a venture can be built around.</p>
+        </div>
+
+        <!-- Fixed, non-CMS safeguard note — deliberately NOT part of the
+             editable Intro Text markdown above, so it can't be trimmed out
+             by an edit there: competition rules/eligibility/prize amounts
+             are set by Hult Prize itself and genuinely change year to
+             year, so nothing on this page should ever be treated as
+             permanently fixed. -->
+        <p class="hiw-disclaimer">
+          <strong>Heads up:</strong> competition stages, eligibility, and prize details can change
+          year to year. Always verify the current terms against the official Hult Prize website
+          (<a class="text-link" href="https://www.hultprize.org/how-it-works" target="_blank" rel="noopener noreferrer">hultprize.org<span aria-hidden="true"> ↗</span></a>) before relying on anything here.
+        </p>
+      </div>
+    </section>
+
+    <!-- The Journey (CMS-managed list: Stages) — Stage 2h (Admin CMS
+         extension) note: the 5 stage items below used to be hand-authored
+         here — they're now built at runtime by renderStages
+         (js/script.js, called from initHowItWorksContent), which fetches
+         content/how-it-works.json's `stages` list. The connecting path is
+         a plain SVG line whose stroke draws itself in via a scroll-scrubbed
+         GSAP tween (initStageJourney) — deliberately NOT a pinned
+         ScrollTrigger sequence like Home's Hero/Explainer/Impact or Top
+         Teams sections: the site's own cross-device audit found GSAP's
+         pin:true mechanism specifically to be the recurring source of
+         touch/mobile-Safari trouble elsewhere on the site, so this page's
+         "roadmap draws itself in" effect uses a plain scrub (tied to
+         normal document scroll, never taking it over) instead of pinning
+         anything — the same category of animation already used safely for
+         Our Story's fade-in (initStoryEntranceFade) and FAQ/Gallery/About's
+         batched card reveals. Falls back to the path fully drawn and every
+         stage card already visible if GSAP/ScrollTrigger fail to load or
+         motion is reduced. -->
+    <section class="hiw-stages" aria-labelledby="hiw-stages-heading">
+      <div class="container">
+        <h2 id="hiw-stages-heading" class="section-heading">The 5-Stage Journey</h2>
+        <p class="hiw-stages-lede">From your first pitch on campus to the Global Finals stage — this is the real path a team follows over one competition cycle.</p>
+
+        <div class="hiw-stages-list" id="hiw-stages-list">
+          <svg class="hiw-stage-path" viewBox="0 0 4 1000" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M2,0 L2,1000" fill="none" stroke="var(--magenta)" stroke-width="4" stroke-linecap="round"></path>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Eligibility (CMS-managed list: plain requirement strings). -->
+    <section class="hiw-eligibility" aria-labelledby="hiw-eligibility-heading">
+      <div class="container">
+        <h2 id="hiw-eligibility-heading" class="section-heading">Eligibility</h2>
+        <ul class="hiw-eligibility-list reveal-on-scroll" id="hiw-eligibility-list"></ul>
+      </div>
+    </section>
+
+    <!-- How Teams Are Evaluated (CMS-managed list: Evaluation Criteria) —
+         scroll-revealed via initHowItWorksReveal (ScrollTrigger.batch,
+         same approach as About/Gallery/Leadership/Blog/FAQ). -->
+    <section class="hiw-evaluation" aria-labelledby="hiw-evaluation-heading">
+      <div class="container">
+        <h2 id="hiw-evaluation-heading" class="section-heading">How Teams Are Evaluated</h2>
+        <p class="hiw-evaluation-lede">Four criteria, weighted differently as teams advance from Qualifiers through Global Finals.</p>
+        <ul class="hiw-evaluation-grid" id="hiw-evaluation-grid"></ul>
+      </div>
+    </section>
+
+    <!-- Explore the Goals (CMS-managed list: SDGs) — an ORIGINAL colorful
+         grid using this site's own multi-color accent palette, NOT the UN's
+         actual SDG icon set or official color coding (a UN-owned asset with
+         usage restrictions, same reasoning as every other real-world-asset
+         caveat on this site). Click-to-expand reuses the exact Flip
+         technique already built for the Event Timeline's detail modal
+         (initEventDetailModal) rather than inventing a third expand
+         mechanism — see initSdgModal, js/script.js. -->
+    <section class="hiw-sdgs" aria-labelledby="hiw-sdgs-heading">
+      <div class="container">
+        <h2 id="hiw-sdgs-heading" class="section-heading">Explore the Goals</h2>
+        <p class="hiw-sdgs-lede">Every Hult Prize venture supports at least one UN Sustainable Development Goal. Tap a goal to read more — a few include an illustrative example idea (not a real venture) to show what a solution might look like.</p>
+        <ul class="hiw-sdg-grid" id="hiw-sdg-grid"></ul>
+      </div>
+    </section>
+
+    <!-- Flip-driven SDG detail dialog (see initSdgModal) — a single
+         persistent, empty overlay; the clicked .sdg-card itself becomes the
+         dialog (see .sdg-card.is-modal-open in css/styles.css), the exact
+         same "the clicked element becomes the modal" pattern as the Event
+         Timeline's initEventDetailModal and the Gallery's
+         initGalleryLightbox. -->
+    <div class="sdg-modal-overlay" id="sdg-modal-overlay" hidden></div>
+
+    <!-- Resources (CMS-managed list: Resource Links) — deliberately
+         distinct, prominent CTA-card styling (see .hiw-resource-card in
+         css/styles.css) rather than the plain text-link treatment used for
+         cross-links elsewhere, per the brief. A link with an empty/missing
+         URL (Competitor Guide Book, until the site owner has a real one to
+         add) renders as a clearly TBD-labeled non-link card instead of a
+         fabricated or third-party-reupload link — same
+         "[Link/form TBD — site owner to add]" convention already
+         established on Get Involved's pathway cards. -->
+    <section class="hiw-resources" aria-labelledby="hiw-resources-heading">
+      <div class="container">
+        <h2 id="hiw-resources-heading" class="section-heading">Official Resources</h2>
+        <ul class="hiw-resources-grid reveal-on-scroll" id="hiw-resources-grid"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Same footer markup/treatment as the rest of the site. -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-name">Hult Prize <span>@ UC Davis</span></p>
+      <ul class="footer-links">
+        <li><a href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a></li>
+        <li><a href="https://instagram.com/hultprizeucdavis" target="_blank" rel="noopener noreferrer">@hultprizeucdavis</a></li>
+      </ul>
+      <p class="footer-copyright">&copy; <span id="year"></span> Hult Prize @ UC Davis.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP + ScrollTrigger + Flip drive this page's entrance, the stage
+       path draw-in, the batched card reveals, and the SDG click-to-expand
+       dialog — js/script.js checks typeof gsap/ScrollTrigger/Flip before
+       using any of them, so a CDN failure degrades to a fully static (but
+       fully readable) page rather than breaking it. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+  <!-- marked renders the Intro Text/Stage descriptions/Evaluation Criteria
+       descriptions/SDG descriptions+examples markdown-adjacent fields from
+       content/how-it-works.json — same library, same escape-then-parse
+       safety pattern (initHowItWorksContent, js/script.js) as every other
+       CMS-backed markdown field on this site. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <!-- Site-wide Search (Stage 11a) — Fuse.js powers fuzzy client-side
+       matching across blog posts, FAQ entries, and team bios (see
+       SEARCH_INDEX/initSiteSearch in js/script.js). Loaded on every page
+       since the search trigger lives in the shared header; a CDN
+       failure just means initSiteSearch never wires up the trigger
+       (typeof Fuse checked before use), never a broken page.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

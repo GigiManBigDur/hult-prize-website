@@ -3929,6 +3929,511 @@ function initSiteSettings() {
 }
 
 // ---------------------------------------------------------------------------
+// How It Works page: one-time hero entrance (Stage 2h) — the same
+// background-flourish + staggered-title + staggered-lede pattern as every
+// other page's own entrance function, reused rather than inventing a new
+// entry style. Independently named (.hiw-reveal-word/-inner) so this page's
+// word-reveal spans can't collide with the others'.
+// ---------------------------------------------------------------------------
+function initHowItWorksEntrance() {
+  const hero = document.querySelector(".hiw-hero");
+  if (!hero) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+
+  const flourish = document.querySelector(".hiw-hero-flourish");
+  const words = document.querySelectorAll(".hiw-hero .hiw-reveal-word-inner");
+  const lede = document.querySelector(".hiw-hero-lede");
+
+  if (flourish) gsap.set(flourish, { opacity: 0, scale: 0.85, rotate: -8 });
+  if (words.length) gsap.set(words, { yPercent: 115 });
+  if (lede) gsap.set(lede, { opacity: 0, y: 18 });
+
+  const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+  if (flourish) {
+    tl.to(flourish, { opacity: 0.4, scale: 1, rotate: 0, duration: 0.35 }, 0).to(
+      flourish,
+      { opacity: 0, duration: 0.35 },
+      0.35
+    );
+  }
+
+  if (words.length) {
+    tl.to(words, { yPercent: 0, duration: 0.45, stagger: 0.045, ease: "power3.out" }, 0.15);
+  }
+
+  if (lede) {
+    tl.to(lede, { opacity: 1, y: 0, duration: 0.4 }, 0.55);
+  }
+}
+
+// Position-based accent cycling, reused across every list on this page
+// (Evaluation Criteria cards, SDG tiles, Resource Link cards) — same
+// reasoning as every other card accent on this site: computed from the
+// rendered array index at render time, never stored as a CMS field.
+const HIW_ACCENTS = ["magenta", "teal", "sky", "orange", "gold"];
+
+// Builds every .hiw-stage-item from the fetched `stages` list, plus a
+// numbered node next to each one. Items stack in plain normal flow (flex
+// column); the connecting SVG path is a single straight line absolutely
+// positioned to span the whole list's height behind the nodes (see
+// initStageJourney) — a straight line naturally runs alongside evenly
+// stacked items with no per-item coordinate math needed, regardless of how
+// many stages there are or how tall each card renders.
+function renderStages(listEl, stages) {
+  const pathEl = listEl.querySelector(".hiw-stage-path");
+  const items = stages
+    .map((stage, i) => {
+      const accent = HIW_ACCENTS[i % HIW_ACCENTS.length];
+      return `
+        <div class="hiw-stage-item hiw-stage-item-${accent}">
+          <span class="hiw-stage-node" aria-hidden="true">${i + 1}</span>
+          <article class="hiw-stage-card">
+            <p class="hiw-stage-date">${escapeHtml(stage.dateRange || "")}</p>
+            <h3 class="hiw-stage-name">${escapeHtml(stage.name || "")}</h3>
+            <p class="hiw-stage-description">${escapeHtml(stage.description || "")}</p>
+          </article>
+        </div>`;
+    })
+    .join("");
+  listEl.innerHTML = (pathEl ? pathEl.outerHTML : "") + items;
+}
+
+// ---------------------------------------------------------------------------
+// How It Works page: the stage journey's connecting line draws itself in as
+// the user scrolls, via a scroll-SCRUBBED (never pinned) GSAP tween on the
+// SVG path's stroke-dashoffset — deliberately not a ScrollTrigger pin:true
+// sequence like Home's Hero/Explainer/Impact or Top Teams sections: the
+// site's own cross-device compatibility audit identified GSAP's pin
+// mechanism specifically as the recurring source of touch/mobile-Safari
+// trouble elsewhere on the site, so this effect is built the same safer way
+// as Our Story's fade-in (initStoryEntranceFade) instead — tied to normal
+// document scroll, never taking it over, which behaves identically on
+// touch and fine-pointer devices alike. Falls back to the path already
+// fully drawn (its base markup has no stroke-dasharray/-dashoffset at all
+// — those are only ever set here, via GSAP, once GSAP/ScrollTrigger are
+// confirmed present and motion isn't reduced) if the CDN fails to load or
+// the user prefers reduced motion.
+//
+// The stage cards themselves reveal via the same ScrollTrigger.batch
+// stagger used everywhere else on this site (About/Gallery/Leadership/
+// Blog/FAQ/Get Involved) — batched separately from the path draw so a fast
+// scroll doesn't leave cards ahead of where the line has actually drawn to.
+// ---------------------------------------------------------------------------
+function initStageJourney() {
+  const container = document.getElementById("hiw-stages-list");
+  const path = container ? container.querySelector(".hiw-stage-path path") : null;
+  const cards = document.querySelectorAll(".hiw-stage-card");
+  if (!container || !cards.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (path) {
+    const length = path.getTotalLength();
+    gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      ease: "none",
+      scrollTrigger: {
+        trigger: container,
+        start: "top 75%",
+        end: "bottom 60%",
+        scrub: 0.4,
+      },
+    });
+  }
+
+  gsap.set(cards, { opacity: 0, y: 28 });
+  ScrollTrigger.batch(cards, {
+    start: "top 85%",
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "power2.out" }),
+  });
+}
+
+// Plain requirement strings -> <li> items with a checkmark, matching the
+// site's established icon-plus-text list treatment (e.g. FAQ's category
+// chips) rather than a bare bullet list.
+function renderEligibility(listEl, items) {
+  listEl.innerHTML = items
+    .map(
+      (item) => `
+        <li class="hiw-eligibility-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>${escapeHtml(item)}</span>
+        </li>`
+    )
+    .join("");
+}
+
+function renderEvaluationCriteria(gridEl, criteria) {
+  gridEl.innerHTML = criteria
+    .map((criterion, i) => {
+      const accent = HIW_ACCENTS[i % HIW_ACCENTS.length];
+      return `
+        <li class="hiw-evaluation-card hiw-evaluation-card-${accent}">
+          <span class="hiw-evaluation-number" aria-hidden="true">${i + 1}</span>
+          <h3>${escapeHtml(criterion.name || "")}</h3>
+          <p>${escapeHtml(criterion.description || "")}</p>
+        </li>`;
+    })
+    .join("");
+}
+
+// Builds every .sdg-card <li> from the fetched `sdgs` list. Example is an
+// OPTIONAL field (per the brief, not every SDG has an illustrative
+// example) — the detail view's example block only renders at all when one
+// is present. Icon/accent both come from HIW_ACCENTS cycling by rendered
+// position, same convention as every other card grid on this site, and are
+// deliberately plain colored numerals/shapes — NOT the UN's actual SDG
+// icon set or official per-goal color coding, which is a UN-owned asset
+// with usage restrictions (same reasoning already applied to other
+// real-world assets on this site).
+function renderSdgGrid(gridEl, sdgs) {
+  gridEl.innerHTML = sdgs
+    .map((sdg, i) => {
+      const accent = HIW_ACCENTS[i % HIW_ACCENTS.length];
+      const descriptionHtml =
+        typeof marked !== "undefined" ? marked.parse(escapeHtml(sdg.description || "")) : `<p>${escapeHtml(sdg.description || "")}</p>`;
+      const hasExample = sdg.example && String(sdg.example).trim();
+      const exampleHtml = hasExample
+        ? `<div class="sdg-card-detail-example">${
+            typeof marked !== "undefined" ? marked.parse(escapeHtml(sdg.example)) : `<p>${escapeHtml(sdg.example)}</p>`
+          }</div>`
+        : "";
+      return `
+        <li class="sdg-tile sdg-tile-${accent}">
+          <article class="sdg-card" tabindex="0" role="button" aria-haspopup="dialog">
+            <button class="sdg-card-close" type="button" aria-label="Close">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </button>
+            <span class="sdg-card-number" aria-hidden="true">${escapeHtml(String(sdg.number || i + 1))}</span>
+            <h3 class="sdg-card-name">${escapeHtml(sdg.name || "")}</h3>
+            <div class="sdg-card-detail">
+              <div class="sdg-card-detail-description">${descriptionHtml}</div>
+              ${exampleHtml}
+            </div>
+          </article>
+        </li>`;
+    })
+    .join("");
+}
+
+function renderResourceLinks(gridEl, links) {
+  gridEl.innerHTML = links
+    .map((link, i) => {
+      const accent = HIW_ACCENTS[i % HIW_ACCENTS.length];
+      const url = (link.url || "").trim();
+      const label = escapeHtml(link.label || "");
+      const body = url
+        ? `<a class="hiw-resource-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${label} <span aria-hidden="true">↗</span></a>`
+        : `<p class="hiw-resource-tbd">[Link TBD — site owner to add from official Hult Prize campus director resources]</p>`;
+      return `
+        <li class="hiw-resource-card hiw-resource-card-${accent}">
+          <h3>${label}</h3>
+          ${body}
+        </li>`;
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
+// How It Works page: Flip-driven click-to-expand for the SDG grid (Stage
+// 2h) — reuses the exact Flip technique already built for the Event
+// Timeline's detail modal (initEventDetailModal) rather than inventing a
+// third expand mechanism, per the brief. Structurally identical: the
+// clicked .sdg-card is reparented to a direct child of <body> (so
+// .is-modal-open's position: fixed centers on the viewport rather than an
+// ancestor a scroll-reveal may have left transformed — same reasoning as
+// initEventDetailModal/initGalleryLightbox), Flip.from morphs it from its
+// grid position/size into the centered dialog, and a focus trap +
+// Escape/backdrop-click closing round it out.
+// ---------------------------------------------------------------------------
+function initSdgModal() {
+  const cards = document.querySelectorAll(".sdg-card");
+  const overlay = document.getElementById("sdg-modal-overlay");
+  if (!cards.length || !overlay) return;
+
+  const canFlip = !prefersReducedMotion && typeof gsap !== "undefined" && typeof Flip !== "undefined";
+  if (canFlip) gsap.registerPlugin(Flip);
+
+  let activeCard = null;
+  let cardOriginalParent = null;
+  let cardOriginalNextSibling = null;
+  let scrollLockPaddingRight = "";
+
+  function lockBodyScroll() {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    scrollLockPaddingRight = document.body.style.paddingRight;
+    if (scrollbarWidth > 0) document.body.style.paddingRight = scrollbarWidth + "px";
+    document.body.style.overflow = "hidden";
+  }
+  function unlockBodyScroll() {
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = scrollLockPaddingRight;
+  }
+
+  function getFocusable(card) {
+    return Array.from(
+      card.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter((el) => el.offsetParent !== null);
+  }
+
+  function onKeydown(e) {
+    if (!activeCard) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeCard();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const focusable = getFocusable(activeCard);
+    if (!focusable.length) {
+      e.preventDefault();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const outside = !activeCard.contains(document.activeElement);
+    if (e.shiftKey) {
+      if (outside || document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else if (outside || document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function openCard(card) {
+    if (activeCard) return;
+    activeCard = card;
+
+    const tile = card.closest(".sdg-tile");
+    const accent = tile ? getComputedStyle(tile).getPropertyValue("--card-accent") : "";
+    if (accent) card.style.setProperty("--card-accent", accent.trim());
+
+    const state = canFlip ? Flip.getState(card, { props: "borderRadius" }) : null;
+    const detail = card.querySelector(".sdg-card-detail");
+
+    cardOriginalParent = card.parentElement;
+    cardOriginalNextSibling = card.nextElementSibling;
+    document.body.appendChild(card);
+
+    card.classList.add("is-modal-open");
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-modal", "true");
+    const titleEl = card.querySelector(".sdg-card-name");
+    if (titleEl) card.setAttribute("aria-labelledby", titleEl.id);
+    card.setAttribute("tabindex", "-1");
+
+    overlay.hidden = false;
+    lockBodyScroll();
+
+    if (canFlip) {
+      if (detail) gsap.set(detail, { opacity: 0, y: 10 });
+      gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power1.out" });
+      card.style.transition = "none";
+      Flip.from(state, {
+        duration: 0.5,
+        ease: "power2.inOut",
+        absolute: true,
+        onComplete: () => {
+          if (detail) gsap.to(detail, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" });
+        },
+      });
+    }
+
+    const closeBtn = card.querySelector(".sdg-card-close");
+    if (closeBtn) closeBtn.focus();
+    document.addEventListener("keydown", onKeydown, true);
+  }
+
+  function closeCard() {
+    const card = activeCard;
+    if (!card) return;
+    activeCard = null;
+
+    const state = canFlip ? Flip.getState(card, { props: "borderRadius" }) : null;
+
+    card.classList.remove("is-modal-open");
+    card.setAttribute("role", "button");
+    card.removeAttribute("aria-modal");
+    card.setAttribute("tabindex", "0");
+
+    if (cardOriginalParent) {
+      if (cardOriginalNextSibling && cardOriginalNextSibling.parentElement === cardOriginalParent) {
+        cardOriginalParent.insertBefore(card, cardOriginalNextSibling);
+      } else {
+        cardOriginalParent.appendChild(card);
+      }
+    }
+    cardOriginalParent = null;
+    cardOriginalNextSibling = null;
+
+    unlockBodyScroll();
+    document.removeEventListener("keydown", onKeydown, true);
+
+    if (canFlip) {
+      gsap.to(overlay, {
+        opacity: 0,
+        duration: 0.25,
+        ease: "power1.in",
+        onComplete: () => {
+          overlay.hidden = true;
+        },
+      });
+      Flip.from(state, {
+        duration: 0.45,
+        ease: "power2.inOut",
+        absolute: true,
+        onComplete: () => {
+          card.style.transition = "";
+        },
+      });
+    } else {
+      overlay.hidden = true;
+    }
+
+    card.focus();
+  }
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeCard();
+  });
+
+  cards.forEach((card, i) => {
+    const titleEl = card.querySelector(".sdg-card-name");
+    if (titleEl && !titleEl.id) titleEl.id = `sdg-card-title-${i}`;
+
+    card.addEventListener("click", () => {
+      if (!card.classList.contains("is-modal-open")) openCard(card);
+    });
+    card.addEventListener("keydown", (e) => {
+      if (card.classList.contains("is-modal-open")) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openCard(card);
+      }
+    });
+
+    const closeBtn = card.querySelector(".sdg-card-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeCard();
+      });
+    }
+  });
+}
+
+// Scroll-revealed stagger for the Evaluation Criteria cards and SDG tiles
+// (Stage 2h) — same ScrollTrigger.batch approach as
+// initAboutReveal/initGalleryReveal/initInvolvedReveal, run as two
+// independent batches since a visitor can scroll to either section
+// separately. This is the tiles' initial appearance only — the SDG click-
+// to-expand itself is handled entirely by initSdgModal above.
+function initHowItWorksReveal() {
+  const evalCards = document.querySelectorAll(".hiw-evaluation-card");
+  const sdgTiles = document.querySelectorAll(".sdg-tile");
+  if (!evalCards.length && !sdgTiles.length) return;
+
+  if (prefersReducedMotion || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (evalCards.length) {
+    gsap.set(evalCards, { opacity: 0, y: 28 });
+    ScrollTrigger.batch(evalCards, {
+      start: "top 90%",
+      once: true,
+      onEnter: (batch) =>
+        gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }),
+    });
+  }
+
+  if (sdgTiles.length) {
+    gsap.set(sdgTiles, { opacity: 0, y: 24 });
+    ScrollTrigger.batch(sdgTiles, {
+      start: "top 92%",
+      once: true,
+      onEnter: (batch) =>
+        gsap.to(batch, { opacity: 1, y: 0, duration: 0.45, stagger: 0.04, ease: "power2.out" }),
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// How It Works page data (Stage 2h, Admin CMS extension) — fetches
+// content/how-it-works.json (the single document the /admin CMS's How It
+// Works collection edits) and renders the Intro/Stages/Eligibility/
+// Evaluation Criteria/SDGs/Resource Links sections from it. Every list on
+// this page starts EMPTY in how-it-works.html and is fully rendered here,
+// same pattern as every other CMS list on this site (Gallery/Team/Blog/
+// Timeline/Pitch Videos/About Values/Home Top Teams) — showing a
+// load-error message on failure rather than stale or partial content.
+// initStageJourney/initHowItWorksReveal/initSdgModal are all deferred until
+// after this fetch resolves, so none of them can ever run against an
+// empty/mid-render section.
+// ---------------------------------------------------------------------------
+function initHowItWorksContent() {
+  const introBodyEl = document.querySelector(".hiw-intro-body");
+  const stagesListEl = document.getElementById("hiw-stages-list");
+  const eligibilityListEl = document.getElementById("hiw-eligibility-list");
+  const evaluationGridEl = document.getElementById("hiw-evaluation-grid");
+  const sdgGridEl = document.getElementById("hiw-sdg-grid");
+  const resourcesGridEl = document.getElementById("hiw-resources-grid");
+  if (!stagesListEl) return; // not the How It Works page
+
+  const renderMarkdown = (text) =>
+    typeof marked !== "undefined" ? marked.parse(escapeHtml(text || "")) : `<p>${escapeHtml(text || "")}</p>`;
+
+  fetch("content/how-it-works.json")
+    .then((response) => {
+      if (!response.ok) throw new Error(`content/how-it-works.json responded ${response.status}`);
+      return response.json();
+    })
+    .then((data) => {
+      const stages = Array.isArray(data.stages) ? data.stages : [];
+      const eligibility = Array.isArray(data.eligibility) ? data.eligibility : [];
+      const evaluationCriteria = Array.isArray(data.evaluationCriteria) ? data.evaluationCriteria : [];
+      const sdgs = Array.isArray(data.sdgs) ? data.sdgs : [];
+      const resourceLinks = Array.isArray(data.resourceLinks) ? data.resourceLinks : [];
+      if (!stages.length || !sdgs.length) {
+        throw new Error("content/how-it-works.json is missing stages or sdgs");
+      }
+
+      if (introBodyEl) introBodyEl.innerHTML = renderMarkdown(data.introText);
+      renderStages(stagesListEl, stages);
+      if (eligibilityListEl) renderEligibility(eligibilityListEl, eligibility);
+      if (evaluationGridEl) renderEvaluationCriteria(evaluationGridEl, evaluationCriteria);
+      if (sdgGridEl) renderSdgGrid(sdgGridEl, sdgs);
+      if (resourcesGridEl) renderResourceLinks(resourcesGridEl, resourceLinks);
+
+      initStageJourney();
+      initHowItWorksReveal();
+      initSdgModal();
+    })
+    .catch((err) => {
+      console.error("How It Works content failed to load:", err);
+      if (stagesListEl) {
+        stagesListEl.innerHTML =
+          '<p class="hiw-load-error">Something went wrong loading this page\'s content. Please refresh, or reach out directly at ' +
+          '<a class="text-link" href="mailto:hultprize.ucdavis@example.com">hultprize.ucdavis@example.com</a>.</p>';
+      }
+    });
+}
+
+// ---------------------------------------------------------------------------
 // Site-wide Search (Stage 11a) — nav trigger, keyboard shortcuts (`/` and
 // Cmd/Ctrl+K), and the fuzzy-search overlay itself. Runs on every page: the
 // trigger button and overlay markup are both built here in JS (not
@@ -4363,6 +4868,8 @@ initFaqEntrance();
 initFaqContent();
 initInvolvedEntrance();
 initInvolvedReveal();
+initHowItWorksEntrance();
+initHowItWorksContent();
 initMagneticButtons();
 initCustomCursor();
 // Stage 2g: initImpactCounters/initPinSequence/initTopTeamsAnimation/

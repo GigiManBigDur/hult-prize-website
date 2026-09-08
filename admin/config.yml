@@ -1,6 +1,7 @@
 # Decap CMS config — Stage 1 (FAQ) + Stage 2a (Team) + Stage 2b (Blog) +
 # Stage 2c (Timeline) + Stage 2d (Pitch Videos) + Stage 2e (Gallery) +
-# Stage 2f (About Page) + Stage 2g (Home Page + shared Site Settings).
+# Stage 2f (About Page) + Stage 2g (Home Page + shared Site Settings) +
+# Stage 2h (How It Works Page).
 #
 # Stage 1 wired up exactly ONE collection, FAQ, to prove the whole login
 # -> edit -> commit -> deploy pipeline before migrating anything else.
@@ -46,6 +47,17 @@
 # second, SEPARATE single document (not nested under Home) for the
 # Instagram URL and contact email repeated across the Home hero and every
 # page's footer, so either only ever needs updating in one place.
+#
+# Stage 2h adds How It Works (how-it-works.html) — a single document, like
+# About/Home/Site Settings, since the page has one fixed set of sections
+# rather than a growing roster. Its content genuinely changes year to year
+# (Hult Prize sets new stage dates/eligibility/prize terms on its own
+# schedule), which is exactly why this one was built CMS-editable from the
+# start rather than retrofitted later. The SDG grid's icon/accent colors
+# are assigned automatically by each entry's position (see HIW_ACCENTS in
+# js/script.js) — same reasoning as every other auto-assigned card color on
+# this site — so reordering/adding/removing an SDG entry never needs a
+# layout decision here.
 #
 # Every OTHER page (Get Involved) is still untouched, plain HTML, not
 # editable here.
@@ -571,3 +583,122 @@ collections:
             hint: >-
               Button text only — it always links to the Get Involved page,
               which can't be changed here.
+
+  - name: how_it_works
+    label: How It Works
+    description: >-
+      The single How It Works page (how-it-works.html) — the competition's
+      5-stage journey, eligibility, how teams are evaluated, the SDG grid,
+      and the official resource links. This is a single-document
+      collection, like About/Home/Site Settings: there's one How It Works
+      page, not a growing list. IMPORTANT: Hult Prize sets its own stage
+      dates, eligibility rules, and prize terms independently, and these
+      genuinely change from year to year — always verify anything you
+      change here against the official Hult Prize site
+      (https://www.hultprize.org/how-it-works) before publishing. The page
+      itself also carries a permanent, non-editable reminder of this to
+      visitors, so it never implies its content is fixed.
+    files:
+      - name: how_it_works
+        label: How It Works
+        file: content/how-it-works.json
+        format: json
+        fields:
+          - label: Intro Text
+            name: introText
+            widget: markdown
+          - label: Stages
+            name: stages
+            widget: list
+            summary: "{{fields.name}} ({{fields.dateRange}})"
+            hint: >-
+              The 5-stage competition journey, in order — Qualifiers,
+              Nationals, Digital Incubator, Global Accelerator, Global
+              Finals. Verify current stage names/dates against
+              hultprize.org before publishing.
+            fields:
+              - label: Stage Name
+                name: name
+                widget: string
+              - label: Date Range
+                name: dateRange
+                widget: string
+                hint: 'e.g. "September – February"'
+              - label: Description
+                name: description
+                widget: text
+          - label: Eligibility
+            name: eligibility
+            widget: list
+            summary: "{{fields.requirement}}"
+            hint: >-
+              One entry per eligibility requirement. Verify against
+              hultprize.org before publishing — these can change year to
+              year.
+            field:
+              label: Requirement
+              name: requirement
+              widget: string
+          - label: Evaluation Criteria
+            name: evaluationCriteria
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - label: Criterion Name
+                name: name
+                widget: string
+              - label: Description
+                name: description
+                widget: text
+          - label: SDGs
+            name: sdgs
+            widget: list
+            summary: "{{fields.number}} — {{fields.name}}"
+            hint: >-
+              All 17 UN Sustainable Development Goals. Icon and accent
+              color are assigned automatically by each entry's position in
+              this list — reordering is safe, there's nothing else to set.
+              Do NOT use the UN's own SDG logos/icons or official color
+              coding anywhere (a UN-owned asset with usage restrictions) —
+              this grid is deliberately built with this site's own colors
+              instead.
+            fields:
+              - label: Number
+                name: number
+                widget: number
+                value_type: int
+                min: 1
+                max: 17
+              - label: Name
+                name: name
+                widget: string
+              - label: Description
+                name: description
+                widget: text
+              - label: Example Idea
+                name: example
+                widget: text
+                required: false
+                hint: >-
+                  Optional — not every goal needs one. If you add one,
+                  start it with something like "Illustrative example
+                  only — not a real venture:" so it's never mistaken for
+                  an actual case study.
+          - label: Resource Links
+            name: resourceLinks
+            widget: list
+            summary: "{{fields.label}}"
+            hint: >-
+              Leave URL blank for a link that isn't ready yet (e.g. the
+              Competitor Guide Book) — it will show as a clearly-marked
+              "Link TBD" card instead of a broken or fabricated link. Never
+              link to a third-party re-upload of an official Hult Prize
+              document.
+            fields:
+              - label: Label
+                name: label
+                widget: string
+              - label: URL
+                name: url
+                widget: string
+                required: false

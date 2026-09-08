@@ -2026,7 +2026,11 @@ button:focus-visible {
   z-index: 1;
 }
 
+/* `position: relative` added here as a real-bug fix — see the matching,
+   fuller comment on .hiw-hero. Same missing-containment issue as
+   .about-hero/.involved-hero/.gallery-hero/.faq-hero/.blog-hero. */
 .pitch-videos-hero {
+  position: relative;
   padding-block: 5rem 2.5rem;
   overflow: hidden;
 }
@@ -3024,7 +3028,11 @@ button:focus-visible {
   z-index: 1;
 }
 
+/* `position: relative` added here as a real-bug fix — see the matching,
+   fuller comment on .hiw-hero. Same missing-containment issue as
+   .about-hero/.involved-hero/.gallery-hero/.faq-hero/.pitch-videos-hero. */
 .blog-hero {
+  position: relative;
   padding-block: 5rem 2.5rem;
   overflow: hidden;
 }
@@ -3445,7 +3453,11 @@ button:focus-visible {
   z-index: 1;
 }
 
+/* `position: relative` added here as a real-bug fix — see the matching,
+   fuller comment on .hiw-hero. Same missing-containment issue as
+   .about-hero/.involved-hero/.faq-hero/.pitch-videos-hero/.blog-hero. */
 .gallery-hero {
+  position: relative;
   padding-block: 5rem 2.5rem;
   overflow: hidden;
 }
@@ -3801,7 +3813,18 @@ button:focus-visible {
   z-index: 1;
 }
 
+/* `position: relative` added here as a real-bug fix — see the matching,
+   fuller comment on .hiw-hero: without it, .about-hero-flourish's
+   `position: absolute; inset: 0` had no positioned ancestor to size
+   against (sizing instead against the page's initial containing block,
+   several times taller than this section), and this section's own
+   `overflow: hidden` never clipped it, since that only clips descendants
+   actually positioned relative to it. Invisible in the common case
+   (the flourish already fades to opacity: 0), but any time that fade
+   doesn't fully complete, the oversized, misplaced element shows through
+   well past the hero. */
 .about-hero {
+  position: relative;
   padding-block: 5rem 2.5rem;
   overflow: hidden;
 }
@@ -4091,7 +4114,11 @@ button:focus-visible {
   z-index: 1;
 }
 
+/* `position: relative` added here as a real-bug fix — see the matching,
+   fuller comment on .hiw-hero. Same missing-containment issue as
+   .about-hero/.involved-hero/.gallery-hero/.pitch-videos-hero/.blog-hero. */
 .faq-hero {
+  position: relative;
   padding-block: 5rem 2.5rem;
   overflow: hidden;
 }
@@ -4359,7 +4386,11 @@ button:focus-visible {
   z-index: 1;
 }
 
+/* `position: relative` added here as a real-bug fix — see the matching,
+   fuller comment on .hiw-hero. Same missing-containment issue as
+   .about-hero/.gallery-hero/.faq-hero/.pitch-videos-hero/.blog-hero. */
 .involved-hero {
+  position: relative;
   padding-block: 5rem 2.5rem;
   overflow: hidden;
 }
@@ -5397,7 +5428,22 @@ button:focus-visible {
    Flip-driven detail dialog, and the resource-link cards.
    ========================================================================== */
 
+/* Real bug, caught live: without `position: relative` here,
+   .hiw-hero-flourish's `position: absolute; inset: 0` had no positioned
+   ancestor to size against, so it sized itself against the page's initial
+   containing block instead — 3x taller than this section (measured 878px
+   vs. this section's own 275px) — and `overflow: hidden` on THIS element
+   never clipped it, since an element only clips descendants that are
+   actually positioned relative to it. Once sized like that, any time its
+   fade-out doesn't fully complete (a slow frame, or scrolling away mid-
+   animation), the leftover blurred color blob shows through well past the
+   hero, over whatever section happens to be at that point in the page —
+   exactly the effect reported. `position: relative` makes this section
+   itself the containing block, so `inset: 0` and the `overflow: hidden`
+   here both apply the way every other page's `-hero-flourish` already
+   relies on them to. */
 .hiw-hero {
+  position: relative;
   padding-block: 5rem 2.5rem;
   overflow: hidden;
 }

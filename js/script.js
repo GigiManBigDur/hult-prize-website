@@ -4018,8 +4018,19 @@ function renderStages(listEl, stages) {
 //
 // The stage cards themselves reveal via the same ScrollTrigger.batch
 // stagger used everywhere else on this site (About/Gallery/Leadership/
-// Blog/FAQ/Get Involved) — batched separately from the path draw so a fast
-// scroll doesn't leave cards ahead of where the line has actually drawn to.
+// Blog/FAQ/Get Involved) — each card pops in quickly, individually, as it
+// crosses into view, rather than waiting on the line's own progress.
+//
+// The line's scrub range is deliberately short (one screenful, not the
+// whole — potentially several-thousand-pixel-tall — 5-card list): tying it
+// to the full container height originally left the line only a small
+// fraction drawn while a card was already fully visible and read (a real
+// bug, caught live — the line's blunt round-capped end sat stranded mid-
+// card instead of extending past it). Finishing the draw quickly, as the
+// section first scrolls into view, means the line is already complete by
+// the time there's any stage content to read — scrub still holds it at
+// "fully drawn" for the remaining scroll through the list, it just never
+// visibly lags behind the cards again.
 // ---------------------------------------------------------------------------
 function initStageJourney() {
   const container = document.getElementById("hiw-stages-list");
@@ -4041,8 +4052,8 @@ function initStageJourney() {
       ease: "none",
       scrollTrigger: {
         trigger: container,
-        start: "top 75%",
-        end: "bottom 60%",
+        start: "top 80%",
+        end: "top 15%",
         scrub: 0.4,
       },
     });

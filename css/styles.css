@@ -216,9 +216,15 @@ button:focus-visible {
    in spirit from earlier stages.
    -------------------------------------------------------------------------- */
 
+/* Hero photo redesign: the solid navy fill is gone so the nav floats
+   directly over the new Home hero photo (the reference mockup's look) —
+   it's `position: sticky`, so it always shows whatever is directly behind
+   it. On every OTHER page this has ~no visual effect: the body immediately
+   behind it is the same dark charcoal-deep base the navy fill already
+   closely matched, and the nav's own text/link colors (white, gold accents)
+   are untouched, so contrast holds either way. */
 .site-header {
-  background: var(--navy);
-  border-bottom: 1px solid var(--navy-line);
+  background: transparent;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -641,20 +647,168 @@ button:focus-visible {
   margin-top: 1.75rem;
 }
 
-.scene-scroll-cue {
-  margin: 3rem 0 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  color: var(--text-secondary);
+/* --------------------------------------------------------------------------
+   Hero photo redesign — background photos, legibility overlay, one-time
+   light-streak entrance, corner tagline, and the "Scroll to Explore"
+   affordance. Scoped entirely to `.scene-hero`: none of this touches
+   `.scene-explainer`/`.scene-impact`, their own `.scene-scrim`, or the
+   shared `.pin-bg` motif (which still renders, unmodified, behind both of
+   those two scenes exactly as before — Hero's own new `.hero-photo-bg`
+   layer just visually covers it while Hero is the active scene, since
+   `.scene-hero` already stacks above `.pin-bg`, z-index 1 > 0).
+   -------------------------------------------------------------------------- */
+
+.hero-photo-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
 }
 
-.scene-scroll-cue::after {
-  content: "";
-  display: block;
-  width: 1px;
-  height: 22px;
-  margin-top: 0.5rem;
-  background: var(--line);
+/* Plain positioning wrapper — see the HTML comment on it for why the
+   frames live in their own sub-container instead of directly inside
+   .hero-photo-bg. Needs its own explicit sizing since its children
+   (.hero-photo-frame) are all position: absolute and so contribute
+   nothing to this wrapper's own layout size otherwise. */
+.hero-photo-frames {
+  position: absolute;
+  inset: 0;
+}
+
+/* Up to however many .hero-photo-frame elements renderHeroBg (js/script.js)
+   builds from the CMS's Hero Background Images list (3 in the static
+   fallback markup) — each one full-bleed, stacked exactly on top of each
+   other, crossfaded via opacity by initHeroPhotoLoop. `.is-active` (the
+   fallback's first frame) is the only one visible before that JS runs. */
+.hero-photo-frame {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+}
+
+.hero-photo-frame.is-active {
+  opacity: 1;
+}
+
+/* The legibility treatment from the reference: a strong dark gradient over
+   the left ~2/3 (where the headline/subtext sit), a lighter dark pocket in
+   the top-right (behind the corner tagline), and a soft top-edge darken so
+   the now-transparent nav (see .site-header below) stays readable over
+   whichever photo is showing. */
+.hero-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(4, 3, 6, 0.6) 0%, rgba(4, 3, 6, 0) 16%, rgba(4, 3, 6, 0) 100%),
+    radial-gradient(620px 460px at 88% 10%, rgba(4, 3, 6, 0.4), transparent 60%),
+    linear-gradient(100deg, rgba(4, 3, 6, 0.94) 0%, rgba(4, 3, 6, 0.82) 30%, rgba(4, 3, 6, 0.4) 56%, rgba(4, 3, 6, 0) 76%);
+}
+
+.hero-streak {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-streak-path {
+  fill: none;
+  stroke: var(--magenta);
+  stroke-width: 4;
+  stroke-linecap: round;
+  /* Default (no JS / reduced motion / GSAP CDN failure): fully drawn and
+     static — never an undrawn line stuck mid-reveal. initHeroStreakEntrance
+     (js/script.js) sets the dash offset to the path's real length and
+     animates it back to 0 once on load, same technique as the How It Works
+     stage-path draw-in. */
+  stroke-dasharray: none;
+  stroke-dashoffset: 0;
+  opacity: 0.9;
+}
+
+.hero-corner-tag {
+  position: absolute;
+  top: clamp(5.5rem, 12vh, 8rem);
+  right: var(--gutter);
+  z-index: 2;
+  margin: 0;
+  max-width: 12ch;
+  font-family: "Caveat", cursive;
+  font-weight: 600;
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  line-height: 1.15;
+  color: var(--white);
+  text-align: right;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.hero-scroll-affordance {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(1.75rem, 5vh, 3rem);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--white);
+  font-family: var(--font-head);
+}
+
+.hero-scroll-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-scroll-circle {
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+}
+
+.hero-scroll-affordance:hover .hero-scroll-circle,
+.hero-scroll-affordance:focus-visible .hero-scroll-circle {
+  background: var(--white);
+  color: var(--charcoal-deep);
+  border-color: var(--white);
+}
+
+.hero-scroll-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Narrower viewports: the hero photo and its overlay scale to any aspect
+   ratio (background-size: cover, above) so no separate fallback image is
+   needed here — this only re-balances the decorative pieces so they don't
+   collide with the headline. The corner tagline moves down to clear the
+   header/logo area on short phone viewports, and both it and the scroll
+   affordance shrink their side padding slightly. */
+@media (max-width: 640px) {
+  .hero-corner-tag {
+    top: clamp(4.5rem, 9vh, 6rem);
+    max-width: 9ch;
+    font-size: 1.4rem;
+  }
+
+  .hero-scroll-affordance {
+    left: clamp(1rem, 4vw, var(--gutter));
+  }
 }
 
 /* Headline cascade: each word is masked by an overflow-hidden wrapper and

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <!-- Placeholder hero background #1 (original graphic, not a photo) — a
+       generic sunset campus-tower silhouette. Stands in for real,
+       properly-licensed photography until the Home Page CMS's "Hero
+       Background Images" field is updated with the real thing. -->
+  <defs>
+    <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1c1030"/>
+      <stop offset="38%" stop-color="#3a1a4a"/>
+      <stop offset="62%" stop-color="#8a2f5c"/>
+      <stop offset="82%" stop-color="#e2653f"/>
+      <stop offset="100%" stop-color="#f6a24a"/>
+    </linearGradient>
+    <radialGradient id="sun1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffe2a8" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#f7a94a" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#f7a94a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ground1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#160f1e"/>
+      <stop offset="100%" stop-color="#0a0710"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky1)"/>
+  <circle cx="1180" cy="620" r="260" fill="url(#sun1)"/>
+
+  <!-- faint cloud streaks -->
+  <g opacity="0.25" fill="#ffffff">
+    <ellipse cx="420" cy="220" rx="260" ry="18"/>
+    <ellipse cx="900" cy="160" rx="180" ry="12"/>
+    <ellipse cx="1300" cy="300" rx="220" ry="14"/>
+  </g>
+
+  <!-- distant low buildings, right side -->
+  <g fill="#0c0812">
+    <rect x="1120" y="700" width="140" height="150"/>
+    <rect x="1270" y="660" width="110" height="190"/>
+    <rect x="1390" y="720" width="160" height="130"/>
+    <rect x="150" y="740" width="120" height="120"/>
+  </g>
+  <!-- lit windows -->
+  <g fill="#f6c86b" opacity="0.75">
+    <rect x="1135" y="720" width="10" height="14"/>
+    <rect x="1160" y="720" width="10" height="14"/>
+    <rect x="1135" y="750" width="10" height="14"/>
+    <rect x="1290" y="690" width="10" height="14"/>
+    <rect x="1315" y="690" width="10" height="14"/>
+    <rect x="1290" y="720" width="10" height="14"/>
+    <rect x="1410" y="750" width="10" height="14"/>
+    <rect x="1435" y="750" width="10" height="14"/>
+  </g>
+
+  <!-- central bell tower (generic, not a specific real building) -->
+  <g fill="#0a0710">
+    <rect x="765" y="180" width="70" height="620"/>
+    <rect x="745" y="150" width="110" height="40"/>
+    <polygon points="745,150 800,60 855,150"/>
+    <rect x="792" y="30" width="16" height="34"/>
+    <rect x="775" y="250" width="50" height="90"/>
+    <rect x="775" y="380" width="50" height="90"/>
+  </g>
+  <g fill="#f6c86b" opacity="0.6">
+    <rect x="785" y="265" width="10" height="18"/>
+    <rect x="805" y="265" width="10" height="18"/>
+    <rect x="785" y="395" width="10" height="18"/>
+    <rect x="805" y="395" width="10" height="18"/>
+  </g>
+
+  <!-- tree silhouettes, left edge -->
+  <g fill="#0a0710">
+    <ellipse cx="120" cy="480" rx="220" ry="260"/>
+    <ellipse cx="40" cy="560" rx="180" ry="220"/>
+    <rect x="90" y="600" width="30" height="260"/>
+  </g>
+
+  <!-- foreground tree line across the bottom -->
+  <g fill="url(#ground1)">
+    <ellipse cx="500" cy="900" rx="480" ry="140"/>
+    <ellipse cx="1000" cy="900" rx="520" ry="130"/>
+    <ellipse cx="1450" cy="900" rx="300" ry="110"/>
+  </g>
+  <rect x="0" y="860" width="1600" height="40" fill="#0a0710"/>
+</svg>

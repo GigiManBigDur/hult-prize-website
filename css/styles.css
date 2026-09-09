@@ -62,6 +62,15 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Home's hero is pinned starting at the very top of the page
+     (initPinSequence, ScrollTrigger start: "top top") — without this, an
+     elastic overscroll bounce (trackpad scroll past the very top) could
+     briefly reveal a sliver of whatever sits behind the pinned, fixed-
+     position hero content (a glimpse of the shared .pin-bg network motif
+     peeking through at the edges) before the bounce settles back. This
+     just disables that rubber-band bounce; it doesn't affect normal
+     scrolling, scrollTo/scrollBy, or ScrollTrigger's own mechanics. */
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -411,8 +420,11 @@ button:focus-visible {
   border-color: rgba(236, 32, 136, 0.6);
 }
 
+/* Every other page keeps the "Search" hint's pill border (base rule,
+   below) — removed here only, per feedback that it read as a stray box
+   against the photo. */
 .site-header--transparent .search-trigger-hint {
-  border-color: rgba(255, 255, 255, 0.22);
+  border: none;
 }
 
 /* --------------------------------------------------------------------------

@@ -342,6 +342,80 @@ button:focus-visible {
 }
 
 /* --------------------------------------------------------------------------
+   Home-only transparent header (Claude Design export integration).
+   Scoped entirely under `.site-header--transparent` — a modifier ONLY
+   present on index.html's <header> — so every rule below only ever applies
+   there. Every rule above this block (.site-header, .header-inner nav a,
+   .nav-cta, .search-trigger, etc.) is completely untouched, so every other
+   page's header keeps its exact navy background and gold hover/CTA
+   accents. Decided explicitly (not assumed): this header is shared across
+   every page, and this transparent/magenta treatment is Home-only per
+   that decision.
+   -------------------------------------------------------------------------- */
+
+.site-header--transparent {
+  background: transparent;
+  border-bottom: none;
+}
+
+.site-header--transparent .header-inner nav a:not(.nav-cta) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.site-header--transparent .header-inner nav a:not(.nav-cta)::after {
+  background: var(--magenta);
+}
+
+.site-header--transparent .header-inner nav a:not(.nav-cta):hover,
+.site-header--transparent .header-inner nav a:not(.nav-cta):focus-visible {
+  color: var(--magenta);
+}
+
+.site-header--transparent .header-inner nav a[aria-current="page"] {
+  color: var(--magenta);
+}
+
+/* Matches the export's own pill CTA (outlined, not filled) rather than the
+   site's gold-filled .nav-cta — a filled gold pill would clash with the
+   new magenta accent instead of complementing it. */
+.site-header--transparent .nav-cta {
+  background: rgba(10, 8, 12, 0.25);
+  backdrop-filter: blur(6px);
+  color: var(--white) !important;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  padding: 0.6rem 1.3rem;
+}
+
+.site-header--transparent .nav-cta:hover,
+.site-header--transparent .nav-cta:focus-visible {
+  background: rgba(236, 32, 136, 0.16);
+  border-color: var(--magenta);
+}
+
+/* The search trigger (inserted by initSiteSearch, js/script.js, on every
+   page identically) gets a pill/backdrop-blur treatment here so it reads
+   clearly against a busy photo instead of the plain icon+text it uses on
+   every other page's solid navy header. */
+.site-header--transparent .search-trigger {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(10, 8, 12, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+.site-header--transparent .search-trigger:hover,
+.site-header--transparent .search-trigger:focus-visible {
+  color: var(--magenta);
+  border-color: rgba(236, 32, 136, 0.6);
+}
+
+.site-header--transparent .search-trigger-hint {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* --------------------------------------------------------------------------
    Pinned scroll sequence — Hero / Explainer / Impact.
 
    Baseline (this CSS alone, no JS): `.pin-bg` is `position: sticky`, so the
@@ -620,41 +694,271 @@ button:focus-visible {
   }
 }
 
-/* Hero scene copy */
+/* Hero scene copy (Claude Design export integration) — Archivo is used
+   ONLY for this content block (`.hero-inner` and its descendants), not the
+   shared `<header>` nav, which stays the site's Space Grotesk (--font-head)
+   on Home exactly as on every other page — a deliberate scoping choice so
+   the nav's typography stays consistent site-wide while the hero content
+   itself carries the confirmed design's distinct look. */
+
+.hero-inner {
+  font-family: "Archivo", "Helvetica Neue", Helvetica, sans-serif;
+  max-width: min(48rem, 64%);
+  padding-inline: var(--gutter);
+  padding-block: clamp(7.5rem, 16vh, 11.25rem) clamp(6rem, 14vh, 8.25rem);
+}
+
+.hero-eyebrow {
+  margin: 0 0 clamp(0.9rem, 2vh, 1.4rem);
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
 
 .scene-hero h1 {
-  font-size: clamp(2.1rem, 5vw, 3.6rem);
+  font-size: clamp(2.1rem, 4.6vw, 4.25rem);
+  font-weight: 900;
+  line-height: 1.03;
+  letter-spacing: -0.028em;
   color: var(--white);
   max-width: 18ch;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
 }
 
 .hero-lede {
-  font-size: 1.15rem;
-  max-width: 46ch;
+  font-size: clamp(0.95rem, 1.25vw, 1.125rem);
+  line-height: 1.62;
+  max-width: 52ch;
   color: var(--text-secondary);
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1.75rem;
+  gap: 0.875rem;
+  margin-top: clamp(1.5rem, 3.6vh, 2.375rem);
 }
 
-.scene-scroll-cue {
-  margin: 3rem 0 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+/* Hero-scoped button refinements — the underlying .btn-primary/.btn-ghost
+   classes (css above) are unchanged, so every other page still using them
+   (CTA band, blog subscribe, Get Involved sign-up) looks exactly as
+   before. .btn-ghost happens to only ever be used in this hero anyway,
+   but is still scoped here rather than edited directly, for the same
+   reason: keep the shared class's own rule a stable, minimal-diff base. */
+.scene-hero .btn-primary,
+.scene-hero .btn-ghost {
+  border-radius: 6px;
+  padding: 1rem 1.85rem;
+  font-size: 0.9375rem;
+}
+
+.scene-hero .btn-primary {
+  box-shadow: 0 12px 40px rgba(236, 32, 136, 0.35);
+}
+
+.scene-hero .btn-primary:hover,
+.scene-hero .btn-primary:focus-visible {
+  background: #ff3d9c;
+  box-shadow: 0 14px 46px rgba(236, 32, 136, 0.5);
+}
+
+.scene-hero .btn-ghost {
+  backdrop-filter: blur(6px);
+  background: rgba(10, 8, 12, 0.22);
+}
+
+.scene-hero .btn-ghost:hover,
+.scene-hero .btn-ghost:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+}
+
+/* --------------------------------------------------------------------------
+   Hero background photo slot + legibility overlay + corner tagline +
+   scroll affordance (Claude Design export integration).
+   -------------------------------------------------------------------------- */
+
+.hero-photo-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Real, clearly-labeled stand-in for the export's `<image-slot>` (a
+   Claude-Design-preview-only element that renders nothing in a real
+   browser) — same "designed placeholder, not a broken element" language
+   as .leadership-placeholder-note/.gallery-placeholder-note elsewhere on
+   the site, just full-bleed here instead of a small pill note.
+   renderHeroBackgroundImage (js/script.js) hides this and reveals
+   .hero-photo-img in its place once the CMS's Hero Background Image field
+   actually has a photo. */
+.hero-photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+  background:
+    linear-gradient(160deg, rgba(236, 32, 136, 0.1), transparent 60%),
+    var(--charcoal-raised);
   color: var(--text-secondary);
 }
 
-.scene-scroll-cue::after {
-  content: "";
+.hero-photo-placeholder-label {
+  margin: 0;
+  max-width: 32ch;
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.hero-photo-placeholder-label a {
+  color: var(--gold);
+}
+
+.hero-photo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The legibility treatment from the export: a strong dark gradient over
+   the left ~2/3 (where the headline/subtext sit), a lighter dark diagonal
+   wash top-left-to-mid, and a soft top-edge darken so the transparent nav
+   (.site-header--transparent, above) stays readable over any photo. */
+.hero-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(6, 5, 8, 0.97) 0%, rgba(6, 5, 8, 0.94) 26%, rgba(6, 5, 8, 0.72) 44%, rgba(6, 5, 8, 0.28) 60%, rgba(6, 5, 8, 0) 74%),
+    linear-gradient(200deg, rgba(6, 5, 8, 0.62) 0%, rgba(6, 5, 8, 0.22) 26%, rgba(6, 5, 8, 0) 46%),
+    linear-gradient(0deg, rgba(6, 5, 8, 0.78) 0%, rgba(6, 5, 8, 0.18) 22%, rgba(6, 5, 8, 0) 42%);
+}
+
+.hero-corner-tag {
+  position: absolute;
+  /* The shared .site-header sits in normal flow above .scene-hero (it's
+     sticky, not overlapping) — measured ~73px tall, so this needs enough
+     clearance to actually sit below it rather than under/behind it. */
+  top: clamp(5.5rem, 11vh, 7.5rem);
+  right: var(--gutter);
+  z-index: 2;
+  margin: 0;
+  max-width: min(38vw, 18ch);
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  line-height: 1.05;
+  color: var(--white);
+  text-align: right;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.75);
+}
+
+.hero-corner-tag-underline {
   display: block;
-  width: 1px;
-  height: 22px;
-  margin-top: 0.5rem;
-  background: var(--line);
+  margin: 0.6rem 0 0 auto;
+  width: clamp(4.4rem, 10vw, 8rem);
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(236, 32, 136, 0), var(--magenta));
+  box-shadow: 0 0 16px rgba(236, 32, 136, 0.8);
+}
+
+.hero-scroll-affordance {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(1.75rem, 5vh, 2.875rem);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--white);
+  font-family: "Archivo", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.hero-scroll-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.375rem;
+  height: 3.375rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-scroll-circle {
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+}
+
+.hero-scroll-affordance:hover .hero-scroll-circle,
+.hero-scroll-affordance:focus-visible .hero-scroll-circle {
+  border-color: var(--magenta);
+  background: rgba(236, 32, 136, 0.18);
+}
+
+.hero-scroll-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Narrower viewports: the placeholder/photo and its overlay scale to any
+   aspect ratio (inset: 0 + object-fit/gradients, above) so nothing extra
+   is needed there — this only re-balances the decorative pieces so they
+   don't collide with the headline, and keeps the placeholder's own label
+   legible in a much narrower box. */
+@media (max-width: 640px) {
+  .hero-inner {
+    /* The 64% desktop cap (above) exists to leave room for the photo on
+       the right of the text — moot on a single-column phone layout, so
+       let the headline use the full available width instead of wrapping
+       into unnecessarily many short lines. */
+    max-width: 100%;
+    padding-block: clamp(6.5rem, 14vh, 9rem) clamp(5.5rem, 12vh, 7rem);
+  }
+
+  .hero-corner-tag {
+    max-width: 9ch;
+    font-size: 1.3rem;
+  }
+
+  .hero-scroll-affordance {
+    left: clamp(1rem, 4vw, var(--gutter));
+  }
+
+  .hero-photo-placeholder {
+    padding: 1.25rem;
+  }
+
+  .hero-photo-placeholder svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .hero-photo-placeholder-label {
+    font-size: 0.72rem;
+    max-width: 26ch;
+  }
 }
 
 /* Headline cascade: each word is masked by an overflow-hidden wrapper and

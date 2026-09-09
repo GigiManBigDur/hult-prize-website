@@ -3676,6 +3676,21 @@ function renderHeroHeadline(h1El, text) {
     .join(" ");
 }
 
+// Hero redesign (Claude Design export integration) — the "Scroll to
+// explore" button just nudges the scroll position down by roughly one
+// viewport. See the HTML comment on .hero-scroll-affordance for why this
+// is a plain scroll nudge rather than an anchor-link jump. Not gated by
+// prefersReducedMotion/GSAP the way initPinSequence itself is — this is
+// just a click handler, and `behavior: "smooth"` already respects reduced
+// motion on its own.
+function initHeroScrollAffordance() {
+  const btn = document.getElementById("hero-scroll-affordance");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    window.scrollBy({ top: window.innerHeight * 0.9, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  });
+}
+
 // "20+" -> { target: 20, suffix: "+" }; "2" -> { target: 2, suffix: "" }.
 // animateCounter (above) needs the two split apart on data-target/
 // data-suffix; the visually-hidden screen-reader text next to each counter
@@ -3816,6 +3831,9 @@ function initHomeContent() {
   const heroHeadingEl = document.getElementById("hero-heading");
   const heroLedeEl = document.querySelector(".hero-lede");
   const heroPrimaryBtnEl = document.getElementById("hero-primary-cta");
+  const heroCornerTagEl = document.querySelector("#hero-corner-tagline .hero-corner-tag-text");
+  const heroPhotoPlaceholderEl = document.getElementById("hero-photo-placeholder");
+  const heroPhotoImgEl = document.getElementById("hero-photo-img");
   const explainerHeadingEl = document.getElementById("explainer-heading");
   const explainerBodyEl = document.querySelector(".scene-explainer .scene-body");
   const impactPrimaryEl = document.querySelector(".impact-figure-primary");
@@ -3843,6 +3861,12 @@ function initHomeContent() {
       if (heroHeadingEl && data.heroHeadline) renderHeroHeadline(heroHeadingEl, data.heroHeadline);
       if (heroLedeEl) heroLedeEl.innerHTML = renderMarkdown(data.heroSubtext);
       if (heroPrimaryBtnEl && data.heroCtaLabel) heroPrimaryBtnEl.textContent = data.heroCtaLabel;
+      if (heroCornerTagEl && data.heroCornerTagline) heroCornerTagEl.textContent = data.heroCornerTagline;
+      if (heroPhotoImgEl && heroPhotoPlaceholderEl && data.heroBackgroundImage) {
+        heroPhotoImgEl.src = data.heroBackgroundImage;
+        heroPhotoImgEl.hidden = false;
+        heroPhotoPlaceholderEl.hidden = true;
+      }
 
       if (explainerHeadingEl && data.explainerHeading) explainerHeadingEl.textContent = data.explainerHeading;
       if (explainerBodyEl) explainerBodyEl.innerHTML = renderMarkdown(data.explainerBody);
@@ -3880,6 +3904,10 @@ function initHomeContent() {
       initPinSequence();
       initTopTeamsAnimation();
       initStoryEntranceFade();
+      // Hero redesign (Claude Design export integration) — safe to run
+      // even on a fetch failure, same reasoning as the four calls above:
+      // it only wires a click handler, unrelated to any fetched content.
+      initHeroScrollAffordance();
     });
 }
 

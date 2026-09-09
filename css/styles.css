@@ -367,6 +367,21 @@ button:focus-visible {
   border-bottom: none;
 }
 
+/* Fixes a real, always-visible (not just overscroll) seam: <body>'s own
+   background is --charcoal (a lighter gray) site-wide, but .pin-sequence
+   sets its own, slightly darker --charcoal-deep. On every other page this
+   never matters since .site-header has a solid navy fill of its own. Here
+   the header is transparent, so its own ~72px-tall strip showed --charcoal
+   (the body color) sitting directly above .pin-sequence's --charcoal-deep
+   — two similar-but-different dark grays meeting read as a thin border/
+   box line under the nav. Matching body's background to --charcoal-deep,
+   scoped to the Home page only (`.home-page`, index.html's own <body>
+   class), removes that seam — every other page's body keeps --charcoal
+   unchanged. */
+.home-page {
+  background: var(--charcoal-deep);
+}
+
 .site-header--transparent .header-inner nav a:not(.nav-cta) {
   color: rgba(255, 255, 255, 0.85);
 }

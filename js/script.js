@@ -3676,91 +3676,6 @@ function renderHeroHeadline(h1El, text) {
     .join(" ");
 }
 
-// ---------------------------------------------------------------------------
-// Hero photo redesign — background photo crossfade loop, one-time light-
-// streak entrance draw-in, and the "Scroll to Explore" affordance's scroll
-// nudge. All three run independently of initPinSequence's desktop/fine-
-// pointer/motion gating (that gating is specifically about whether it's
-// safe to scroll-jack the viewport) — these are just a looping background
-// animation, a one-time SVG draw-in, and a click handler, so — like every
-// other page's one-time hero entrance, e.g. initAboutEntrance — they run
-// wherever GSAP is available and motion isn't reduced, phone included.
-// ---------------------------------------------------------------------------
-
-// Rebuilds the #hero-photo-frames stack from the CMS's Hero Background
-// Images list. Only ever called with a non-empty array; a fetch failure or
-// an empty list leaves the three fallback frames already in index.html
-// (themselves the CMS's own current default images) untouched.
-function renderHeroBg(framesEl, images) {
-  if (!framesEl || !images.length) return;
-  framesEl.innerHTML = images
-    .map(
-      (src, i) =>
-        `<div class="hero-photo-frame${i === 0 ? " is-active" : ""}" style="background-image: url('${escapeHtml(src)}');"></div>`
-    )
-    .join("");
-}
-
-// Loops the .hero-photo-frame stack: hold on the active frame, cross-fade to
-// the next, repeat forever. Built as one repeating GSAP timeline rather than
-// a plain CSS animation because the frame count is dynamic (whatever the
-// CMS's Hero Background Images list currently holds) — a CSS @keyframes
-// animation would need separate rules for every possible count.
-function initHeroPhotoLoop() {
-  const frames = document.querySelectorAll(".hero-photo-frame");
-  if (frames.length < 2) return; // nothing to cross-fade with only one (or zero) frames
-
-  // Reduced motion (or a GSAP CDN failure): leave the first, already-
-  // .is-active frame showing, fully static, rather than a slowed-down
-  // loop — the simplest safe reading of "stops animating" for a full-bleed
-  // background photo.
-  if (prefersReducedMotion || typeof gsap === "undefined") return;
-
-  const HOLD = 5; // seconds each photo stays fully visible
-  const FADE = 2; // seconds each cross-fade takes
-
-  gsap.set(frames, { opacity: 0 });
-  gsap.set(frames[0], { opacity: 1 });
-
-  const tl = gsap.timeline({ repeat: -1 });
-  frames.forEach((frame, i) => {
-    const next = frames[(i + 1) % frames.length];
-    tl.to(frame, { opacity: 0, duration: FADE, ease: "sine.inOut" }, `+=${HOLD}`).to(
-      next,
-      { opacity: 1, duration: FADE, ease: "sine.inOut" },
-      "<"
-    );
-  });
-}
-
-// Draws the hero's light-streak in once on load, using the same
-// stroke-dashoffset technique as the How It Works stage-path
-// (initStageJourney) — just not scroll-scrubbed, since this plays once
-// immediately rather than tracking scroll position.
-function initHeroStreakEntrance() {
-  const path = document.querySelector(".hero-streak-path");
-  if (!path) return;
-
-  // Reduced motion / no GSAP: leave it in its default CSS state — fully
-  // drawn and static (never an undrawn line stuck mid-reveal).
-  if (prefersReducedMotion || typeof gsap === "undefined") return;
-
-  const length = path.getTotalLength();
-  gsap.set(path, { strokeDasharray: length, strokeDashoffset: length, opacity: 1 });
-  gsap.to(path, { strokeDashoffset: 0, duration: 1.6, ease: "power2.inOut", delay: 0.3 });
-}
-
-// The "Scroll to Explore" button just nudges the scroll position down by
-// roughly one viewport — see the HTML comment on .hero-scroll-affordance
-// for why this is a plain scroll nudge, not an anchor-link jump.
-function initHeroScrollAffordance() {
-  const btn = document.getElementById("hero-scroll-affordance");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    window.scrollBy({ top: window.innerHeight * 0.9, behavior: prefersReducedMotion ? "auto" : "smooth" });
-  });
-}
-
 // "20+" -> { target: 20, suffix: "+" }; "2" -> { target: 2, suffix: "" }.
 // animateCounter (above) needs the two split apart on data-target/
 // data-suffix; the visually-hidden screen-reader text next to each counter
@@ -3901,8 +3816,6 @@ function initHomeContent() {
   const heroHeadingEl = document.getElementById("hero-heading");
   const heroLedeEl = document.querySelector(".hero-lede");
   const heroPrimaryBtnEl = document.getElementById("hero-primary-cta");
-  const heroCornerTagEl = document.getElementById("hero-corner-tagline");
-  const heroPhotoFramesEl = document.getElementById("hero-photo-frames");
   const explainerHeadingEl = document.getElementById("explainer-heading");
   const explainerBodyEl = document.querySelector(".scene-explainer .scene-body");
   const impactPrimaryEl = document.querySelector(".impact-figure-primary");
@@ -3930,10 +3843,6 @@ function initHomeContent() {
       if (heroHeadingEl && data.heroHeadline) renderHeroHeadline(heroHeadingEl, data.heroHeadline);
       if (heroLedeEl) heroLedeEl.innerHTML = renderMarkdown(data.heroSubtext);
       if (heroPrimaryBtnEl && data.heroCtaLabel) heroPrimaryBtnEl.textContent = data.heroCtaLabel;
-      if (heroCornerTagEl && data.heroCornerTagline) heroCornerTagEl.textContent = data.heroCornerTagline;
-      if (heroPhotoFramesEl && Array.isArray(data.heroBackgroundImages) && data.heroBackgroundImages.length) {
-        renderHeroBg(heroPhotoFramesEl, data.heroBackgroundImages);
-      }
 
       if (explainerHeadingEl && data.explainerHeading) explainerHeadingEl.textContent = data.explainerHeading;
       if (explainerBodyEl) explainerBodyEl.innerHTML = renderMarkdown(data.explainerBody);
@@ -3971,12 +3880,6 @@ function initHomeContent() {
       initPinSequence();
       initTopTeamsAnimation();
       initStoryEntranceFade();
-      // Hero photo redesign — run after any renderHeroBg rebuild above (or
-      // its fallback markup, on fetch failure) is already final, same
-      // fetch-failure-safe reasoning as the four calls above.
-      initHeroPhotoLoop();
-      initHeroStreakEntrance();
-      initHeroScrollAffordance();
     });
 }
 

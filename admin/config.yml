@@ -480,30 +480,6 @@ collections:
             hint: >-
               Button text only — it always links to the Get Involved page,
               which can't be changed here.
-          - label: Hero Background Images
-            name: heroBackgroundImages
-            widget: list
-            field:
-              label: Image
-              name: image
-              widget: image
-              media_folder: /assets/hero
-              public_folder: /assets/hero
-            hint: >-
-              2–3 full-bleed photos that slowly crossfade behind the hero
-              headline, in display order. Use a wide/landscape,
-              high-resolution photo for each — a low-res or tall/portrait
-              image will look stretched or awkwardly cropped behind the
-              text. The images here now are original placeholder graphics
-              (not real photography) — replace them with properly-licensed
-              campus photos before launch.
-          - label: Hero Corner Tagline
-            name: heroCornerTagline
-            widget: string
-            hint: >-
-              Short handwritten-style accent line shown in the hero's
-              top-right corner. Keep it to 2–4 short words — it's designed
-              to wrap onto a few short lines, not read as one line.
           - label: Explainer Heading
             name: explainerHeading
             widget: string

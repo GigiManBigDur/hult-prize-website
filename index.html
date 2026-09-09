@@ -27,11 +27,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Hero photo redesign: Caveat is a handwriting-style webfont, used only
-       for the hero's small corner tagline ("Same campus. Bigger impact.")
-       — added here, not to every page's shared font link, since no other
-       page needs it. -->
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -111,72 +107,9 @@
           </svg>
         </div>
 
-        <!-- Scene 1: Hero (photographic redesign) —
-             ONLY this scene's visual treatment changed: the shared
-             `.pin-bg` network/globe motif (above) still exists unmodified
-             and still shows behind Explainer/Impact exactly as before —
-             this new `.hero-photo-bg` is a separate layer that lives
-             ONLY inside `.scene-hero`, sitting above `.pin-bg` (this
-             scene already stacks above it, z-index 1 > 0) and simply
-             covering it while Hero is the visible scene. Explainer/
-             Impact's own `.scene-scrim`/`::before` texture are completely
-             untouched — Hero no longer uses `.scene-scrim` at all (its own
-             `.hero-photo-overlay`, below, replaces that job), so removing
-             it here has no effect on the other two scenes' shared rule. -->
+        <!-- Scene 1: Hero -->
         <div class="scene scene-hero" id="top" aria-labelledby="hero-heading">
-          <!-- Stage: Hero photo redesign — a small, slowly crossfading set
-               of full-bleed background photos (CMS: Home Page > Hero
-               Background Images), a dark legibility overlay, and a
-               one-time animated light-streak entrance. renderHeroBg
-               (js/script.js) rebuilds the .hero-photo-frame stack from
-               the CMS's heroBackgroundImages array; the three frames
-               below are the static fallback (also the CMS's own current
-               default values), so a fetch failure still shows a correct,
-               working crossfade — just not CMS-editable in that case.
-               The three placeholder-sunset-*.svg files are original
-               graphics, not photography — replace them with real,
-               properly-licensed campus photos via the CMS before launch. -->
-          <div class="hero-photo-bg" aria-hidden="true">
-            <!-- renderHeroBg (js/script.js) replaces ONLY this wrapper's
-                 contents from the CMS's Hero Background Images list —
-                 kept separate from .hero-photo-overlay/.hero-streak below
-                 (both siblings, not children, of this wrapper) so
-                 rebuilding the photo frames can never wipe those out. -->
-            <div class="hero-photo-frames" id="hero-photo-frames">
-              <div class="hero-photo-frame is-active" style="background-image: url('assets/hero/placeholder-sunset-1.svg');"></div>
-              <div class="hero-photo-frame" style="background-image: url('assets/hero/placeholder-sunset-2.svg');"></div>
-              <div class="hero-photo-frame" style="background-image: url('assets/hero/placeholder-sunset-3.svg');"></div>
-            </div>
-            <div class="hero-photo-overlay"></div>
-            <!-- One-time draw-in light streak (initHeroStreakEntrance,
-                 js/script.js) — plays once on load via stroke-dashoffset,
-                 same established technique as the How It Works stage-path.
-                 Default CSS state (no JS/reduced motion/GSAP failure) is
-                 fully drawn and static, never animated-and-stuck. -->
-            <svg class="hero-streak" viewBox="0 0 1600 900" preserveAspectRatio="none" focusable="false">
-              <defs>
-                <filter id="hero-streak-glow" x="-60%" y="-60%" width="220%" height="220%">
-                  <feGaussianBlur stdDeviation="7" result="blur"/>
-                  <feMerge>
-                    <feMergeNode in="blur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              <path
-                class="hero-streak-path"
-                filter="url(#hero-streak-glow)"
-                d="M -60,780 C 260,860 620,600 860,440 C 1120,270 1340,300 1660,190"
-              />
-            </svg>
-          </div>
-          <!-- Corner tagline (CMS: Home Page > Hero Corner Tagline,
-               default "Same campus. Bigger impact." — renderHeroContent
-               in js/script.js fills this in; kept as static fallback
-               text here). Decorative accent copy, not primary content —
-               aria-hidden so screen readers aren't served a duplicate,
-               out-of-order fragment of the hero message. -->
-          <p class="hero-corner-tag" id="hero-corner-tagline" aria-hidden="true">Same campus. Bigger impact.</p>
+          <div class="scene-scrim"></div>
           <div class="container scene-inner">
             <!-- Stage 2g (Admin CMS extension): the words below are this
                  page's real current headline, kept as static fallback
@@ -225,28 +158,8 @@
                 Follow us on Instagram
               </a>
             </div>
+            <p class="scene-scroll-cue" aria-hidden="true">Scroll</p>
           </div>
-          <!-- Replaces the old plain-text "Scroll" cue with a real button,
-               matching the reference mockup's circular arrow + label near
-               the bottom-left. Deliberately a scroll NUDGE
-               (scrollBy ~90% of one viewport height) rather than an
-               anchor-link jump to #explainer-heading: that heading lives
-               inside `.scene-explainer`, which is `position: absolute;
-               inset: 0` once the pinned sequence is active, so a normal
-               anchor jump would land in the wrong place — exactly the
-               problem initPinSequence already has to special-case for the
-               nav's own "Impact" link. A plain scroll nudge sidesteps that
-               entirely: it's just how far the visitor was going to scroll
-               anyway, pinned sequence or not. -->
-          <button type="button" class="hero-scroll-affordance" id="hero-scroll-affordance" aria-label="Scroll to explore">
-            <span class="hero-scroll-circle" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <polyline points="6 13 12 19 18 13"></polyline>
-              </svg>
-            </span>
-            <span class="hero-scroll-label">Scroll to Explore</span>
-          </button>
         </div>
 
         <!-- Scene 2: What is the Hult Prize -->

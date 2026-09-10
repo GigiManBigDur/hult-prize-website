@@ -2083,10 +2083,6 @@ button:focus-visible {
   .leadership-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   }
-
-  .leadership-card-photo img {
-    transition: filter 0.4s ease;
-  }
 }
 
 .leadership-card-photo {
@@ -2098,9 +2094,10 @@ button:focus-visible {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  /* Desaturated by default; hover (or the touch equivalent below) brings
-     each photo to full color as its own micro-interaction. */
-  filter: grayscale(0.85) saturate(0.55) brightness(0.85);
+  /* Full color on every device with no interaction required (chapter
+     director's call) — the only sensible default for touch, where no hover
+     exists. The card's hover lift/tilt/glow (fine pointer only, below) is
+     the micro-interaction; the photo no longer participates. */
 }
 
 .leadership-card-body {
@@ -2194,10 +2191,6 @@ button:focus-visible {
     transform: translateY(-6px) rotate(0.5deg);
   }
 
-  .leadership-card:hover .leadership-card-photo img {
-    filter: grayscale(0) saturate(1) brightness(1);
-  }
-
   /* Event Timeline (Stage 5a) — appended here rather than a separate
      (hover: hover) and (pointer: fine) block, for the same duplicate-
      @media-condition reason documented at the top of that page's CSS
@@ -2274,16 +2267,13 @@ button:focus-visible {
   }
 }
 
-/* No hover gesture exists on touch/coarse-pointer devices — show the same
-   full-color, accented state always, rather than gating a decorative-only
-   effect behind a tap that has no other purpose. */
+/* No hover gesture exists on touch/coarse-pointer devices — show the
+   accented border always, rather than gating a decorative-only effect
+   behind a tap that has no other purpose. (Photos are full color on every
+   device via the base rule now, so there's no filter override here.) */
 @media (hover: none) {
   .leadership-card {
     border-color: var(--card-accent, var(--magenta));
-  }
-
-  .leadership-card-photo img {
-    filter: grayscale(0) saturate(1) brightness(1);
   }
 
   /* Event Timeline (Stage 5a) — appended here rather than a separate

@@ -363,43 +363,37 @@ button:focus-visible {
 }
 
 /* --------------------------------------------------------------------------
-   Home-only transparent header (Claude Design export integration).
-   Scoped entirely under `.site-header--transparent` — a modifier ONLY
-   present on index.html's <header> — so every rule below only ever applies
-   there. Every rule above this block (.site-header, .header-inner nav a,
-   .nav-cta, .search-trigger, etc.) is completely untouched, so every other
-   page's header keeps its exact navy background and gold hover/CTA
-   accents. Decided explicitly (not assumed): this header is shared across
-   every page, and this transparent/magenta treatment is Home-only per
-   that decision.
+   Site-wide transparent/magenta header (Claude Design export integration,
+   originally built for Home only — extended site-wide per explicit
+   follow-up: side-by-side screenshots of Home's nav vs. every other
+   page's, asking for every page to match Home's look). `.site-header--
+   transparent` is now added to every page's <header>, so every rule in
+   this block applies everywhere. The `position: fixed` behavior stays
+   scoped under `.home-page .site-header--transparent` further below,
+   specifically — see that rule's own comment for why: it's not part of
+   "matching the look," it's a structural fix for Home's full-bleed hero
+   photo specifically, which no other page has.
    -------------------------------------------------------------------------- */
 
 .site-header--transparent {
-  /* Real, structural fix (not just a color/behavior patch) for the
-     recurring "black gap above the photo" reports: this header used to
-     stay `position: sticky` (reserving its own ~74px of real document
-     flow, with the hero photo starting only right below it) — ANY
-     vertical shift of that boundary (an overscroll bounce even a JS
-     guard didn't fully catch, a resize, scroll-jank) could expose a gap
-     between where the header's reserved space ends and where the photo
-     actually starts, since they were never the same box. Taking the
-     header out of the flow entirely with `position: fixed` removes that
-     boundary altogether: .pin-sequence right below it in the DOM now
-     starts at true document y=0 (nothing above it reserves space
-     anymore), so the hero photo genuinely extends the full height of the
-     viewport, with the header floating on top via z-index — not two
-     adjacent boxes that can ever separate. --home-header-h (defined on
-     .home-page, the common ancestor — header and hero are siblings, so a
-     custom property set here wouldn't inherit to either of them) is this
-     header's own measured height, used to compensate .hero-inner's/
-     .hero-corner-tag's top offsets so the actual content doesn't shift
-     up underneath where the header now floats. */
+  background: transparent;
+  border-bottom: none;
+}
+
+/* Home-only: takes the header out of document flow entirely so its
+   full-bleed hero photo can genuinely extend behind it (see the fuller
+   history in this project's commits — "black gap above the photo" was
+   only ever fixed by this, not by color/behavior patches). Every other
+   page keeps the header `position: sticky` (the base .site-header rule,
+   unmodified) — they have no hero photo to extend behind it, so there's
+   nothing this would fix there, and it would need the same per-page
+   top-offset compensation Home needed (--home-header-h below) that isn't
+   worth adding just to floaty a header over plain hero sections. */
+.home-page .site-header--transparent {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  background: transparent;
-  border-bottom: none;
 }
 
 /* Fixes a real, always-visible (not just overscroll) seam: <body>'s own

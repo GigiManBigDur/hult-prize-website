@@ -40,16 +40,16 @@
 <body class="home-page">
   <a class="skip-link" href="#main">Skip to main content</a>
 
-  <!-- The one deliberate UC Davis touchpoint below this bar: navy background,
-       gold accents on the wordmark. Everything past the nav uses the dark
-       charcoal / Hult Prize magenta / curated-accent system.
-       Hero redesign (Claude Design export integration): the
-       `site-header--transparent` modifier below is HOME-ONLY (per explicit
-       decision — the exported design's transparent/magenta-hover header
-       floats over the new hero photo here, but every other page keeps this
-       exact navy/gold header completely untouched — no shared rule below
-       this comment block is modified, only new rules scoped under
-       `.site-header--transparent` are added). -->
+  <!-- The header's navy/gold look (originally "the one deliberate UC Davis
+       touchpoint," per the site's Stage 2 identity commit) has been
+       replaced site-wide by the `site-header--transparent` treatment
+       (transparent background, white/magenta nav, outlined pill CTA) —
+       every page's <header> now carries this same class. Home is the one
+       place it's also `position: fixed` (scoped under
+       `.home-page .site-header--transparent` in css/styles.css), so the
+       full-bleed hero photo can extend behind it; every other page keeps
+       the header `position: sticky`, just with this same transparent
+       styling. -->
   <header class="site-header site-header--transparent">
     <div class="container header-inner">
       <a class="wordmark" href="#top">Hult Prize <span>@ UC Davis</span></a>

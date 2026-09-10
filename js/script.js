@@ -3691,6 +3691,32 @@ function initHeroScrollAffordance() {
   });
 }
 
+// Home only (gated on #pin-sequence, same as every other Home-specific
+// init here) — actively blocks the trackpad/mouse-wheel gesture that
+// causes the browser's own elastic overscroll bounce at the very top of
+// the page, rather than just trying to recolor what shows through it
+// (the `overscroll-behavior-y: none` rule in css/styles.css, which
+// suppresses the bounce in Chrome/Edge but isn't reliably honored by
+// every browser — confirmed still visible after that CSS-only fix).
+// Scrolling up while already at scrollY 0 is the ONLY thing this
+// prevents; every other scroll direction/position is untouched, so this
+// can't interfere with the pinned sequence, normal scrolling, or
+// scrollTo/scrollBy anywhere.
+function initHeroOverscrollGuard() {
+  const sequence = document.getElementById("pin-sequence");
+  if (!sequence) return;
+
+  window.addEventListener(
+    "wheel",
+    (e) => {
+      if (window.scrollY <= 0 && e.deltaY < 0) {
+        e.preventDefault();
+      }
+    },
+    { passive: false }
+  );
+}
+
 // "20+" -> { target: 20, suffix: "+" }; "2" -> { target: 2, suffix: "" }.
 // animateCounter (above) needs the two split apart on data-target/
 // data-suffix; the visually-hidden screen-reader text next to each counter
@@ -3906,8 +3932,10 @@ function initHomeContent() {
       initStoryEntranceFade();
       // Hero redesign (Claude Design export integration) — safe to run
       // even on a fetch failure, same reasoning as the four calls above:
-      // it only wires a click handler, unrelated to any fetched content.
+      // both only wire up event listeners, unrelated to any fetched
+      // content.
       initHeroScrollAffordance();
+      initHeroOverscrollGuard();
     });
 }
 

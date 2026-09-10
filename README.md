@@ -1,10 +1,13 @@
 # Hult Prize Website
 
-Website for the Hult Prize project.
+Static site for Hult Prize @ UC Davis, plus a small GitHub OAuth proxy (`api/`) for the `/admin` Decap CMS pilot.
 
-## Project status
+## Overview
 
-Just getting started — repo initialized, no application code yet.
+- Hand-written HTML pages at the repo root, sharing `css/styles.css` and `js/script.js`.
+- Page copy lives as JSON in `content/*.json` and is rendered client-side by `js/script.js`.
+- `/admin` is a Decap CMS interface (`admin/config.yml`) for editing that content; changes commit to `main` and redeploy.
+- Deployed on Vercel. No build step — `package.json` has no dependencies or scripts.
 
 ## Working with this repo
 

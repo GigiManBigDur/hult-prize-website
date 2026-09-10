@@ -3755,14 +3755,11 @@ function initHeroEntrance() {
 
   const header = document.querySelector(".site-header");
   const navLinks = document.querySelectorAll(".header-inner nav a");
-  const bgLayers = [
-    document.getElementById("hero-photo-placeholder"),
-    document.getElementById("hero-photo-img"),
-  ].filter((el) => el && !el.hidden);
+  const bgLayers = [document.getElementById("hero-photo-img")].filter((el) => el && !el.hidden);
   // .pin-bg is the shared network/globe motif behind ALL THREE pinned
   // scenes (Hero/Explainer/Impact) — normally fully covered while Hero is
   // showing, since .scene-hero stacks above it (z-index 1 > 0) and its own
-  // photo/placeholder is fully opaque. It can't be removed (Explainer/
+  // photo is fully opaque. It can't be removed (Explainer/
   // Impact both rely on it as their backdrop) — but bgLayers' own fade-in
   // above means the hero photo briefly turns translucent on load, exposing
   // this always-static, never-animated layer showing through underneath
@@ -4095,7 +4092,6 @@ function initHomeContent() {
   const heroLedeEl = document.querySelector(".hero-lede");
   const heroPrimaryBtnEl = document.getElementById("hero-primary-cta");
   const heroCornerTagEl = document.querySelector("#hero-corner-tagline .hero-corner-tag-text");
-  const heroPhotoPlaceholderEl = document.getElementById("hero-photo-placeholder");
   const heroPhotoImgEl = document.getElementById("hero-photo-img");
   const explainerHeadingEl = document.getElementById("explainer-heading");
   const explainerBodyEl = document.querySelector(".scene-explainer .scene-body");
@@ -4125,11 +4121,10 @@ function initHomeContent() {
       if (heroLedeEl) heroLedeEl.innerHTML = renderMarkdown(data.heroSubtext);
       if (heroPrimaryBtnEl && data.heroCtaLabel) heroPrimaryBtnEl.textContent = data.heroCtaLabel;
       if (heroCornerTagEl && data.heroCornerTagline) heroCornerTagEl.textContent = data.heroCornerTagline;
-      if (heroPhotoImgEl && heroPhotoPlaceholderEl && data.heroBackgroundImage) {
-        heroPhotoImgEl.src = data.heroBackgroundImage;
-        heroPhotoImgEl.hidden = false;
-        heroPhotoPlaceholderEl.hidden = true;
-      }
+      // hero-photo-img already carries the site's real current photo as a
+      // static src in the raw HTML (same fallback pattern as every other
+      // field above) — only overwrite it if the CMS value is different.
+      if (heroPhotoImgEl && data.heroBackgroundImage) heroPhotoImgEl.src = data.heroBackgroundImage;
 
       if (explainerHeadingEl && data.explainerHeading) explainerHeadingEl.textContent = data.explainerHeading;
       if (explainerBodyEl) explainerBodyEl.innerHTML = renderMarkdown(data.explainerBody);

@@ -133,25 +133,21 @@
              elements untouched elsewhere in this file, so removing it
              here has no effect on either of them. -->
         <div class="scene scene-hero" id="top" aria-labelledby="hero-heading">
-          <!-- Background photo slot. The export's `<image-slot>` element
-               is a Claude-Design-preview-only custom element — it renders
-               nothing in a real browser, so it's replaced here with a
-               real, clearly-labeled placeholder (shown below) plus a real
-               <img>, initially hidden, that renderHeroBackgroundImage
-               (js/script.js) reveals in its place once the CMS's Hero
-               Background Image field actually has a photo. Left as the
-               placeholder deliberately for now — no mock stock photo
-               substituted, per the brief. -->
+          <!-- Background photo. The export's `<image-slot>` element is a
+               Claude-Design-preview-only custom element (renders nothing in
+               a real browser) — replaced here with a real <img> carrying
+               the site's current real photo as a static default, same
+               pattern as every other CMS-editable field on this page
+               (headline/subtext/etc.) already carrying real current
+               content directly in the raw HTML rather than depending on
+               JS/a fetch to ever show anything. initHomeContent
+               (js/script.js) only overwrites the src if the CMS's Hero
+               Background Image field is ever changed to something else.
+               (The dedicated "photo placeholder" graphic that used to sit
+               here before a real photo existed has been removed entirely,
+               now that one's permanently in place.) -->
           <div class="hero-photo-bg" aria-hidden="true">
-            <div class="hero-photo-placeholder" id="hero-photo-placeholder">
-              <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="5" width="18" height="14" rx="2"></rect>
-                <circle cx="8.5" cy="10" r="1.5"></circle>
-                <path d="M21 15l-5-5-4 4-3-3-6 6"></path>
-              </svg>
-              <p class="hero-photo-placeholder-label">Photo placeholder — campus tower, sunset<br>Add the real photo via Home Page → Hero Background Image in <a href="/admin/">/admin</a></p>
-            </div>
-            <img class="hero-photo-img" id="hero-photo-img" alt="" hidden>
+            <img class="hero-photo-img" id="hero-photo-img" src="assets/hero/campus-tower-sunset.jpg" alt="">
             <div class="hero-photo-overlay"></div>
           </div>
           <!-- Corner tagline (CMS: Home Page > Hero Corner Tagline,

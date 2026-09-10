@@ -858,59 +858,16 @@ button:focus-visible {
   overflow: hidden;
 }
 
-/* Real, clearly-labeled stand-in for the export's `<image-slot>` (a
-   Claude-Design-preview-only element that renders nothing in a real
-   browser) — same "designed placeholder, not a broken element" language
-   as .leadership-placeholder-note/.gallery-placeholder-note elsewhere on
-   the site, just full-bleed here instead of a small pill note.
-   renderHeroBackgroundImage (js/script.js) hides this and reveals
-   .hero-photo-img in its place once the CMS's Hero Background Image field
-   actually has a photo. */
-.hero-photo-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  text-align: center;
-  padding: 2rem;
-  background:
-    linear-gradient(160deg, rgba(236, 32, 136, 0.1), transparent 60%),
-    var(--charcoal-raised);
-  color: var(--text-secondary);
-}
-
-/* [hidden] bug (established elsewhere on this site — see .newsletter-form/
-   .countdown-flaps/.search-overlay's own copies of this same fix): setting
-   display: flex above overrides the browser's default [hidden] {
-   display: none } rule at equal specificity (author styles always beat the
-   UA stylesheet), so initHomeContent's heroPhotoPlaceholderEl.hidden = true
-   was never actually hiding this once a real photo loaded — it just sat
-   fully opaque, in normal flow, directly behind .hero-photo-img the whole
-   time. Invisible as long as the photo painted at opacity: 1 immediately,
-   but initHeroEntrance's Ken Burns fade-in (bgLayers animating opacity 0 ->
-   1) exposed it showing through during that transition — confirmed via
-   computed styles (display: flex despite hidden === true) before this fix. */
-.hero-photo-placeholder[hidden] {
-  display: none;
-}
-
-.hero-photo-placeholder-label {
-  margin: 0;
-  max-width: 32ch;
-  font-family: var(--font-head);
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
-
-.hero-photo-placeholder-label a {
-  color: var(--gold);
-}
-
+/* The "photo placeholder" graphic that used to live here (a labeled
+   stand-in for the export's `<image-slot>` element, shown before a real
+   photo existed) has been removed entirely now that a real photo is
+   permanently in place — .hero-photo-img below carries it as a static src
+   directly in the HTML, so there's no longer a scenario where this slot
+   would ever need a stand-in. (It previously also had a real, confirmed
+   [hidden]-vs-CSS-display bug of its own — see .newsletter-form/
+   .countdown-flaps/.search-overlay for that same pattern elsewhere on the
+   site — but removing the element outright makes that moot rather than
+   needing its own fix here.) */
 .hero-photo-img {
   position: absolute;
   inset: 0;
@@ -1014,11 +971,10 @@ button:focus-visible {
   color: rgba(255, 255, 255, 0.75);
 }
 
-/* Narrower viewports: the placeholder/photo and its overlay scale to any
-   aspect ratio (inset: 0 + object-fit/gradients, above) so nothing extra
-   is needed there — this only re-balances the decorative pieces so they
-   don't collide with the headline, and keeps the placeholder's own label
-   legible in a much narrower box. */
+/* Narrower viewports: the photo and its overlay scale to any aspect ratio
+   (inset: 0 + object-fit/gradients, above) so nothing extra is needed
+   there — this only re-balances the decorative pieces so they don't
+   collide with the headline. */
 @media (max-width: 640px) {
   .hero-inner {
     /* The 64% desktop cap (above) exists to leave room for the photo on
@@ -1036,20 +992,6 @@ button:focus-visible {
 
   .hero-scroll-affordance {
     left: clamp(1rem, 4vw, var(--gutter));
-  }
-
-  .hero-photo-placeholder {
-    padding: 1.25rem;
-  }
-
-  .hero-photo-placeholder svg {
-    width: 26px;
-    height: 26px;
-  }
-
-  .hero-photo-placeholder-label {
-    font-size: 0.72rem;
-    max-width: 26ch;
   }
 }
 

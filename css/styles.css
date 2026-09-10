@@ -375,6 +375,29 @@ button:focus-visible {
    -------------------------------------------------------------------------- */
 
 .site-header--transparent {
+  /* Real, structural fix (not just a color/behavior patch) for the
+     recurring "black gap above the photo" reports: this header used to
+     stay `position: sticky` (reserving its own ~74px of real document
+     flow, with the hero photo starting only right below it) — ANY
+     vertical shift of that boundary (an overscroll bounce even a JS
+     guard didn't fully catch, a resize, scroll-jank) could expose a gap
+     between where the header's reserved space ends and where the photo
+     actually starts, since they were never the same box. Taking the
+     header out of the flow entirely with `position: fixed` removes that
+     boundary altogether: .pin-sequence right below it in the DOM now
+     starts at true document y=0 (nothing above it reserves space
+     anymore), so the hero photo genuinely extends the full height of the
+     viewport, with the header floating on top via z-index — not two
+     adjacent boxes that can ever separate. --home-header-h (defined on
+     .home-page, the common ancestor — header and hero are siblings, so a
+     custom property set here wouldn't inherit to either of them) is this
+     header's own measured height, used to compensate .hero-inner's/
+     .hero-corner-tag's top offsets so the actual content doesn't shift
+     up underneath where the header now floats. */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   background: transparent;
   border-bottom: none;
 }
@@ -392,6 +415,15 @@ button:focus-visible {
    unchanged. */
 .home-page {
   background: var(--charcoal-deep);
+  /* The transparent header's own measured height — .site-header--
+     transparent is now position: fixed (see its own comment), so
+     .hero-inner/.hero-corner-tag use this to compensate their top
+     offsets and avoid sitting underneath where it floats. Defined here
+     (not on the header itself) because the header and the hero are
+     siblings, not ancestor/descendant — a custom property needs a
+     shared ancestor to inherit through, and .home-page (this <body>
+     class) is the nearest one both actually sit inside. */
+  --home-header-h: 4.625rem;
 }
 
 .site-header--transparent .header-inner nav a:not(.nav-cta) {
@@ -744,7 +776,12 @@ button:focus-visible {
   font-family: "Archivo", "Helvetica Neue", Helvetica, sans-serif;
   max-width: min(48rem, 64%);
   padding-inline: var(--gutter);
-  padding-block: clamp(7.5rem, 16vh, 11.25rem) clamp(6rem, 14vh, 8.25rem);
+  /* The top value adds --home-header-h on top of the original clamp()
+     range — see the comment on .site-header--transparent: the header is
+     now `position: fixed` (no longer reserving its own document-flow
+     space), so this compensates to keep the headline sitting where it
+     did before, rather than creeping up underneath the floating header. */
+  padding-block: calc(clamp(7.5rem, 16vh, 11.25rem) + var(--home-header-h, 0px)) clamp(6rem, 14vh, 8.25rem);
 }
 
 .hero-eyebrow {
@@ -892,10 +929,11 @@ button:focus-visible {
 
 .hero-corner-tag {
   position: absolute;
-  /* The shared .site-header sits in normal flow above .scene-hero (it's
-     sticky, not overlapping) — measured ~73px tall, so this needs enough
-     clearance to actually sit below it rather than under/behind it. */
-  top: clamp(5.5rem, 11vh, 7.5rem);
+  /* Same --home-header-h compensation as .hero-inner above — the header
+     now floats over .scene-hero (position: fixed) instead of sitting
+     above it in flow, so this needs the extra offset to actually clear
+     it rather than sit underneath/behind it. */
+  top: calc(clamp(1rem, 3vh, 1.75rem) + var(--home-header-h, 0px));
   right: var(--gutter);
   z-index: 2;
   margin: 0;
@@ -978,7 +1016,7 @@ button:focus-visible {
        let the headline use the full available width instead of wrapping
        into unnecessarily many short lines. */
     max-width: 100%;
-    padding-block: clamp(6.5rem, 14vh, 9rem) clamp(5.5rem, 12vh, 7rem);
+    padding-block: calc(clamp(6.5rem, 14vh, 9rem) + var(--home-header-h, 0px)) clamp(5.5rem, 12vh, 7rem);
   }
 
   .hero-corner-tag {

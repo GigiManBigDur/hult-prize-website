@@ -1038,9 +1038,21 @@ button:focus-visible {
   }
 }
 
-/* Headline cascade: each word is masked by an overflow-hidden wrapper and
-   rises into place individually, staggered via the --i custom property set
-   inline on each .reveal-word span. */
+/* Headline cascade: each word is masked by an overflow-hidden wrapper so it
+   can rise into place individually. The --i custom property inline on each
+   .reveal-word span is legacy from when this was a plain CSS keyframe
+   animation (kept on the markup/renderHeroHeadline harmlessly — nothing
+   reads it anymore) — it's now driven by initHeroEntrance's GSAP timeline
+   (js/script.js), which measures each word's actual rendered LINE (not just
+   its index) so the cascade steps line-by-line rather than word-by-word.
+   Moved off plain CSS for the same reason every other page's hero entrance
+   already is (About/Blog/Gallery/etc.'s own .xx-reveal-word/-inner have no
+   accompanying @keyframes block either): it's one element in a single
+   coordinated timeline alongside the nav/background/corner-tag/etc., not an
+   independent animation. Reduced-motion fallback is the same as those other
+   pages too — initHeroEntrance no-ops entirely under prefers-reduced-motion,
+   so with no JS ever touching these, they just render at their natural,
+   fully-visible default (no transform/opacity applied by CSS here). */
 .reveal-word {
   display: inline-block;
   overflow: hidden;
@@ -1049,43 +1061,6 @@ button:focus-visible {
 
 .reveal-word-inner {
   display: inline-block;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .reveal-word-inner {
-    animation: word-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(0.05s * var(--i, 0));
-  }
-
-  .hero-lede {
-    animation: hero-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 0.75s;
-  }
-
-  .hero-actions {
-    animation: hero-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 0.95s;
-  }
-
-  @keyframes hero-rise {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes word-rise {
-    from {
-      transform: translateY(115%);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
 }
 
 /* Explainer scene copy */

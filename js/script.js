@@ -3717,6 +3717,198 @@ function initHeroOverscrollGuard() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Home hero: one-time on-load entrance choreography (Hero On-Load Entrance
+// Choreography build). This is ONLY the automatic reveal that plays once,
+// immediately on load — a single coordinated GSAP timeline giving each kind
+// of element its own distinct treatment instead of one generic fade-and-
+// slide-up repeated eight times. It is completely separate from
+// initPinSequence above: that's the scroll-triggered pin/release behavior
+// that only starts once the visitor actually scrolls into the Explainer
+// section. Neither touches the other's targets, timeline, or ScrollTrigger,
+// and this one never touches scroll position at all, so scrolling away
+// mid-entrance can't break or stall either system.
+//
+// Called from initHomeContent()'s .finally() (below), same as
+// initPinSequence/initTopTeamsAnimation/initStoryEntranceFade next to it —
+// deliberately, not from a plain DOMContentLoaded hook the way every other
+// page's own hero entrance is. renderHeroHeadline (above) fully replaces
+// #hero-heading's innerHTML with fresh spans when the CMS fetch succeeds;
+// capturing references to the OLD spans any earlier would risk animating
+// nodes the fetch then rips out from under this timeline. content/home.json
+// is a small same-origin static file (fast in practice, and initPinSequence
+// et al. already accept the same dependency for this exact page), so
+// deferring the whole entrance to there costs nothing perceptible.
+//
+// Gated exactly like every other page's hero entrance (About/Blog/Gallery/
+// etc.): prefersReducedMotion or no GSAP means this does nothing at all, and
+// every element is left exactly as the static HTML/CSS already renders it —
+// fully visible in its final resting state, corner-tag underline included
+// at full width, no scroll-cue pulse loop. That IS the full reduced-motion
+// fallback; there's no separate "instant reveal" code path to maintain,
+// same as those other pages.
+// ---------------------------------------------------------------------------
+function initHeroEntrance() {
+  const hero = document.querySelector(".scene-hero");
+  if (!hero) return;
+  if (prefersReducedMotion || typeof gsap === "undefined") return;
+
+  const header = document.querySelector(".site-header");
+  const navLinks = document.querySelectorAll(".header-inner nav a");
+  const bgLayers = [
+    document.getElementById("hero-photo-placeholder"),
+    document.getElementById("hero-photo-img"),
+  ].filter((el) => el && !el.hidden);
+  const overlay = document.querySelector(".hero-photo-overlay");
+  const eyebrow = document.querySelector(".hero-eyebrow");
+  const wordWrappers = Array.from(document.querySelectorAll("#hero-heading .reveal-word"));
+  const lede = document.querySelector(".hero-lede");
+  const ctaButtons = document.querySelectorAll(".hero-actions .btn");
+  const cornerTagText = document.querySelector(".hero-corner-tag-text");
+  const cornerTagUnderline = document.querySelector(".hero-corner-tag-underline");
+  const scrollAffordance = document.getElementById("hero-scroll-affordance");
+  const scrollCircle = document.querySelector(".hero-scroll-circle");
+
+  const run = () => {
+    // Group the headline's word spans into their actual rendered lines
+    // (measured now, post-layout/post-fonts) so the cascade steps line-by-
+    // line rather than word-by-word — a 3-line headline gets 3 stagger
+    // steps, not eleven. Built as two parallel arrays (not a Map keyed by
+    // element) so a missing .reveal-word-inner just gets skipped rather than
+    // ever de-syncing the index between "which word" and "which line".
+    const wordInners = [];
+    const lineIndexByPos = [];
+    let lastTop = null;
+    let line = -1;
+    wordWrappers.forEach((wrapper) => {
+      const inner = wrapper.querySelector(".reveal-word-inner");
+      if (!inner) return;
+      const top = Math.round(wrapper.getBoundingClientRect().top);
+      if (lastTop === null || Math.abs(top - lastTop) > 4) {
+        line += 1;
+        lastTop = top;
+      }
+      wordInners.push(inner);
+      lineIndexByPos.push(line);
+    });
+
+    // --- Initial ("hidden") states — only ever set here, never in CSS, so
+    // a reduced-motion visitor (who never reaches this code at all) simply
+    // sees the normal static markup, already in its final state. ---
+    if (bgLayers.length) gsap.set(bgLayers, { scale: 1.08, opacity: 0, transformOrigin: "50% 50%" });
+    if (overlay) gsap.set(overlay, { opacity: 0 });
+    if (header) gsap.set(header, { y: -16, opacity: 0 });
+    if (navLinks.length) gsap.set(navLinks, { opacity: 0, y: -6 });
+    if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 12 });
+    if (wordInners.length) gsap.set(wordInners, { yPercent: 115, opacity: 0 });
+    if (lede) gsap.set(lede, { opacity: 0, y: 18 });
+    if (ctaButtons.length) gsap.set(ctaButtons, { opacity: 0, scale: 0.92 });
+    if (cornerTagText) gsap.set(cornerTagText, { opacity: 0, y: 8 });
+    if (cornerTagUnderline) gsap.set(cornerTagUnderline, { scaleX: 0, transformOrigin: "left center" });
+    if (scrollAffordance) gsap.set(scrollAffordance, { opacity: 0 });
+
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+    // 1. Background settles from a slightly zoomed-in state (a subtle Ken
+    //    Burns-style settle), its legibility overlay (the three stacked
+    //    gradients that make up .hero-photo-overlay) fading in alongside it.
+    if (bgLayers.length) tl.to(bgLayers, { scale: 1, opacity: 1, duration: 1.3, ease: "power2.out" }, 0);
+    if (overlay) tl.to(overlay, { opacity: 1, duration: 0.9, ease: "power1.out" }, 0);
+
+    // 2. Nav bar slides down into place while fading in — overlapping the
+    //    background's own settle, not waiting for it. Its links only start
+    //    staggering in left-to-right once the bar itself has visibly
+    //    settled, not simultaneously with the bar's own entrance.
+    if (header) tl.to(header, { y: 0, opacity: 1, duration: 0.45, ease: "power2.out" }, 0.05);
+    if (navLinks.length) {
+      tl.to(
+        navLinks,
+        { opacity: 1, y: 0, duration: 0.28, stagger: 0.04, ease: "power2.out" },
+        0.5
+      );
+    }
+
+    // 3. Small uppercase eyebrow label.
+    if (eyebrow) tl.to(eyebrow, { opacity: 1, y: 0, duration: 0.4 }, 0.3);
+
+    // 4. Headline cascades in line-by-line (not word-by-word) — each line
+    //    slides up and fades in with a short delay before the next line.
+    if (wordInners.length) {
+      tl.to(
+        wordInners,
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.5,
+          ease: "power3.out",
+          stagger: (i) => (lineIndexByPos[i] || 0) * 0.11,
+        },
+        0.45
+      );
+    }
+
+    // 5. Subtext, shortly after the headline's cascade finishes.
+    if (lede) tl.to(lede, { opacity: 1, y: 0, duration: 0.45 }, 1.15);
+
+    // 6. CTA buttons scale up while fading in, primary a beat before ghost.
+    if (ctaButtons.length) {
+      tl.to(
+        ctaButtons,
+        { opacity: 1, scale: 1, duration: 0.35, stagger: 0.1, ease: "back.out(1.6)" },
+        1.45
+      );
+    }
+
+    // 7. Corner tagline: text fades in first, then its underline draws
+    //    itself left-to-right (scaleX 0 -> 1, anchored at its own left edge)
+    //    only once the text has settled.
+    if (cornerTagText) tl.to(cornerTagText, { opacity: 1, y: 0, duration: 0.4 }, 1.2);
+    if (cornerTagUnderline) tl.to(cornerTagUnderline, { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, 1.6);
+
+    // 8. Scroll-to-explore affordance fades in last, after everything else
+    //    has settled (~2.3s total from first element to last).
+    if (scrollAffordance) tl.to(scrollAffordance, { opacity: 1, duration: 0.35 }, 1.95);
+
+    // Once the one-time entrance completes, give the scroll-cue a subtle,
+    // continuous bounce to draw the eye — a separate, independent tween
+    // (not part of the entrance timeline itself) so it can be killed on its
+    // own if reduced motion turns on mid-session, without touching anything
+    // above. Kept small/slow on purpose: understated, not distracting.
+    if (scrollCircle) {
+      tl.call(() => {
+        const pulse = gsap.to(scrollCircle, {
+          y: 6,
+          duration: 1.1,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+        });
+        window
+          .matchMedia("(prefers-reduced-motion: reduce)")
+          .addEventListener("change", (e) => {
+            if (!e.matches) return;
+            pulse.kill();
+            gsap.set(scrollCircle, { clearProps: "y" });
+          });
+      });
+    }
+  };
+
+  // Headline line-grouping needs real, post-font layout to measure
+  // correctly — Archivo loads via a swapped webfont link, so measuring
+  // before it's actually in use risks grouping words by the fallback font's
+  // (different) line breaks. document.fonts.ready resolves once whatever
+  // fonts the page actually used have finished loading (immediately, if
+  // none were pending) — if it's unsupported or never resolves for some
+  // reason, this whole entrance just never starts, which fails safely: the
+  // static markup was never hidden, so it stays visible exactly as-is.
+  if (document.fonts && typeof document.fonts.ready?.then === "function") {
+    document.fonts.ready.then(run);
+  } else {
+    run();
+  }
+}
+
 // "20+" -> { target: 20, suffix: "+" }; "2" -> { target: 2, suffix: "" }.
 // animateCounter (above) needs the two split apart on data-target/
 // data-suffix; the visually-hidden screen-reader text next to each counter
@@ -3936,6 +4128,14 @@ function initHomeContent() {
       // content.
       initHeroScrollAffordance();
       initHeroOverscrollGuard();
+      // Hero On-Load Entrance Choreography build — deliberately last and
+      // deliberately still inside this same .finally(), not a separate
+      // DOMContentLoaded hook. See initHeroEntrance's own comment for why:
+      // in short, the headline's word spans need to be in their final,
+      // CMS-resolved form (renderHeroHeadline above already ran, whether
+      // the fetch succeeded or failed) before anything measures or animates
+      // them.
+      initHeroEntrance();
     });
 }
 

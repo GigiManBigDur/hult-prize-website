@@ -3755,29 +3755,33 @@ function initHeroEntrance() {
 
   const header = document.querySelector(".site-header");
   const navLinks = document.querySelectorAll(".header-inner nav a");
+  const bgLayers = [
+    document.getElementById("hero-photo-placeholder"),
+    document.getElementById("hero-photo-img"),
+  ].filter((el) => el && !el.hidden);
   // .pin-bg is the shared network/globe motif behind ALL THREE pinned
   // scenes (Hero/Explainer/Impact) — normally fully covered while Hero is
   // showing, since .scene-hero stacks above it (z-index 1 > 0) and its own
   // photo/placeholder is fully opaque. It can't be removed (Explainer/
   // Impact both rely on it as their backdrop) — but bgLayers' own fade-in
-  // below now means the hero photo briefly turns translucent on load,
-  // exposing this always-static, never-animated layer showing through
-  // underneath (reported: "something behind the background image... the
-  // background effect when you scroll down"). Rather than leave it as a
-  // mismatched, jarring flash, it gets the EXACT same entry treatment as
-  // the photo/placeholder (same gsap.set/tl.to calls below, not a separate
-  // copy) so the two settle in together as one coordinated reveal instead
-  // of one appearing to sit behind, and briefly clash with, the other.
-  // Only ever affects this initial load moment — once both reach opacity 1,
-  // the hero photo fully re-covers it exactly as before, and this has no
-  // effect on the separate scroll-scrubbed rotate/scale initPinSequence
-  // already runs on .pinbg-lines/.pinbg-nodes (different targets, same
-  // element tree, no property overlap).
-  const bgLayers = [
-    document.getElementById("hero-photo-placeholder"),
-    document.getElementById("hero-photo-img"),
-    document.querySelector(".pin-bg"),
-  ].filter((el) => el && !el.hidden);
+  // above means the hero photo briefly turns translucent on load, exposing
+  // this always-static, never-animated layer showing through underneath
+  // (reported: "something behind the background image... the background
+  // effect when you scroll down"). Giving it the exact same, SIMULTANEOUS
+  // fade-in as the photo (an earlier version of this fix) helped but still
+  // let it show a little — two things fading in from 0 together are still
+  // both partially see-through at the same moment. Fixed instead by making
+  // the photo genuinely finish first: .pin-bg's own fade starts at 1.0s,
+  // well after bgLayers' 1.3s-long tween below is already ~95% opaque
+  // (power2.out reaches that by ~77% of its duration) — so by the time
+  // .pin-bg is visible at all, the now-nearly-solid photo already covers
+  // it, and it settles the rest of the way unseen underneath. Only ever
+  // affects this initial load moment — once everything reaches its final
+  // opacity, the hero photo fully re-covers it exactly as before, and this
+  // has no effect on the separate scroll-scrubbed rotate/scale
+  // initPinSequence already runs on .pinbg-lines/.pinbg-nodes (different
+  // targets, same element tree, no property overlap).
+  const pinBg = document.querySelector(".pin-bg");
   const overlay = document.querySelector(".hero-photo-overlay");
   const eyebrow = document.querySelector(".hero-eyebrow");
   // Paired up front (not two parallel arrays built later) so wordInners[i]
@@ -3808,6 +3812,7 @@ function initHeroEntrance() {
   // never does. A reduced-motion visitor never reaches any of this code at
   // all, so the static markup just stays visible exactly as-is. ---
   if (bgLayers.length) gsap.set(bgLayers, { scale: 1.08, opacity: 0, transformOrigin: "50% 50%" });
+  if (pinBg) gsap.set(pinBg, { scale: 1.08, opacity: 0, transformOrigin: "50% 50%" });
   if (overlay) gsap.set(overlay, { opacity: 0 });
   if (header) gsap.set(header, { y: -16, opacity: 0 });
   if (navLinks.length) gsap.set(navLinks, { opacity: 0, y: -6 });
@@ -3840,13 +3845,15 @@ function initHeroEntrance() {
     const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
     // 1. Background settles from a slightly zoomed-in state (a subtle Ken
-    //    Burns-style settle) — bgLayers includes the photo/placeholder AND
-    //    .pin-bg (see its own comment above), so the shared motif settles
-    //    in as one layer together with the photo, not a mismatched flash
-    //    behind it — with the legibility overlay (the three stacked
-    //    gradients that make up .hero-photo-overlay) fading in alongside.
+    //    Burns-style settle), with the legibility overlay (the three
+    //    stacked gradients that make up .hero-photo-overlay) fading in
+    //    alongside it. .pin-bg (see its own comment above) deliberately
+    //    starts its own, separate fade LATER — at 1.0s, once the photo is
+    //    already most of the way opaque — so the photo genuinely finishes
+    //    settling first, per the fix above.
     if (bgLayers.length) tl.to(bgLayers, { scale: 1, opacity: 1, duration: 1.3, ease: "power2.out" }, 0);
     if (overlay) tl.to(overlay, { opacity: 1, duration: 0.9, ease: "power1.out" }, 0);
+    if (pinBg) tl.to(pinBg, { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out" }, 1.0);
 
     // 2. Nav bar slides down into place while fading in — overlapping the
     //    background's own settle, not waiting for it. Its links only start

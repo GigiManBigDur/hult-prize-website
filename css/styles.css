@@ -776,12 +776,13 @@ button:focus-visible {
   font-family: "Archivo", "Helvetica Neue", Helvetica, sans-serif;
   max-width: min(48rem, 64%);
   padding-inline: var(--gutter);
-  /* The top value adds --home-header-h on top of the original clamp()
-     range — see the comment on .site-header--transparent: the header is
-     now `position: fixed` (no longer reserving its own document-flow
-     space), so this compensates to keep the headline sitting where it
-     did before, rather than creeping up underneath the floating header. */
-  padding-block: calc(clamp(7.5rem, 16vh, 11.25rem) + var(--home-header-h, 0px)) clamp(6rem, 14vh, 8.25rem);
+  /* The top value adds --home-header-h on top of the clamp() range below
+     (reduced from the original clamp(7.5rem, 16vh, 11.25rem) per
+     feedback, to sit higher/closer to the header) — see the comment on
+     .site-header--transparent: the header is `position: fixed` (no
+     longer reserving its own document-flow space), so this still
+     compensates for that, just against a smaller base offset now. */
+  padding-block: calc(clamp(5rem, 12vh, 8rem) + var(--home-header-h, 0px)) clamp(6rem, 14vh, 8.25rem);
 }
 
 .hero-eyebrow {
@@ -1016,7 +1017,7 @@ button:focus-visible {
        let the headline use the full available width instead of wrapping
        into unnecessarily many short lines. */
     max-width: 100%;
-    padding-block: calc(clamp(6.5rem, 14vh, 9rem) + var(--home-header-h, 0px)) clamp(5.5rem, 12vh, 7rem);
+    padding-block: calc(clamp(4.5rem, 10vh, 6.5rem) + var(--home-header-h, 0px)) clamp(5.5rem, 12vh, 7rem);
   }
 
   .hero-corner-tag {

@@ -858,6 +858,11 @@ button:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Nudges the visible crop window rightward across the source photo,
+     which shifts its content (the tower) left within the frame —
+     requested after the real photo went in, so it reads less like it's
+     crowding the corner tagline. */
+  object-position: 62% center;
 }
 
 /* The legibility treatment from the export: a strong dark gradient over

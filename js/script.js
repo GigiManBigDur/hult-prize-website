@@ -3755,13 +3755,38 @@ function initHeroEntrance() {
 
   const header = document.querySelector(".site-header");
   const navLinks = document.querySelectorAll(".header-inner nav a");
+  // .pin-bg is the shared network/globe motif behind ALL THREE pinned
+  // scenes (Hero/Explainer/Impact) — normally fully covered while Hero is
+  // showing, since .scene-hero stacks above it (z-index 1 > 0) and its own
+  // photo/placeholder is fully opaque. It can't be removed (Explainer/
+  // Impact both rely on it as their backdrop) — but bgLayers' own fade-in
+  // below now means the hero photo briefly turns translucent on load,
+  // exposing this always-static, never-animated layer showing through
+  // underneath (reported: "something behind the background image... the
+  // background effect when you scroll down"). Rather than leave it as a
+  // mismatched, jarring flash, it gets the EXACT same entry treatment as
+  // the photo/placeholder (same gsap.set/tl.to calls below, not a separate
+  // copy) so the two settle in together as one coordinated reveal instead
+  // of one appearing to sit behind, and briefly clash with, the other.
+  // Only ever affects this initial load moment — once both reach opacity 1,
+  // the hero photo fully re-covers it exactly as before, and this has no
+  // effect on the separate scroll-scrubbed rotate/scale initPinSequence
+  // already runs on .pinbg-lines/.pinbg-nodes (different targets, same
+  // element tree, no property overlap).
   const bgLayers = [
     document.getElementById("hero-photo-placeholder"),
     document.getElementById("hero-photo-img"),
+    document.querySelector(".pin-bg"),
   ].filter((el) => el && !el.hidden);
   const overlay = document.querySelector(".hero-photo-overlay");
   const eyebrow = document.querySelector(".hero-eyebrow");
-  const wordWrappers = Array.from(document.querySelectorAll("#hero-heading .reveal-word"));
+  // Paired up front (not two parallel arrays built later) so wordInners[i]
+  // and its line index always refer to the same word, regardless of when
+  // each is used below.
+  const wordEntries = Array.from(document.querySelectorAll("#hero-heading .reveal-word"))
+    .map((wrapper) => ({ wrapper, inner: wrapper.querySelector(".reveal-word-inner") }))
+    .filter((entry) => entry.inner);
+  const wordInners = wordEntries.map((entry) => entry.inner);
   const lede = document.querySelector(".hero-lede");
   const ctaButtons = document.querySelectorAll(".hero-actions .btn");
   const cornerTagText = document.querySelector(".hero-corner-tag-text");
@@ -3769,49 +3794,57 @@ function initHeroEntrance() {
   const scrollAffordance = document.getElementById("hero-scroll-affordance");
   const scrollCircle = document.querySelector(".hero-scroll-circle");
 
+  // --- Initial ("hidden") states — set SYNCHRONOUSLY, right now, not
+  // deferred behind the document.fonts.ready wait below. Getting from
+  // "visible" to "hidden" must never itself be visible: this runs in the
+  // same tick initHomeContent reveals the real photo/headline/etc., so if
+  // hiding waited on a webfont fetch too, a visitor on a slow font load
+  // would see everything flash fully in, THEN vanish, THEN animate back in
+  // — confirmed exactly this way once .pin-bg (above) was added to
+  // bgLayers, which made an existing-but-subtle version of this flash
+  // obvious (the network motif's dots/lines briefly visible over an
+  // already-fully-bright photo before either was hidden). Only the actual
+  // reveal below needs accurate post-font layout for the headline; hiding
+  // never does. A reduced-motion visitor never reaches any of this code at
+  // all, so the static markup just stays visible exactly as-is. ---
+  if (bgLayers.length) gsap.set(bgLayers, { scale: 1.08, opacity: 0, transformOrigin: "50% 50%" });
+  if (overlay) gsap.set(overlay, { opacity: 0 });
+  if (header) gsap.set(header, { y: -16, opacity: 0 });
+  if (navLinks.length) gsap.set(navLinks, { opacity: 0, y: -6 });
+  if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 12 });
+  if (wordInners.length) gsap.set(wordInners, { yPercent: 115, opacity: 0 });
+  if (lede) gsap.set(lede, { opacity: 0, y: 18 });
+  if (ctaButtons.length) gsap.set(ctaButtons, { opacity: 0, scale: 0.92 });
+  if (cornerTagText) gsap.set(cornerTagText, { opacity: 0, y: 8 });
+  if (cornerTagUnderline) gsap.set(cornerTagUnderline, { scaleX: 0, transformOrigin: "left center" });
+  if (scrollAffordance) gsap.set(scrollAffordance, { opacity: 0 });
+
   const run = () => {
     // Group the headline's word spans into their actual rendered lines
     // (measured now, post-layout/post-fonts) so the cascade steps line-by-
     // line rather than word-by-word — a 3-line headline gets 3 stagger
-    // steps, not eleven. Built as two parallel arrays (not a Map keyed by
-    // element) so a missing .reveal-word-inner just gets skipped rather than
-    // ever de-syncing the index between "which word" and "which line".
-    const wordInners = [];
+    // steps, not eleven. lineIndexByPos[i] lines up with wordInners[i]
+    // (built above from the same wordEntries, in the same order).
     const lineIndexByPos = [];
     let lastTop = null;
     let line = -1;
-    wordWrappers.forEach((wrapper) => {
-      const inner = wrapper.querySelector(".reveal-word-inner");
-      if (!inner) return;
-      const top = Math.round(wrapper.getBoundingClientRect().top);
+    wordEntries.forEach((entry) => {
+      const top = Math.round(entry.wrapper.getBoundingClientRect().top);
       if (lastTop === null || Math.abs(top - lastTop) > 4) {
         line += 1;
         lastTop = top;
       }
-      wordInners.push(inner);
       lineIndexByPos.push(line);
     });
-
-    // --- Initial ("hidden") states — only ever set here, never in CSS, so
-    // a reduced-motion visitor (who never reaches this code at all) simply
-    // sees the normal static markup, already in its final state. ---
-    if (bgLayers.length) gsap.set(bgLayers, { scale: 1.08, opacity: 0, transformOrigin: "50% 50%" });
-    if (overlay) gsap.set(overlay, { opacity: 0 });
-    if (header) gsap.set(header, { y: -16, opacity: 0 });
-    if (navLinks.length) gsap.set(navLinks, { opacity: 0, y: -6 });
-    if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 12 });
-    if (wordInners.length) gsap.set(wordInners, { yPercent: 115, opacity: 0 });
-    if (lede) gsap.set(lede, { opacity: 0, y: 18 });
-    if (ctaButtons.length) gsap.set(ctaButtons, { opacity: 0, scale: 0.92 });
-    if (cornerTagText) gsap.set(cornerTagText, { opacity: 0, y: 8 });
-    if (cornerTagUnderline) gsap.set(cornerTagUnderline, { scaleX: 0, transformOrigin: "left center" });
-    if (scrollAffordance) gsap.set(scrollAffordance, { opacity: 0 });
 
     const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
     // 1. Background settles from a slightly zoomed-in state (a subtle Ken
-    //    Burns-style settle), its legibility overlay (the three stacked
-    //    gradients that make up .hero-photo-overlay) fading in alongside it.
+    //    Burns-style settle) — bgLayers includes the photo/placeholder AND
+    //    .pin-bg (see its own comment above), so the shared motif settles
+    //    in as one layer together with the photo, not a mismatched flash
+    //    behind it — with the legibility overlay (the three stacked
+    //    gradients that make up .hero-photo-overlay) fading in alongside.
     if (bgLayers.length) tl.to(bgLayers, { scale: 1, opacity: 1, duration: 1.3, ease: "power2.out" }, 0);
     if (overlay) tl.to(overlay, { opacity: 1, duration: 0.9, ease: "power1.out" }, 0);
 
@@ -3894,14 +3927,19 @@ function initHeroEntrance() {
     }
   };
 
-  // Headline line-grouping needs real, post-font layout to measure
+  // Only run() — the line measurement + actual reveal timeline — waits on
+  // this; everything is already hidden above regardless of how long it
+  // takes. Headline line-grouping needs real, post-font layout to measure
   // correctly — Archivo loads via a swapped webfont link, so measuring
   // before it's actually in use risks grouping words by the fallback font's
   // (different) line breaks. document.fonts.ready resolves once whatever
   // fonts the page actually used have finished loading (immediately, if
   // none were pending) — if it's unsupported or never resolves for some
-  // reason, this whole entrance just never starts, which fails safely: the
-  // static markup was never hidden, so it stays visible exactly as-is.
+  // reason, the reveal just never starts, which still fails safely: the
+  // elements stay in the hidden state already set above rather than
+  // getting stuck fully visible or vanishing later, though as a real (if
+  // unlikely) downside they'd stay hidden. That tradeoff is deliberately
+  // preferred over the flash this replaced.
   if (document.fonts && typeof document.fonts.ready?.then === "function") {
     document.fonts.ready.then(run);
   } else {

@@ -3781,6 +3781,7 @@ function initHeroEntrance() {
   const pinBg = document.querySelector(".pin-bg");
   const overlay = document.querySelector(".hero-photo-overlay");
   const eyebrow = document.querySelector(".hero-eyebrow");
+  const heroLogo = document.querySelector(".hero-logo");
   // Paired up front (not two parallel arrays built later) so wordInners[i]
   // and its line index always refer to the same word, regardless of when
   // each is used below.
@@ -3814,6 +3815,7 @@ function initHeroEntrance() {
   if (header) gsap.set(header, { y: -16, opacity: 0 });
   if (navLinks.length) gsap.set(navLinks, { opacity: 0, y: -6 });
   if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: 12 });
+  if (heroLogo) gsap.set(heroLogo, { opacity: 0, y: 12 });
   if (wordInners.length) gsap.set(wordInners, { yPercent: 115, opacity: 0 });
   if (lede) gsap.set(lede, { opacity: 0, y: 18 });
   if (ctaButtons.length) gsap.set(ctaButtons, { opacity: 0, scale: 0.92 });
@@ -3865,7 +3867,9 @@ function initHeroEntrance() {
       );
     }
 
-    // 3. Small uppercase eyebrow label.
+    // 3. Small uppercase eyebrow label, and the logo mark directly above
+    //    it — treated as one label group, same fade-up, same moment.
+    if (heroLogo) tl.to(heroLogo, { opacity: 1, y: 0, duration: 0.4 }, 0.3);
     if (eyebrow) tl.to(eyebrow, { opacity: 1, y: 0, duration: 0.4 }, 0.3);
 
     // 4. Headline cascades in line-by-line (not word-by-word) — each line

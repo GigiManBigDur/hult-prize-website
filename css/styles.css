@@ -779,6 +779,18 @@ button:focus-visible {
   padding-block: calc(clamp(5rem, 12vh, 8rem) + var(--home-header-h, 0px)) clamp(6rem, 14vh, 8.25rem);
 }
 
+/* Official Hult Prize logo lockup, used exactly as provided (its own
+   black backing intact — not recolored/cropped/matted out) as a small
+   mark sitting above the eyebrow label. Sized off height with width:auto
+   so the source image's own aspect ratio (1612x1056) is preserved at any
+   viewport width. */
+.hero-logo {
+  display: block;
+  height: clamp(1.75rem, 4vh, 2.5rem);
+  width: auto;
+  margin: 0 0 clamp(0.75rem, 1.8vh, 1.1rem);
+}
+
 .hero-eyebrow {
   margin: 0 0 clamp(0.9rem, 2vh, 1.4rem);
   font-size: clamp(0.7rem, 1vw, 0.8rem);

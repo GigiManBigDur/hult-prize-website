@@ -71,6 +71,18 @@ html {
      just disables that rubber-band bounce; it doesn't affect normal
      scrolling, scrollTo/scrollBy, or ScrollTrigger's own mechanics. */
   overscroll-behavior-y: none;
+  /* Chrome/Safari paint the overscroll rubber-band area itself using the
+     ROOT element's (html's, not body's) background — html had none set,
+     so it fell back to the browser's default (a stark white/light canvas)
+     regardless of overscroll-behavior above, which only suppresses the
+     bounce, not what color briefly shows through it or through any other
+     transient gap. <body> already matches this on every page it needs to
+     (--charcoal site-wide, --charcoal-deep on Home via .home-page) — this
+     just makes sure the very root, underneath that, is never a jarring
+     mismatched color anywhere. Invisible in normal use everywhere (body
+     always fully covers it), it's only ever a safety net for edge cases
+     like this one. */
+  background-color: var(--charcoal-deep);
 }
 
 body {
@@ -862,7 +874,7 @@ button:focus-visible {
      which shifts its content (the tower) left within the frame —
      requested after the real photo went in, so it reads less like it's
      crowding the corner tagline. */
-  object-position: 62% center;
+  object-position: 72% center;
 }
 
 /* The legibility treatment from the export: a strong dark gradient over

@@ -171,9 +171,12 @@
                untouched. -->
           <div class="scene-inner hero-inner">
             <!-- Fixed chrome, not CMS content — the official Hult Prize
-                 logo lockup, used as provided (not recolored/cropped/
-                 re-composited), sitting right above the eyebrow label. -->
-            <img class="hero-logo" src="assets/hero/hult-prize-logo.png" alt="Hult Prize" width="1612" height="1056">
+                 logo lockup, mark itself untouched (no recoloring/
+                 re-composited), sitting right above the eyebrow label.
+                 The image file is cropped to trim the source PNG's own
+                 excess black padding — see the CSS comment on .hero-logo
+                 for why. -->
+            <img class="hero-logo" src="assets/hero/hult-prize-logo.png" alt="Hult Prize" width="1356" height="806">
             <!-- Fixed chrome, not CMS content — same eyebrow label on
                  every possible headline, so it isn't a field of its own. -->
             <p class="hero-eyebrow">Hult Prize @ UC Davis</p>

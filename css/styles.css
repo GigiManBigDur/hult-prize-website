@@ -779,18 +779,23 @@ button:focus-visible {
   padding-block: calc(clamp(5rem, 12vh, 8rem) + var(--home-header-h, 0px)) clamp(6rem, 14vh, 8.25rem);
 }
 
-/* Official Hult Prize logo lockup, used exactly as provided (its own
-   black backing intact — not recolored/cropped/matted out) sitting above
-   the eyebrow label. Sized off height with width:auto so the source
-   image's own aspect ratio (1612x1056) is preserved at any viewport
-   width. Sized so its rendered WIDTH lands close to the eyebrow text's
-   own rendered width (measured via a Range on the live text, not the
-   eyebrow element's own box — that's a full-width block, not the text's
-   actual width) — the two read as one aligned lockup rather than a much
-   wider/taller image sitting over a comparatively thin line of text. */
+/* Official Hult Prize logo lockup sitting above the eyebrow label — the
+   mark itself is untouched (no recoloring/redrawing), but
+   assets/hero/hult-prize-logo.png is now cropped to trim the source
+   file's own baked-in black padding around the mark (the original PNG
+   had noticeably more empty margin above/below the mark than left/
+   right of it, so at any given width that extra margin was rendering
+   as extra, unwanted height) — per explicit follow-up feedback with a
+   reference showing a flatter, more compact proportion than the
+   untrimmed original gave. Sized off height with width:auto so the
+   (now-cropped) source image's own aspect ratio (1356x806) is
+   preserved at any viewport width, still landing close to the eyebrow
+   text's own rendered width (measured via a Range on the live text,
+   not the eyebrow element's own box — that's a full-width block, not
+   the text's actual width) — the two read as one aligned lockup. */
 .hero-logo {
   display: block;
-  height: clamp(5rem, 16vh, 8.75rem);
+  height: clamp(4.5rem, 14.5vh, 8rem);
   width: auto;
   margin: 0 0 clamp(1rem, 3vh, 1.75rem);
 }

@@ -882,6 +882,21 @@ button:focus-visible {
   color: var(--text-secondary);
 }
 
+/* [hidden] bug (established elsewhere on this site — see .newsletter-form/
+   .countdown-flaps/.search-overlay's own copies of this same fix): setting
+   display: flex above overrides the browser's default [hidden] {
+   display: none } rule at equal specificity (author styles always beat the
+   UA stylesheet), so initHomeContent's heroPhotoPlaceholderEl.hidden = true
+   was never actually hiding this once a real photo loaded — it just sat
+   fully opaque, in normal flow, directly behind .hero-photo-img the whole
+   time. Invisible as long as the photo painted at opacity: 1 immediately,
+   but initHeroEntrance's Ken Burns fade-in (bgLayers animating opacity 0 ->
+   1) exposed it showing through during that transition — confirmed via
+   computed styles (display: flex despite hidden === true) before this fix. */
+.hero-photo-placeholder[hidden] {
+  display: none;
+}
+
 .hero-photo-placeholder-label {
   margin: 0;
   max-width: 32ch;

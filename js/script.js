@@ -3867,9 +3867,7 @@ function initHeroEntrance() {
       );
     }
 
-    // 3. Small uppercase eyebrow label, and the logo mark directly above
-    //    it — treated as one label group, same fade-up, same moment.
-    if (heroLogo) tl.to(heroLogo, { opacity: 1, y: 0, duration: 0.4 }, 0.3);
+    // 3. Small uppercase eyebrow label.
     if (eyebrow) tl.to(eyebrow, { opacity: 1, y: 0, duration: 0.4 }, 0.3);
 
     // 4. Headline cascades in line-by-line (not word-by-word) — each line
@@ -3906,9 +3904,14 @@ function initHeroEntrance() {
     if (cornerTagText) tl.to(cornerTagText, { opacity: 1, y: 0, duration: 0.4 }, 1.2);
     if (cornerTagUnderline) tl.to(cornerTagUnderline, { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, 1.6);
 
-    // 8. Scroll-to-explore affordance fades in last, after everything else
-    //    has settled (~2.3s total from first element to last).
+    // 8. Scroll-to-explore affordance fades in after everything else has
+    //    settled.
     if (scrollAffordance) tl.to(scrollAffordance, { opacity: 1, duration: 0.35 }, 1.95);
+
+    // 9. Logo mark fades in truly LAST, per explicit follow-up feedback —
+    //    after even the scroll-cue (~2.3s in), not grouped with the
+    //    eyebrow below it anymore (~2.7s total from first element to last).
+    if (heroLogo) tl.to(heroLogo, { opacity: 1, y: 0, duration: 0.4 }, 2.3);
 
     // Once the one-time entrance completes, give the scroll-cue a subtle,
     // continuous bounce to draw the eye — a separate, independent tween

@@ -783,14 +783,13 @@ button:focus-visible {
    black backing intact — not recolored/cropped/matted out) sitting above
    the eyebrow label. Sized off height with width:auto so the source
    image's own aspect ratio (1612x1056) is preserved at any viewport
-   width. Sizing matches a reference mockup showing it noticeably larger
-   than the first pass — the mockup's logo occupied ~17% of the viewport
-   height, hence the ~16vh clamp mid-value below (measured, not guessed). */
+   width. Bumped up again per explicit follow-up feedback ("make it a bit
+   bigger") past the mockup-measured ~16vh baseline. */
 .hero-logo {
   display: block;
-  height: clamp(5rem, 16vh, 8.5rem);
+  height: clamp(6rem, 19vh, 10rem);
   width: auto;
-  margin: 0 0 clamp(1rem, 3vh, 1.75rem);
+  margin: 0 0 clamp(1.1rem, 3.3vh, 1.9rem);
 }
 
 .hero-eyebrow {

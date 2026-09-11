@@ -5,6 +5,56 @@ document.getElementById("year").textContent = new Date().getFullYear();
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+// ---------------------------------------------------------------------------
+// Shared body-scroll lock — used by every modal/overlay/drawer that needs to
+// stop the page scrolling behind it (Timeline event detail modal, Gallery
+// lightbox, How It Works SDG modal, site-wide Search overlay, and the mobile
+// nav drawer). Previously each of those first four kept its own byte-
+// identical local copy of this exact logic; consolidated here as part of
+// fixing the actual bug that duplication was hiding: plain
+// `document.body.style.overflow = "hidden"` does not reliably block iOS
+// Safari's own background/rubber-band scroll (a long-documented gap — iOS
+// Safari can still scroll the underlying document from a touch that starts
+// behind a fixed-position overlay even with the body's overflow hidden).
+// `position: fixed` on <body> genuinely takes it out of the scrollable flow
+// instead of just hiding its overflow, which is what actually fixes that.
+//
+// Reentrant: lockCount survives nested/overlapping calls (e.g. the mobile
+// nav drawer closing itself right as it opens Search) so an inner unlock
+// can never prematurely release an outer caller's lock.
+let scrollLockCount = 0;
+let scrollLockY = 0;
+let scrollLockPaddingRight = "";
+
+function lockBodyScroll() {
+  scrollLockCount++;
+  if (scrollLockCount > 1) return; // already locked by another caller
+  scrollLockY = window.scrollY;
+  // Same scrollbar-width compensation as before: without it, the page
+  // content (and the fixed header) shifts sideways by the scrollbar's width
+  // for as long as something is locked, since position: fixed removes body
+  // from the document flow that was previously accounting for it.
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  scrollLockPaddingRight = document.body.style.paddingRight;
+  if (scrollbarWidth > 0) {
+    document.body.style.paddingRight = scrollbarWidth + "px";
+  }
+  document.body.style.position = "fixed";
+  document.body.style.top = -scrollLockY + "px";
+  document.body.style.width = "100%";
+}
+
+function unlockBodyScroll() {
+  if (scrollLockCount === 0) return;
+  scrollLockCount--;
+  if (scrollLockCount > 0) return; // still locked by another caller
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.width = "";
+  document.body.style.paddingRight = scrollLockPaddingRight;
+  window.scrollTo(0, scrollLockY);
+}
+
 // Shared by initSiteSearch (result titles/subtitles) and initFaqContent
 // (question/answer text from content/faq.json) — anywhere plain-data
 // strings get written into innerHTML rather than assigned to
@@ -12,6 +62,308 @@ const supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine
 // surrounding markup.
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// ---------------------------------------------------------------------------
+// Site-wide header (nav consolidation + mobile menu). Previously each of
+// the site's 11 pages hand-authored its own literal copy of this markup —
+// exactly the same "duplicated per page" structural issue already found and
+// fixed once for the footer (see the matching Site Settings work), and the
+// direct cause a theme change once had to be applied 10 separate times and
+// drifted out of sync on some of them. Consolidated into one render
+// function + one canonical NAV_LINKS list: every page now just carries an
+// empty `<header id="site-header-mount"></header>` mount point, and this
+// renders the exact same markup into it on every page, so there is nothing
+// left to drift.
+//
+// This also carries the real mobile nav menu (the other half of the same
+// fix): below NAV_COLLAPSE_MIN_WIDTH the link row becomes a hamburger-
+// triggered drawer instead of silently overflowing. See initMobileNav
+// below for why that width, specifically.
+// ---------------------------------------------------------------------------
+const NAV_LINKS = [
+  { label: "How It Works", href: "how-it-works.html" },
+  { label: "About", href: "about.html" },
+  { label: "Team", href: "team.html" },
+  { label: "Pitch Videos", href: "pitch-videos.html" },
+  { label: "Timeline", href: "timeline.html" },
+  { label: "Blog", href: "blog.html" },
+  { label: "Gallery", href: "gallery.html" },
+  { label: "FAQ", href: "faq.html" },
+];
+const NAV_CTA = { label: "Get Involved", href: "get-involved.html" };
+
+function renderSiteHeader() {
+  const mount = document.getElementById("site-header-mount");
+  if (!mount) return;
+
+  // blog-post.html isn't itself any nav link's href, but it's reached only
+  // from Blog — same "which section am I in" logic the old hand-authored
+  // copy of this page already encoded (it marked Blog current, not nothing)
+  // rather than a literal filename match.
+  const path = location.pathname.split("/").pop() || "index.html";
+  const currentHref = path === "blog-post.html" ? "blog.html" : path;
+
+  const linkItems = NAV_LINKS.map(
+    (link) =>
+      `<li><a href="${link.href}"${link.href === currentHref ? ' aria-current="page"' : ""}>${escapeHtml(
+        link.label
+      )}</a></li>`
+  ).join("");
+  const ctaItem = `<li><a class="nav-cta" href="${NAV_CTA.href}"${
+    NAV_CTA.href === currentHref ? ' aria-current="page"' : ""
+  }>${escapeHtml(NAV_CTA.label)}</a></li>`;
+
+  mount.className = "site-header site-header--transparent";
+  mount.innerHTML = `
+    <div class="container header-inner">
+      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="primary-nav-panel" aria-label="Open menu">
+        <svg class="nav-toggle-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path class="nav-toggle-bar nav-toggle-bar-top" d="M4 7h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <path class="nav-toggle-bar nav-toggle-bar-mid" d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <path class="nav-toggle-bar nav-toggle-bar-bottom" d="M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="nav-backdrop" id="nav-backdrop" hidden></div>
+      <div class="primary-nav-panel" id="primary-nav-panel" hidden>
+        <nav aria-label="Primary" id="primary-nav">
+          <ul>${linkItems}${ctaItem}</ul>
+        </nav>
+      </div>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Mobile nav drawer. Below NAV_COLLAPSE_MIN_WIDTH (see the comment on that
+// constant), .nav-toggle becomes visible and .primary-nav-panel becomes a
+// real off-canvas drawer (CSS, gated behind the matching @media query in
+// css/styles.css) instead of the plain inline flex row it is above that
+// width. This function only ever wires up the OPEN/CLOSE behavior — the
+// nav-toggle button itself, and .primary-nav-panel's whole layout, stay
+// completely inert/invisible above the breakpoint via CSS alone, so none of
+// this runs a meaningfully different code path on desktop; it just never
+// gets triggered there (moveToBody/restoreHome below only ever run from
+// inside openMenu/closeMenu, themselves only reachable via the toggle
+// button that's display: none above the breakpoint).
+// ---------------------------------------------------------------------------
+function initMobileNav() {
+  const toggle = document.getElementById("nav-toggle");
+  const panel = document.getElementById("primary-nav-panel");
+  const backdrop = document.getElementById("nav-backdrop");
+  if (!toggle || !panel || !backdrop) return;
+
+  const canAnimate = !prefersReducedMotion && typeof gsap !== "undefined";
+  let isOpen = false;
+
+  // Captured once, before either element ever moves: where they belong
+  // back inside .header-inner when closed (immediately after nav-toggle,
+  // their original position from renderSiteHeader's own markup).
+  const panelHome = { parent: panel.parentElement, nextSibling: panel.nextSibling };
+  const backdropHome = { parent: backdrop.parentElement, nextSibling: backdrop.nextSibling };
+
+  // Moved to direct children of <body> while open, same reasoning and same
+  // technique as the Timeline event modal / Gallery lightbox / SDG modal
+  // (all three move their own card/button to <body> for this exact
+  // reason — see initEventDetailModal's comment on this): .site-header is
+  // `position: fixed` on Home (`position: sticky` elsewhere) with its own
+  // z-index, which makes it a stacking context of its own — no z-index on
+  // a DESCENDANT, however high, can ever paint above a completely
+  // separate sibling stacking context (confirmed by testing: raising
+  // .primary-nav-panel's z-index into the thousands changed nothing,
+  // because the ceiling isn't a number to out-rank, it's the ancestor
+  // boundary itself). Moving both out to <body> — genuine siblings of
+  // .site-header, not trapped inside it — is what actually lets the
+  // drawer paint above everything else, on every page, not just the ones
+  // where it happened to already work.
+  function moveToBody() {
+    document.body.appendChild(backdrop);
+    document.body.appendChild(panel);
+  }
+  function restoreHome() {
+    if (backdropHome.nextSibling && backdropHome.nextSibling.parentElement === backdropHome.parent) {
+      backdropHome.parent.insertBefore(backdrop, backdropHome.nextSibling);
+    } else {
+      backdropHome.parent.appendChild(backdrop);
+    }
+    if (panelHome.nextSibling && panelHome.nextSibling.parentElement === panelHome.parent) {
+      panelHome.parent.insertBefore(panel, panelHome.nextSibling);
+    } else {
+      panelHome.parent.appendChild(panel);
+    }
+  }
+
+  function getFocusable() {
+    return Array.from(
+      panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter((el) => el.offsetParent !== null);
+  }
+
+  function onKeydown(e) {
+    if (!isOpen) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeMenu();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const focusable = getFocusable();
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const outside = !panel.contains(document.activeElement);
+    if (e.shiftKey) {
+      if (outside || document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else if (outside || document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function openMenu() {
+    if (isOpen) return;
+    isOpen = true;
+    toggle.setAttribute("aria-expanded", "true");
+    // aria-expanded alone tells assistive tech the state; updating the
+    // label too (this button has no visible text of its own, only the
+    // icon) means a screen reader announces "Close menu" rather than
+    // still "Open menu" once it's already open.
+    toggle.setAttribute("aria-label", "Close menu");
+    moveToBody();
+    panel.hidden = false;
+    backdrop.hidden = false;
+    lockBodyScroll();
+
+    // Reduced motion / no GSAP: nothing here to animate — .primary-nav-panel
+    // and .nav-backdrop have no offset transform of their own in CSS, so
+    // simply removing `hidden` above already puts both directly in their
+    // final on-screen state, instantly, with no separate "show" step
+    // needed. GSAP-driven case: sets the actual starting (off-screen/
+    // transparent) point first since the CSS itself doesn't encode one,
+    // then tweens to the resting state, with the nav items themselves
+    // staggering in a beat behind the panel rather than arriving all at
+    // once — a small distinguishing touch from the flat fade+scale
+    // Search's own overlay uses, per the brief's "varied, not a generic
+    // slide."
+    const navItems = panel.querySelectorAll("#primary-nav li");
+    if (canAnimate) {
+      gsap.set(backdrop, { opacity: 0 });
+      gsap.set(panel, { xPercent: 100, opacity: 1 });
+      gsap.set(navItems, { opacity: 0, x: 16 });
+      gsap.to(backdrop, { opacity: 1, duration: 0.25, ease: "power1.out" });
+      gsap.to(panel, { xPercent: 0, duration: 0.4, ease: "power3.out" });
+      gsap.to(navItems, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out", stagger: 0.04, delay: 0.12 });
+    }
+
+    document.addEventListener("keydown", onKeydown, true);
+    // Focus moves into the drawer once it's actually on-screen: with the
+    // animation running, that's after this frame paints, not before —
+    // focusing an element still transform-offscreen would work but reads
+    // oddly to anyone tracking focus by ear (a screen reader) before it's
+    // visually arrived. No animation (reduced motion / no GSAP): there's
+    // nothing to wait for, so focus immediately.
+    const focusFirstLink = () => {
+      const firstLink = panel.querySelector("#primary-nav a");
+      if (firstLink) firstLink.focus();
+    };
+    if (canAnimate) window.setTimeout(focusFirstLink, 50);
+    else focusFirstLink();
+  }
+
+  // returnFocus: false for the two cases where something else already has
+  // (or is about to take) a better claim to focus than the toggle button —
+  // a nav link/CTA that's navigating away, or the Search trigger opening
+  // its own overlay right on top. Found by testing, not assumed: with this
+  // always true, closeMenu's deferred (GSAP onComplete) toggle.focus()
+  // call could fire AFTER openOverlay's own synchronous inputEl.focus(),
+  // silently yanking focus back out of the search input the user was
+  // about to type into.
+  function closeMenu(returnFocus = true) {
+    if (!isOpen) return;
+    isOpen = false;
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Open menu");
+    document.removeEventListener("keydown", onKeydown, true);
+
+    function finish() {
+      panel.hidden = true;
+      backdrop.hidden = true;
+      restoreHome();
+      unlockBodyScroll();
+      if (returnFocus) toggle.focus();
+    }
+
+    if (canAnimate) {
+      gsap.to(panel, { xPercent: 100, duration: 0.3, ease: "power2.in" });
+      gsap.to(backdrop, { opacity: 0, duration: 0.2, ease: "power1.in", onComplete: finish });
+    } else {
+      finish();
+    }
+  }
+
+  toggle.addEventListener("click", () => {
+    if (isOpen) closeMenu();
+    else openMenu();
+  });
+  // Explicit arrow function, not `backdrop.addEventListener("click",
+  // closeMenu)` directly: that would implicitly pass the click Event
+  // itself as closeMenu's first argument (returnFocus) — happens to be
+  // truthy so it wouldn't actually misbehave here, but only by accident.
+  backdrop.addEventListener("click", () => closeMenu());
+
+  // A real nav link, or the Get Involved CTA, navigates away on its own —
+  // no need to also animate the drawer closed first, it's about to be torn
+  // down with the rest of the page regardless. returnFocus: false — the
+  // destination page (or, same-page, whatever the browser does with focus
+  // on navigation) should own focus next, not the toggle button this
+  // drawer is about to leave behind.
+  panel.addEventListener("click", (e) => {
+    if (e.target.closest("a")) closeMenu(false);
+  });
+
+  // The Search trigger (inserted into this same drawer by initSiteSearch,
+  // right after this function runs) opens its own overlay on top of
+  // whatever's currently open — closing the drawer first, rather than
+  // stacking two overlays, is what a tap on "Search" from inside the menu
+  // should actually do. Deliberately plain bubble phase, not capture: a
+  // click always runs the actual target's own listener before it bubbles
+  // to an ancestor's, so the trigger's own handler (initSiteSearch's
+  // openOverlay, attached directly to the trigger element) — and the
+  // lockBodyScroll() call inside it — always fires before this one does.
+  // lockBodyScroll's reentrancy count is what actually keeps that safe
+  // regardless of animation timing: it goes 1 (drawer open) -> 2 (search's
+  // own lock, since the drawer hasn't unlocked yet) -> 1 (drawer's
+  // eventual unlock, whether that's synchronous here or deferred to a
+  // close-animation's onComplete) — never touching 0 while Search is still
+  // open, so its lock is never prematurely released.
+  // returnFocus: false here too, for the same reason as the nav-link
+  // handler above — Search's own openOverlay() already moves focus to its
+  // input (synchronously, before this drawer even finishes closing), and
+  // the toggle button reclaiming it afterward would be a real regression,
+  // not just a cosmetic one: it'd silently kick focus out of the search
+  // box the moment a keyboard/screen-reader user reached it.
+  panel.addEventListener("click", (e) => {
+    if (e.target.closest(".search-trigger")) closeMenu(false);
+  });
+
+  // Resizing past the breakpoint while the drawer happens to be open (a
+  // window drag, or a tablet rotation crossing it) leaves the CSS side
+  // correct on its own (the drawer's whole layout is gated behind the same
+  // media query, so `.primary-nav-panel` reverts to `display: contents`
+  // and just renders as normal inline desktop nav past that width,
+  // whatever `hidden`/inline transform state it's carrying) — but without
+  // this, the scroll lock and the toggle's aria-expanded would stay stuck
+  // from the mobile state.
+  const breakpointQuery = window.matchMedia(`(min-width: ${NAV_COLLAPSE_MIN_WIDTH}px)`);
+  // returnFocus: false — toggle is about to become display: none at this
+  // width (the same media query gates it), so focusing it back would just
+  // land focus on an invisible control rather than anything useful.
+  breakpointQuery.addEventListener("change", (e) => {
+    if (e.matches && isOpen) closeMenu(false);
+  });
 }
 
 // Shared by initBlogContent (building each teaser card's link) and
@@ -29,6 +381,34 @@ function slugify(text) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
+
+// Below this width, the primary nav collapses into the hamburger drawer
+// (initMobileNav) instead of the plain inline link row. NOT the old 640px
+// value the dead .nav-link-item rule used to target (that number was never
+// actually reachable — see below) — this is computed from the nav's own
+// real, measured, intrinsic content width, the same way the mobile-
+// compatibility audit that found this bug did:
+//
+//   wordmark ................................ 180px
+//   search trigger ........................... 108px
+//   8 nav links + Get Involved CTA ........... 580px  (measured, summed)
+//   8 gaps between those 9 items, at the gap's
+//     own max clamp (1.5rem) — the conservative,
+//     worst-case width, not the narrower value
+//     it'd actually be at a smaller viewport .. 192px
+//   .header-inner's own gap, between its
+//     3 top-level children (2 gaps × 1rem) ..... 32px
+//   ---------------------------------------------------
+//   content minimum .......................... 1092px
+//
+// Solving `viewport - 2 * gutter(viewport) >= 1092`, where gutter is this
+// site's own clamp(1.25rem, 4vw, 3rem), gives a true minimum of ~1188px —
+// meaning the nav was never actually safe below roughly that, tablet and
+// small-laptop widths included, not just phones. 1200px is that minimum
+// plus a real (not razor's-edge) margin: at exactly 1200px the gap clamp
+// resolves to its genuine (non-worst-case) value, leaving ~30px of
+// measured slack rather than 0.
+const NAV_COLLAPSE_MIN_WIDTH = 1200;
 
 // Shared with initImpactCounters below (see the comment there on why it
 // needs to know this ahead of time) — kept as a single source of truth so
@@ -1466,23 +1846,6 @@ function initEventDetailModal() {
   let activeCard = null;
   let cardOriginalParent = null;
   let cardOriginalNextSibling = null;
-  let scrollLockPaddingRight = "";
-
-  // Compensates for the scrollbar disappearing when body scroll locks below
-  // — without this the page content (and the fixed header) shifts sideways
-  // by the scrollbar's width for as long as the modal is open.
-  function lockBodyScroll() {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    scrollLockPaddingRight = document.body.style.paddingRight;
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = scrollbarWidth + "px";
-    }
-    document.body.style.overflow = "hidden";
-  }
-  function unlockBodyScroll() {
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = scrollLockPaddingRight;
-  }
 
   // The only focusable descendants a card ever has are its close button
   // (always) — description/date/time/location are plain text. Queried
@@ -2374,23 +2737,9 @@ function initGalleryLightbox() {
   let activeButton = null;
   let originalParent = null;
   let originalNextSibling = null;
-  let scrollLockPaddingRight = "";
   let wheelCooldown = false;
   let touchStartX = null;
   let touchStartY = null;
-
-  function lockBodyScroll() {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    scrollLockPaddingRight = document.body.style.paddingRight;
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = scrollbarWidth + "px";
-    }
-    document.body.style.overflow = "hidden";
-  }
-  function unlockBodyScroll() {
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = scrollLockPaddingRight;
-  }
 
   function getFocusable(container) {
     return Array.from(
@@ -3917,7 +4266,18 @@ function initHeroEntrance() {
     //    background's own settle, not waiting for it. Its links only start
     //    staggering in left-to-right once the bar itself has visibly
     //    settled, not simultaneously with the bar's own entrance.
-    if (header) tl.to(header, { y: 0, opacity: 1, duration: 0.45, ease: "power2.out" }, 0.05);
+    //    clearProps: "transform" (added alongside the mobile nav drawer)
+    //    — without it, GSAP leaves .site-header's inline transform sitting
+    //    at its own final identity value (translate3d(0,0,0)) rather than
+    //    removing the property entirely once the tween settles, and ANY
+    //    transform on an ancestor — even one that visually does nothing —
+    //    makes it the containing block for a position: fixed descendant
+    //    instead of the viewport. .primary-nav-panel (the mobile drawer,
+    //    a .site-header descendant) is exactly that kind of descendant, so
+    //    on Home specifically it would render pinned to .site-header's own
+    //    ~80px-tall box instead of the actual viewport — found by testing
+    //    the drawer immediately after this tween, not assumed.
+    if (header) tl.to(header, { y: 0, opacity: 1, duration: 0.45, ease: "power2.out", clearProps: "transform" }, 0.05);
     if (navLinks.length) {
       tl.to(
         navLinks,
@@ -4540,18 +4900,6 @@ function initSdgModal() {
   let activeCard = null;
   let cardOriginalParent = null;
   let cardOriginalNextSibling = null;
-  let scrollLockPaddingRight = "";
-
-  function lockBodyScroll() {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    scrollLockPaddingRight = document.body.style.paddingRight;
-    if (scrollbarWidth > 0) document.body.style.paddingRight = scrollbarWidth + "px";
-    document.body.style.overflow = "hidden";
-  }
-  function unlockBodyScroll() {
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = scrollLockPaddingRight;
-  }
 
   function getFocusable(card) {
     return Array.from(
@@ -4857,17 +5205,17 @@ function initSiteSearch() {
   trigger.innerHTML =
     '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16.3" y1="16.3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
     '<span class="search-trigger-hint" aria-hidden="true">Search</span>';
-  // Inserted right after the wordmark (before nav), not after nav: on a
-  // narrow viewport the nav's own link row already has no collapse/wrap
-  // behavior and can overflow past the right edge on its own (a
-  // pre-existing layout gap, not something this feature introduces) — a
-  // trigger placed after nav would be pushed off-screen along with it.
-  // Placed here instead, it stays reachable regardless. See the paired
-  // `.header-inner nav { margin-left: auto }` in css/styles.css, which
-  // keeps nav hugging the right edge the same way `justify-content:
-  // space-between` did before this became a 3-item flex row instead of 2.
-  const wordmark = headerInner.querySelector(".wordmark");
-  if (wordmark) wordmark.insertAdjacentElement("afterend", trigger);
+  // Inserted as the first child of .primary-nav-panel (before <nav>), not
+  // as a plain sibling of the wordmark any more: .primary-nav-panel is
+  // `display: contents` above NAV_COLLAPSE_MIN_WIDTH, so the trigger still
+  // renders exactly where it always has — immediately after the wordmark,
+  // ahead of the nav links, in the same flex row — but below that width
+  // .primary-nav-panel becomes the mobile drawer (initMobileNav,
+  // css/styles.css), and this placement is what puts the Search trigger
+  // inside that drawer's contents rather than stranded in the collapsed
+  // header bar outside it.
+  const navPanel = headerInner.querySelector("#primary-nav-panel");
+  if (navPanel) navPanel.prepend(trigger);
   else headerInner.appendChild(trigger);
 
   // --- Build the overlay (appended to <body>, one per page) ---
@@ -4916,23 +5264,6 @@ function initSiteSearch() {
   let activeIndex = -1;
   let flatResults = [];
   let debounceTimer = null;
-  let scrollLockPaddingRight = "";
-
-  // Same scrollbar-compensated body-scroll lock as the Timeline event
-  // modal and Gallery lightbox (js/script.js) — kept as its own local
-  // copy here rather than a shared helper, consistent with how each of
-  // those already duplicates it rather than introducing a new shared
-  // utility for three call sites.
-  function lockBodyScroll() {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    scrollLockPaddingRight = document.body.style.paddingRight;
-    if (scrollbarWidth > 0) document.body.style.paddingRight = scrollbarWidth + "px";
-    document.body.style.overflow = "hidden";
-  }
-  function unlockBodyScroll() {
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = scrollLockPaddingRight;
-  }
 
   function updateActiveDescendant() {
     const optionEls = resultsEl.querySelectorAll(".search-result");
@@ -5223,6 +5554,11 @@ function initSearchResultHighlight() {
   highlightSearchTarget(location.hash.slice(1));
 }
 
+// Must run before anything else below: every one of these queries
+// .site-header/.wordmark/.header-inner, none of which exist until the
+// header is actually rendered into its mount point.
+renderSiteHeader();
+initMobileNav();
 initHomeLogoReset();
 initSiteSettings();
 initScrollReveal();

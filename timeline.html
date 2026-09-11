@@ -29,24 +29,19 @@
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <!-- Same header markup/treatment as the rest of the site. -->
-  <header class="site-header site-header--transparent">
-    <div class="container header-inner">
-      <a class="wordmark" href="index.html#top">Hult Prize <span>@ UC Davis</span></a>
-      <nav aria-label="Primary">
-        <ul>
-          <li><a href="how-it-works.html">How It Works</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="team.html">Team</a></li>
-          <li><a href="pitch-videos.html">Pitch Videos</a></li>
-          <li><a href="timeline.html" aria-current="page">Timeline</a></li>
-          <li><a href="blog.html">Blog</a></li>
-          <li><a href="gallery.html">Gallery</a></li>
-          <li><a href="faq.html">FAQ</a></li>
-          <li><a class="nav-cta" href="get-involved.html">Get Involved</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+    <!-- Single shared header, every page (all 10 nav pages + blog-post.html)
+       — rendered into this mount point by renderSiteHeader() in
+       js/script.js, which also wires up the mobile nav drawer
+       (initMobileNav) below NAV_COLLAPSE_MIN_WIDTH. Previously each page
+       hand-authored its own copy of this markup: the direct cause of an
+       earlier navy/gold theme-drift bug, and part of why the nav-overflow
+       bug (a mobile-compatibility audit finding) went unfixed as long as
+       it did. There is now exactly one copy of this markup to ever edit.
+       Home is the one page whose header is also `position: fixed` (see
+       `.home-page .site-header--transparent` in css/styles.css) so its
+       full-bleed hero photo can extend behind it — driven by the
+       `home-page` class on this page's own <body>, not anything here. -->
+  <header id="site-header-mount"></header>
 
   <main id="main" class="timeline-page">
     <section class="timeline-hero">

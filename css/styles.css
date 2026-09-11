@@ -266,42 +266,61 @@ button:focus-visible {
   color: var(--gold);
 }
 
+/* .primary-nav-panel wraps the Search trigger + <nav> (js/script.js,
+   renderSiteHeader/initSiteSearch) so both can become a single off-canvas
+   mobile drawer together below NAV_COLLAPSE_MIN_WIDTH (see the mobile nav
+   block further down) — `display: contents` here is what keeps that
+   wrapper invisible to THIS layout, so its two children still participate
+   directly in .header-inner's own flex row exactly as if they had no
+   shared wrapper at all. Nothing in this rule, or any rule above it,
+   changed to make that true — this file's existing desktop behavior for
+   the wordmark/search-trigger/nav is completely unmodified. */
+.primary-nav-panel {
+  display: contents;
+}
+
 /* Stage 11a: the search trigger (js/script.js, initSiteSearch) is inserted
-   between the wordmark and nav, making this a 3-item flex row instead of
-   the original 2 — margin-left: auto keeps nav pinned to the right edge
-   exactly as `.header-inner`'s justify-content: space-between did on its
-   own before, rather than that space getting redistributed into a gap on
-   both sides of the trigger. */
-.header-inner nav {
+   as .primary-nav-panel's first child, ahead of <nav> — with that wrapper
+   at `display: contents` (above), the trigger still renders exactly where
+   it always has: between the wordmark and nav, making this a 3-item flex
+   row instead of the original 2 — margin-left: auto keeps nav pinned to
+   the right edge exactly as `.header-inner`'s justify-content:
+   space-between did on its own before, rather than that space getting
+   redistributed into a gap on both sides of the trigger. */
+#primary-nav {
   margin-left: auto;
 }
 
-.header-inner nav ul {
+#primary-nav ul {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
   /* Stage 2h: tightened from clamp(1rem, 3vw, 2rem) — adding How It Works
      as a 9th nav item pushed the previous gap past what fits on one line
      at common desktop widths (~1300-1400px), wrapping the nav to two
-     rows. Real mobile/narrow-viewport nav handling (no menu at all below
-     a certain width) is a separate, already-identified gap tracked for a
-     later pass — this is only the desktop-width regression fix. */
+     rows. (A mobile-compatibility audit later found this row has no
+     shrink/wrap escape hatch at all below that: nowrap plus this gap
+     forced ~1090px of unshrinkable content into whatever width was
+     actually available, all the way down to phones. Fixed below,
+     NAV_COLLAPSE_MIN_WIDTH — this comment's own gap value is still
+     exactly what it was, and still only the desktop-width fix it always
+     was.) */
   gap: clamp(0.75rem, 1.8vw, 1.5rem);
 }
 
-.header-inner nav a {
+#primary-nav a {
   color: var(--white);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 500;
 }
 
-.header-inner nav a:not(.nav-cta) {
+#primary-nav a:not(.nav-cta) {
   position: relative;
   padding-bottom: 3px;
 }
 
-.header-inner nav a:not(.nav-cta)::after {
+#primary-nav a:not(.nav-cta)::after {
   content: "";
   position: absolute;
   left: 0;
@@ -312,29 +331,29 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .header-inner nav a:not(.nav-cta)::after {
+  #primary-nav a:not(.nav-cta)::after {
     transition: width 0.25s ease;
   }
 }
 
-.header-inner nav a:not(.nav-cta):hover,
-.header-inner nav a:not(.nav-cta):focus-visible {
+#primary-nav a:not(.nav-cta):hover,
+#primary-nav a:not(.nav-cta):focus-visible {
   color: var(--gold);
 }
 
-.header-inner nav a:not(.nav-cta):hover::after,
-.header-inner nav a:not(.nav-cta):focus-visible::after {
+#primary-nav a:not(.nav-cta):hover::after,
+#primary-nav a:not(.nav-cta):focus-visible::after {
   width: 100%;
 }
 
 /* Marks the nav link for whichever page is currently open (e.g. Team, on
    team.html) — reuses the same gold-text/underline language as :hover so it
    reads as "you are here" rather than a new visual idiom. */
-.header-inner nav a[aria-current="page"] {
+#primary-nav a[aria-current="page"] {
   color: var(--gold);
 }
 
-.header-inner nav a[aria-current="page"]:not(.nav-cta)::after {
+#primary-nav a[aria-current="page"]:not(.nav-cta)::after {
   width: 100%;
 }
 
@@ -353,12 +372,196 @@ button:focus-visible {
   background: #e0a800;
 }
 
-/* Below ~640px there isn't room for the full nav alongside the wordmark and
-   CTA — hide the in-page text links and keep the primary CTA reachable.
-   All linked sections remain reachable by scrolling this single page. */
-@media (max-width: 640px) {
-  .nav-link-item {
+/* --------------------------------------------------------------------------
+   Mobile nav drawer. Replaces the old `.nav-link-item { display: none }`
+   rule (a max-width: 640px block that never actually did anything — no
+   element anywhere on the site ever carried that class, so the nav row it
+   was meant to hide never actually collapsed at any width; a
+   mobile-compatibility audit is what caught this). NAV_COLLAPSE_MIN_WIDTH
+   in js/script.js documents the actual arithmetic behind 1200px — the
+   real, measured minimum content width of the wordmark + search trigger +
+   9 nav items + gaps, not a guess.
+
+   Base rules here (outside the media query) hide the toggle/backdrop and
+   keep .primary-nav-panel inert on desktop — see that class's own
+   `display: contents` rule further up this file. Everything that actually
+   turns this into a drawer lives inside the max-width query below, so
+   desktop is provably unaffected by any of it.
+   -------------------------------------------------------------------------- */
+
+.nav-toggle {
+  display: none;
+}
+
+.nav-backdrop {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--white);
+    cursor: pointer;
+  }
+
+  .nav-toggle-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-toggle-bar {
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      transform-origin: 50% 50%;
+    }
+  }
+
+  /* Hamburger -> X, driven purely by aria-expanded (no separate JS-toggled
+     class needed) — the middle bar fades out, the outer two rotate into an
+     X in place. */
+  .nav-toggle[aria-expanded="true"] .nav-toggle-bar-top {
+    transform: translateY(5px) rotate(45deg);
+  }
+  .nav-toggle[aria-expanded="true"] .nav-toggle-bar-mid {
+    opacity: 0;
+  }
+  .nav-toggle[aria-expanded="true"] .nav-toggle-bar-bottom {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    background: rgba(13, 11, 16, 0.7);
+  }
+
+  /* [hidden] bug (established elsewhere on this site — see .search-overlay/
+     .newsletter-form/.countdown-flaps in this file): an authored `display`
+     value beats the browser's own [hidden]{display:none} at equal
+     specificity, so both overlay pieces need it spelled out explicitly. */
+  .nav-backdrop[hidden] {
     display: none;
+  }
+
+  /* Takes over from `display: contents` (desktop, above) — a real box now,
+     the fixed-position off-canvas drawer itself. No transform/filter on
+     any ancestor between this and the viewport (checked: .header-inner,
+     .site-header, .site-header--transparent, .container all carry none),
+     so `position: fixed` here is safely viewport-relative regardless of
+     where the header itself sits (`position: sticky` on every page but
+     Home, `position: fixed` on Home — see the comment on
+     `.home-page .site-header--transparent`). */
+  .primary-nav-panel {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 85vw);
+    z-index: 200;
+    padding: 5rem 1.5rem 2rem;
+    overflow-y: auto;
+    background: var(--navy);
+    box-shadow: -20px 0 50px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  .primary-nav-panel[hidden] {
+    display: none;
+  }
+
+  #primary-nav {
+    /* Resets the desktop-only auto margin (above) — that trick pushes a
+       flex ITEM to the end of a ROW; inside the drawer's column layout it
+       would instead right-align/shrink-wrap nav's own box, which isn't
+       wanted here. */
+    margin-left: 0;
+  }
+
+  #primary-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  #primary-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 0.6rem;
+    font-size: 1rem;
+  }
+
+  #primary-nav a:not(.nav-cta)::after {
+    /* The underline-on-hover/current treatment reads fine inline on a
+       desktop text link; stacked full-width in a drawer it would just be
+       a stray short line under the first few characters. The color
+       change alone (already unconditional, not part of this rule) still
+       carries hover/current here. */
+    display: none;
+  }
+
+  /* Solid, high-contrast pill — the transparent header's own .nav-cta
+     treatment (translucent + backdrop-blur, styled to sit over a busy
+     hero photo) reads muddy against this drawer's solid navy panel, so
+     this reverts to the base (non-transparent-header) .nav-cta look:
+     solid gold, dark text, no blur. */
+  .primary-nav-panel .nav-cta {
+    justify-content: center;
+    margin-top: 0.75rem;
+    background: var(--gold) !important;
+    color: var(--navy) !important;
+    border: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .primary-nav-panel .nav-cta:hover,
+  .primary-nav-panel .nav-cta:focus-visible {
+    background: #e0a800 !important;
+  }
+
+  /* Search trigger (js/script.js inserts it as .primary-nav-panel's first
+     child): same full-width tappable-row treatment as a nav link, plain
+     rather than the transparent header's own floating pill/blur chip —
+     same "solid panel, not a floating strip over a photo" reasoning as
+     the CTA above. */
+  .primary-nav-panel .search-trigger {
+    order: -1;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 0;
+    margin-bottom: 0.5rem;
+    border: none;
+    border-bottom: 1px solid var(--navy-line);
+    border-radius: 0;
+    background: none !important;
+    backdrop-filter: none !important;
+    color: var(--white);
+    font-size: 1rem;
+  }
+
+  .primary-nav-panel .search-trigger svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .primary-nav-panel .search-trigger-hint {
+    border: none !important;
   }
 }
 
@@ -420,20 +623,20 @@ button:focus-visible {
   --home-header-h: 4.625rem;
 }
 
-.site-header--transparent .header-inner nav a:not(.nav-cta) {
+.site-header--transparent #primary-nav a:not(.nav-cta) {
   color: rgba(255, 255, 255, 0.85);
 }
 
-.site-header--transparent .header-inner nav a:not(.nav-cta)::after {
+.site-header--transparent #primary-nav a:not(.nav-cta)::after {
   background: var(--magenta);
 }
 
-.site-header--transparent .header-inner nav a:not(.nav-cta):hover,
-.site-header--transparent .header-inner nav a:not(.nav-cta):focus-visible {
+.site-header--transparent #primary-nav a:not(.nav-cta):hover,
+.site-header--transparent #primary-nav a:not(.nav-cta):focus-visible {
   color: var(--magenta);
 }
 
-.site-header--transparent .header-inner nav a[aria-current="page"] {
+.site-header--transparent #primary-nav a[aria-current="page"] {
   color: var(--magenta);
 }
 

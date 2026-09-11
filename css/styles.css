@@ -1366,6 +1366,32 @@ button:focus-visible {
   margin-bottom: 2.5rem;
 }
 
+/* Fixes a real bug, not an opacity/animation one: .scene-scrim (base rule
+   above, shared with Explainer) is `position: absolute; inset: 0` relative
+   to .scene-impact, sized to cover the whole section. In this fallback
+   layout .scene-impact-media sits beside it as a plain in-flow, NON-
+   positioned sibling — and per CSS stacking rules, a non-positioned block
+   always paints BELOW any positioned sibling, regardless of DOM order. So
+   the scrim's dark gradient (rgba(13, 11, 16, 0.55–0.8)) was painting
+   directly over the gallery photos, reading as permanently dimmed/semi-
+   transparent no matter how far you scrolled — scrolling was never going to
+   fix it, since nothing here is scroll-linked in this tier at all.
+   .impact-gallery-img's own opacity was already 1 the whole time; the
+   problem was purely this stacking order. Lifting the media to the same
+   z-index tier as .scene-inner (the stats, which already had `z-index: 1`
+   and so were never affected) fixes it without touching .scene-scrim
+   itself, which still needs to darken things for Explainer's fallback text.
+   Scoped to exclude `.pin-active` explicitly (rather than a width query)
+   because the bug isn't width-specific — it's present in every fallback
+   context this site already recognizes (touch, reduced motion, a GSAP CDN
+   failure) — and this guarantees zero effect on desktop's pinned crossfade,
+   which sets its own `position`/`z-index` for this exact element inside the
+   higher-specificity `.pin-active .scene-impact-media` rule below. */
+.pin-sequence:not(.pin-active) .scene-impact-media {
+  position: relative;
+  z-index: 1;
+}
+
 .impact-gallery {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

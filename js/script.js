@@ -4246,24 +4246,28 @@ function initHomeContent() {
 }
 
 // ---------------------------------------------------------------------------
-// Site Settings (Stage 2g, Admin CMS extension) — a single shared CMS
-// document, content/site-settings.json, for the two values repeated in
-// multiple places across the site (the footer's email/Instagram links on
-// EVERY page, plus the Home hero's secondary "Follow us on Instagram"
-// button): editing either value here updates every place it appears,
-// instead of the same edit needing to be made separately in each spot.
-// Runs unconditionally on every page (like initHomeLogoReset) rather than
-// being gated to Home. Every link this touches already carries the site's
-// real current value as its href/text, so a fetch failure just leaves
-// those links exactly as they were — this is standing site-wide UI chrome,
-// not page content, so (unlike FAQ/Team/Blog/etc.) it fails silently
-// instead of showing a load-error message.
+// Site Settings (Stage 2g, Admin CMS extension; Discord field + footer icon
+// links added later) — a single shared CMS document, content/
+// site-settings.json, for the values repeated in multiple places across the
+// site (the footer's email/Instagram/Discord icon links on EVERY page, plus
+// the Home hero's secondary "Follow us on Instagram" button): editing any
+// one value here updates every place it appears, instead of the same edit
+// needing to be made separately in each spot. Runs unconditionally on every
+// page (like initHomeLogoReset) rather than being gated to Home. Every link
+// this touches already carries the site's real current value as its href
+// (the footer's three are now icon links, not text — only href is ever
+// updated here, never textContent/innerHTML, so a fetch failure just leaves
+// those links' hrefs exactly as they were and never touches the SVG icon
+// markup), so this is standing site-wide UI chrome, not page content —
+// unlike FAQ/Team/Blog/etc. it fails silently instead of showing a
+// load-error message.
 // ---------------------------------------------------------------------------
 function initSiteSettings() {
   const emailLink = document.querySelector(".footer-links a[href^='mailto:']");
   const instagramLink = document.querySelector(".footer-links a[href*='instagram.com']");
+  const discordLink = document.querySelector(".footer-links a[href*='discord.gg']");
   const heroInstagramLink = document.querySelector(".hero-actions .btn-ghost[href*='instagram.com']");
-  if (!emailLink && !instagramLink && !heroInstagramLink) return;
+  if (!emailLink && !instagramLink && !discordLink && !heroInstagramLink) return;
 
   fetch("content/site-settings.json")
     .then((response) => {
@@ -4273,16 +4277,13 @@ function initSiteSettings() {
     .then((data) => {
       if (data.contactEmail && emailLink) {
         emailLink.href = "mailto:" + data.contactEmail;
-        emailLink.textContent = data.contactEmail;
       }
       if (data.instagramUrl) {
-        const handleMatch = String(data.instagramUrl).match(/instagram\.com\/([^/?#]+)/i);
-        const handle = handleMatch ? "@" + handleMatch[1] : data.instagramUrl;
-        if (instagramLink) {
-          instagramLink.href = data.instagramUrl;
-          instagramLink.textContent = handle;
-        }
+        if (instagramLink) instagramLink.href = data.instagramUrl;
         if (heroInstagramLink) heroInstagramLink.href = data.instagramUrl;
+      }
+      if (data.discordUrl && discordLink) {
+        discordLink.href = data.discordUrl;
       }
     })
     .catch((err) => {

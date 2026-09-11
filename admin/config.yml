@@ -420,8 +420,9 @@ collections:
     label: Site Settings
     description: >-
       Shared values used in more than one place across the site: the
-      Instagram URL (Home page hero, plus every page's footer) and contact
-      email (every page's footer). Change either one here and it updates
+      Instagram URL (Home page hero, plus every page's footer icon),
+      contact email (every page's footer icon), and Discord invite URL
+      (every page's footer icon). Change any one here and it updates
       everywhere it appears — there's nothing to edit per-page.
     files:
       - name: site_settings
@@ -436,6 +437,10 @@ collections:
           - label: Contact Email
             name: contactEmail
             widget: string
+          - label: Discord Invite URL
+            name: discordUrl
+            widget: string
+            hint: 'Full invite URL, e.g. "https://discord.gg/abcd1234".'
 
   - name: home
     label: Home Page

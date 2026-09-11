@@ -3614,7 +3614,9 @@ function initStoryEntranceFade() {
 //      their final podium arrangement, normal document scroll, no confetti.
 //   2. Motion OK, but touch/coarse-pointer or a narrow (<900px) viewport:
 //      initTopTeamsSimpleReveal — a non-pinned scrub tied to normal scroll
-//      (no pin:true), safe on touch scrolling.
+//      (no pin:true), safe on touch scrolling. Fades in 1st -> 2nd -> 3rd,
+//      matching top-to-bottom scroll arrival in this tier's normal-flow
+//      layout — a deliberate mobile-specific order, NOT tier 3's build.
 //   3. Motion OK, fine pointer, wide viewport: initTopTeamsPinSequence —
 //      pins the section and drives four phases (title alone -> 3rd -> 2nd
 //      -> 1st + confetti -> release), using the exact pin mechanism as the
@@ -3666,23 +3668,38 @@ function initTopTeamsAnimation() {
 // Tier 2: non-pinned scrub, tied to normal scroll through the section as it
 // sits in plain document flow (see css/styles.css — no `.tt-pin-active`
 // rules apply here, so this is just the section's ordinary layout).
+//
+// Deliberately NOT the same 3rd->2nd->1st build order as the desktop pin
+// sequence below. That sequence can afford a dramatic reverse reveal because
+// pin:true holds all three cards at one fixed screen position while it
+// plays — the reveal's time order has no relationship to scroll position.
+// Here there's no pin: the cards sit in normal flow at their real podium
+// spots (single column below 760px, so top-to-bottom is literally 1st,
+// 2nd, 3rd — see the "DOM order is placement order" comment on .podium in
+// css/styles.css), and this scrub's progress tracks physical scroll
+// position through them. Fading them in 3rd/2nd/1st therefore left 1st
+// place — the card the user scrolls to FIRST — sitting dim until progress
+// reached 0.6+, while 2nd (reached later) had already finished its earlier
+// slot: the top card visibly lagged behind the one below it. Ordering the
+// fade-ins 1st->2nd->3rd instead matches each card's own scroll arrival.
 function initTopTeamsSimpleReveal(section) {
-  const thirdCard = section.querySelector(".team-card-third");
-  const secondCard = section.querySelector(".team-card-second");
   const firstCard = section.querySelector(".team-card-first");
-  if (!thirdCard || !secondCard || !firstCard) return;
+  const secondCard = section.querySelector(".team-card-second");
+  const thirdCard = section.querySelector(".team-card-third");
+  if (!firstCard || !secondCard || !thirdCard) return;
 
-  gsap.set([thirdCard, secondCard, firstCard], { opacity: 0, y: 40 });
+  gsap.set([firstCard, secondCard, thirdCard], { opacity: 0, y: 40 });
 
-  // Fractions (0–1) of the scrubbed range. 1st place finishing at 0.95 (not
-  // 1.0) leaves a small settled buffer before the trigger's end, so the
-  // confetti moment doesn't land exactly at the very edge of the range.
+  // Fractions (0–1) of the scrubbed range, in scroll-arrival order now
+  // (1st place's slot starts at 0, not 0.6 — see comment above).
   const tl = gsap.timeline({ defaults: { ease: "none" } });
-  tl.to(thirdCard, { opacity: 1, y: 0, duration: 0.33 }, 0)
+  tl.to(firstCard, { opacity: 1, y: 0, duration: 0.33 }, 0)
     .to(secondCard, { opacity: 1, y: 0, duration: 0.33 }, 0.3)
-    .to(firstCard, { opacity: 1, y: 0, duration: 0.35 }, 0.6);
+    .to(thirdCard, { opacity: 1, y: 0, duration: 0.35 }, 0.6);
 
-  const FIRST_PLACE_DONE = 0.95;
+  // Confetti stays tied to 1st place's own reveal, which now finishes at
+  // the end of its (first) slot instead of the last.
+  const FIRST_PLACE_DONE = 0.33;
   let confettiFired = false;
 
   ScrollTrigger.create({

@@ -1195,10 +1195,15 @@ button:focus-visible {
   color: rgba(255, 255, 255, 0.75);
 }
 
-/* Narrower viewports: the photo and its overlay scale to any aspect ratio
-   (inset: 0 + object-fit/gradients, above) so nothing extra is needed
-   there — this only re-balances the decorative pieces so they don't
-   collide with the headline. */
+/* Narrower viewports: the photo scales to any aspect ratio (inset: 0 +
+   object-fit, above) so nothing extra is needed for that — this re-balances
+   the decorative pieces so they don't collide with the headline, AND (per
+   explicit director feedback) drops the full-image dark overlay entirely on
+   mobile so the photo itself shows unshaded, replacing it with targeted
+   per-element legibility treatments below instead. Desktop's `.hero-photo-
+   overlay` rule above this media query is untouched — this only overrides it
+   inside the query, at this same breakpoint every other mobile-only hero
+   rule already uses. */
 @media (max-width: 640px) {
   .hero-inner {
     /* The 64% desktop cap (above) exists to leave room for the photo on
@@ -1209,9 +1214,68 @@ button:focus-visible {
     padding-block: calc(clamp(4.5rem, 10vh, 6.5rem) + var(--home-header-h, 0px)) clamp(5.5rem, 12vh, 7rem);
   }
 
+  /* The overlay's job (nav + text legibility over the photo) is taken over
+     by the per-element text-shadow/backdrop treatments below, so this drops
+     out entirely rather than just fading — `background: none` (not
+     `display: none`) keeps the element itself inert without touching
+     anything else that depends on `.hero-photo-bg`'s stacking. */
+  .hero-photo-overlay {
+    background: none;
+  }
+
+  /* Nav wordmark + hamburger: only need this on Home, where the header is
+     `.home-page .site-header--transparent` (position: fixed, no fill of its
+     own) sitting directly over the hero photo — every other page's header
+     keeps its solid navy background and never needed the overlay to begin
+     with, so this stays scoped to `.home-page` rather than touching the
+     shared header component everywhere. text-shadow doesn't render on SVG
+     strokes, so the hamburger icon (an inline <svg>, currentColor strokes)
+     needs `filter: drop-shadow(...)` instead of text-shadow. */
+  .home-page .wordmark {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 3px 12px rgba(0, 0, 0, 0.75);
+  }
+
+  .home-page .nav-toggle {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.95)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
+  }
+
+  /* Eyebrow + headline + lede + corner tag: layered text-shadow (a tight
+     near shadow for edge definition, plus a soft far glow) tuned to hold up
+     against BOTH the photo's darker upper-left and its brightest sunset-glow
+     region on the right (where the corner tag and lede currently sit) —
+     verified via measured contrast, see the commit message. The h1 and
+     corner tag already carry a text-shadow above (shared with desktop); this
+     strengthens it for mobile only, since the overlay that shadow used to
+     sit on top of no longer exists here. */
+  .hero-eyebrow {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.8);
+  }
+
+  .scene-hero h1 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 4px 40px rgba(0, 0, 0, 0.75);
+  }
+
+  .hero-lede {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 2px 12px rgba(0, 0, 0, 0.8);
+  }
+
   .hero-corner-tag {
     max-width: 9ch;
     font-size: 1.3rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 2px 14px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Outlined Instagram button: transparent background + white border/text,
+     so it's the one element that loses the most contrast without the
+     overlay. Strengthens the existing (desktop-shared) backdrop-blur +
+     dark-tint treatment scoped tightly to just this button's own box,
+     rather than darkening the surrounding photo. */
+  .scene-hero .btn-ghost {
+    background: rgba(8, 6, 10, 0.48);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
   }
 
   .hero-scroll-affordance {

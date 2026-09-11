@@ -1247,7 +1247,13 @@ button:focus-visible {
      corner tag already carry a text-shadow above (shared with desktop); this
      strengthens it for mobile only, since the overlay that shadow used to
      sit on top of no longer exists here. */
+  /* Eyebrow + lede were muted (rgba white 0.72 / var(--text-secondary) gray)
+     to sit quietly on top of the old full-image overlay — with that overlay
+     gone, the muted color reads as low-contrast gray directly against the
+     photo, so both go to the same solid white as the headline on mobile
+     only (desktop keeps its muted colors, base rules above untouched). */
   .hero-eyebrow {
+    color: var(--white);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.8);
   }
 
@@ -1256,6 +1262,7 @@ button:focus-visible {
   }
 
   .hero-lede {
+    color: var(--white);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 2px 12px rgba(0, 0, 0, 0.8);
   }
 
@@ -1280,6 +1287,14 @@ button:focus-visible {
 
   .hero-scroll-affordance {
     left: clamp(1rem, 4vw, var(--gutter));
+  }
+
+  /* Same muted-white-on-old-overlay issue as the eyebrow/lede above — goes
+     solid white on mobile, plus a shadow (it had none before, since the
+     overlay used to do this job) to hold contrast against the photo. */
+  .hero-scroll-label {
+    color: var(--white);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.8);
   }
 }
 

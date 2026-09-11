@@ -155,8 +155,28 @@
                  re-composited), sitting right above the eyebrow label.
                  The image file is cropped to trim the source PNG's own
                  excess black padding — see the CSS comment on .hero-logo
-                 for why. -->
-            <img class="hero-logo" src="assets/hero/hult-prize-logo.png" alt="Hult Prize" width="1356" height="806">
+                 for why.
+
+                 Mobile-only (<source media>, native `<picture>` matching —
+                 no CSS/JS involved, so desktop's <img src> path below is
+                 untouched at every width above the query): swaps to
+                 hult-prize-logo-mobile.png, a version of this exact same
+                 file with only its solid black backing keyed to alpha
+                 transparency (RGB set to white, alpha set to each pixel's
+                 own original luminance so the mark's anti-aliased edges are
+                 preserved unchanged) — no official transparent/reversed
+                 lockup was found from the Hult Prize Foundation to use
+                 instead (only unverified third-party aggregator reposts,
+                 not source-of-truth assets), so this derives it from the
+                 one already-approved file already in this repo. Kept as a
+                 separate asset rather than replacing hult-prize-logo.png
+                 everywhere, since desktop's hero (and any future reuse of
+                 the original file) must keep its black-backed version
+                 exactly as-is. -->
+            <picture>
+              <source media="(max-width: 640px)" srcset="assets/hero/hult-prize-logo-mobile.png">
+              <img class="hero-logo" src="assets/hero/hult-prize-logo.png" alt="Hult Prize" width="1356" height="806">
+            </picture>
             <!-- Fixed chrome, not CMS content — same eyebrow label on
                  every possible headline, so it isn't a field of its own. -->
             <p class="hero-eyebrow">Hult Prize @ UC Davis</p>

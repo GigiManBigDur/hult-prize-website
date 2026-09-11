@@ -991,7 +991,11 @@ function initEventTimelinePositions() {
   // both this and "today" below keeps both sides of every subtraction in
   // the same (local) time reference, which is what actually avoids the
   // off-by-one bug rather than any particular rounding choice.
-  const events = Array.from(items).map((el, i) => ({ el, date: parseHultEventDate(HULT_EVENTS[i].date) }));
+  const events = Array.from(items).map((el, i) => ({
+    el,
+    date: parseHultEventDate(HULT_EVENTS[i].date),
+    node: el.querySelector(".timeline-node"),
+  }));
   if (!events.length) return;
 
   const today = new Date();
@@ -1006,15 +1010,66 @@ function initEventTimelinePositions() {
     return Math.round((a.getTime() - b.getTime()) / MS_PER_DAY);
   }
 
-  const firstDate = events[0].date;
-  const lastDate = events[events.length - 1].date;
-  const totalSpanDays = dayDiff(lastDate, firstDate);
-  const todayOffsetDays = dayDiff(today, firstDate);
-  const pct =
-    totalSpanDays > 0 ? Math.max(0, Math.min(100, (todayOffsetDays / totalSpanDays) * 100)) : 0;
+  // Bug fix (root cause): this used to place the marker at a % of
+  // .timeline-track's height equal to (days since the first event) / (days
+  // spanning the first event to the last event) — i.e. a fraction of total
+  // CALENDAR TIME across the whole list. That doesn't correspond to where
+  // the rows actually render: the 8 event cards stack at roughly even
+  // PIXEL intervals regardless of how many days apart their real dates
+  // are, and this list's gaps are wildly uneven (19, 20, 26, 71, 36, 9, 45
+  // days). A `today` only 9 days into the full ~226-day range works out to
+  // ~4%, which lands almost exactly on the FIRST event's own node no
+  // matter how far into the list "today" actually is by row — the
+  // "stuck at the first event" bug. The per-event day-count labels below
+  // were never affected because they compare `today` against each event's
+  // own date individually, not against the total span.
+  //
+  // Fix: get the same "which event is next" answer the day-count/Next-Up
+  // logic below (and the Countdown widget, initCountdownWidget) already
+  // computes from getNextUpHultEvent, then place the marker at the real,
+  // measured pixel midpoint between the previous and next event's own
+  // .timeline-node dots — interpolated by the actual day-gap between just
+  // THOSE two dates, not the whole list. One shared "today vs. event date"
+  // source of truth (getNextUpHultEvent) now drives both the label text
+  // and the marker position, and the result is measured from the live DOM
+  // so it stays correct even if card heights aren't perfectly uniform.
+  // Center, not top edge, of a .timeline-node — matches how the marker's
+  // own dot is positioned (translate(-50%, -50%) around its anchor point,
+  // see .timeline-you-are-here-dot in styles.css), so a marker pinned or
+  // interpolated to a node lines up with that node's dot exactly, not
+  // offset above it by half a node-height.
+  function nodeCenterY(node) {
+    const r = node.getBoundingClientRect();
+    return r.top + r.height / 2;
+  }
 
   const marker = document.querySelector(".timeline-you-are-here");
+  const nextUp = getNextUpHultEvent(today);
   if (marker) {
+    const trackRect = track.getBoundingClientRect();
+    let markerY;
+    if (!nextUp) {
+      // Every event has already passed — pin to the last node.
+      markerY = nodeCenterY(events[events.length - 1].node);
+    } else if (nextUp.index === 0) {
+      // Today is on or before the very first event — pin to the first node.
+      markerY = nodeCenterY(events[0].node);
+    } else {
+      // Today falls between events[nextUp.index - 1] and events[nextUp.index]
+      // — interpolate by the real day-fraction between just that pair.
+      const prev = events[nextUp.index - 1];
+      const next = events[nextUp.index];
+      const gapDays = dayDiff(next.date, prev.date);
+      const intoGapDays = dayDiff(today, prev.date);
+      const gapFraction = gapDays > 0 ? Math.max(0, Math.min(1, intoGapDays / gapDays)) : 0;
+      const prevY = nodeCenterY(prev.node);
+      const nextY = nodeCenterY(next.node);
+      markerY = prevY + (nextY - prevY) * gapFraction;
+    }
+    const pct =
+      trackRect.height > 0
+        ? Math.max(0, Math.min(100, ((markerY - trackRect.top) / trackRect.height) * 100))
+        : 0;
     marker.style.top = pct + "%";
     const dateLabel = marker.querySelector(".timeline-you-are-here-date");
     if (dateLabel) {
@@ -1050,8 +1105,13 @@ function initEventTimelinePositions() {
     marker.classList.toggle("label-left", nearestCardIsRight);
   }
 
-  let nextUpAssigned = false;
-  events.forEach(({ el, date }) => {
+  // "Next Up" reuses the exact same `nextUp` result computed above for the
+  // marker (getNextUpHultEvent) instead of re-scanning for the first
+  // upcoming event a second time — one shared source of truth for "which
+  // event is next," same as the doc comment on getNextUpHultEvent already
+  // promises (previously true only for initCountdownWidget; this function
+  // had drifted into its own separate, if equivalent, scan).
+  events.forEach(({ el, date }, i) => {
     const diff = dayDiff(date, today);
     const statusEl = el.querySelector(".timeline-card-status");
 
@@ -1065,9 +1125,8 @@ function initEventTimelinePositions() {
       if (statusEl) {
         statusEl.textContent = diff === 0 ? "Today" : `${diff} day${diff === 1 ? "" : "s"} until`;
       }
-      if (!nextUpAssigned) {
+      if (nextUp && i === nextUp.index) {
         el.classList.add("is-next-up");
-        nextUpAssigned = true;
       }
     }
   });

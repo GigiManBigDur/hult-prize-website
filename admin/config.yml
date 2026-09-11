@@ -714,11 +714,10 @@ collections:
             widget: list
             summary: "{{fields.label}}"
             hint: >-
-              Leave URL blank for a link that isn't ready yet (e.g. the
-              Competitor Guide Book) — it will show as a clearly-marked
-              "Link TBD" card instead of a broken or fabricated link. Never
-              link to a third-party re-upload of an official Hult Prize
-              document.
+              Leave URL blank for a link that isn't ready yet — it will show
+              as a clearly-marked "Link TBD" card instead of a broken or
+              fabricated link. Never link to a third-party re-upload of an
+              official Hult Prize document.
             fields:
               - label: Label
                 name: label

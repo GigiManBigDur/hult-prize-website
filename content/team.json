@@ -7,14 +7,14 @@
       "photo": "/assets/leadership/me-boat.jpg"
     },
     {
-      "name": "Neven Hoesada",
-      "role": "Deputy Campus Director",
+      "name": "[Name Placeholder]",
+      "role": "VP of Operation",
       "bio": "Bio coming soon.",
-      "photo": "/assets/leadership/img_9538.jpg"
+      "photo": "/assets/leadership/member-2.jpg"
     },
     {
-      "name": "Zilin Chen",
-      "role": "Marketing Communication",
+      "name": "[Name Placeholder]",
+      "role": "VP of Marketing",
       "bio": "Bio coming soon.",
       "photo": "/assets/leadership/member-3.jpg"
     },
@@ -35,6 +35,12 @@
       "role": "Treasurer",
       "bio": "Bio coming soon.",
       "photo": "/assets/leadership/member-6.jpg"
+    },
+    {
+      "name": "New one idk",
+      "role": "G.O.A.T",
+      "bio": "bio tbd...",
+      "photo": "/assets/leadership/member-4.jpg"
     }
   ]
 }
